@@ -1,0 +1,9 @@
+{
+  "_note": "Verify thresholds and rules against the current NERC order before relying on them. NERC directives change.",
+  "bands": {"A": 20, "B": 16, "C": 12, "D": 8, "E": 4},
+  "sample_interval_minutes": 15,
+  "supply_voltage_threshold": 180,
+  "explanation_after_consecutive_days": 2,
+  "downgrade_after_consecutive_days": 7,
+  "compensation_ratio": 0.9
+}
