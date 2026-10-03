@@ -82,7 +82,7 @@ def test_tamper_flag_carries_reason_and_confidence():
     loads, readings = _honest()
     readings["M001"] = _readings("M001", loads["M001"], tamper_at={SLOTS[100], SLOTS[101]})
     tamper = next(f for f in _detect(loads, readings) if f["rule"] == "tamper_event")
-    assert tamper["confidence"] == 0.7 and "2 tamper event(s)" in tamper["reason"]
+    assert tamper["confidence"] == 0.7 and "2 tamper alarms" in tamper["reason"]
 
 
 def test_missing_meter_readings_do_not_create_imbalance():

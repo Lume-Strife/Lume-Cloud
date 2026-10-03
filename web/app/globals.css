@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+/* Porcelain insulator, cable navy, lamp amber. Status pair validated for CVD separation
+   in both modes (dataviz validate_palette.js): met/breach ΔE >= 8.7. */
+:root {
+  --paper: #eef1ee;
+  --surface: #ffffff;
+  --ink: #1b2a4a;
+  --ink-2: #44526e;
+  --muted: #5f6b80;
+  --rule: #d3d9d4;
+  --rule-strong: #aab4ad;
+  --lamp: #e8a200;
+  --lamp-ink: #7a4d00;
+  --met: #1f7a4d;
+  --breach: #c2410c;
+  --nodata: #9aa4b2;
+  --focus: #2b59c3;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0f1a2e;
+    --surface: #16233b;
+    --ink: #e7ecf3;
+    --ink-2: #b9c3d2;
+    --muted: #93a0b4;
+    --rule: #26354f;
+    --rule-strong: #3a4c6b;
+    --lamp: #f5b82e;
+    --lamp-ink: #f5c75a;
+    --met: #2fa06b;
+    --breach: #e0612e;
+    --nodata: #5f6c80;
+    --focus: #8fb0ff;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-lamp: var(--lamp);
+  --color-lamp-ink: var(--lamp-ink);
+  --color-met: var(--met);
+  --color-breach: var(--breach);
+  --color-nodata: var(--nodata);
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1;
+}
+
+/* Wide cut of Archivo for numbers that carry the story. */
+.figure {
+  font-variation-settings: "wdth" 125;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.hatch {
+  background-image: repeating-linear-gradient(135deg, var(--nodata) 0 2px, transparent 2px 5px);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

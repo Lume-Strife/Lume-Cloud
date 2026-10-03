@@ -41,7 +41,7 @@ def tamper_events(meter_id, feeder_id, readings: list[MeterReading], period) -> 
     return [
         _flag(
             "tamper_event", "meter", meter_id, feeder_id, period,
-            f"Meter reported {len(events)} tamper event(s), first at {events[0]:%Y-%m-%d %H:%M}",
+            f"Meter raised {len(events)} tamper alarm{'s' if len(events) != 1 else ''}, the first on {events[0]:%d %b at %H:%M}",
             0.6 + 0.05 * len(events),
             {"count": len(events), "first": events[0].isoformat(), "last": events[-1].isoformat()},
         )
@@ -59,7 +59,7 @@ def zero_with_supply(meter_id, feeder_id, readings: list[MeterReading], supplied
     return [
         _flag(
             "zero_with_supply", "meter", meter_id, feeder_id, period,
-            f"Meter read zero for {hours:.1f}h while the feeder was supplying power",
+            f"Meter read zero for {hours:.1f} hours while the feeder was supplying power",
             0.4 + 0.5 * min(1.0, hours / 24),
             {"zero_hours": hours, "supplied_hours": supplied_hours, "first": zero_slots[0].isoformat()},
         )
@@ -99,7 +99,7 @@ def consumption_drop(meter_id, feeder_id, readings: list[MeterReading], supplied
     return [
         _flag(
             "consumption_drop", "meter", meter_id, feeder_id, period,
-            f"Energy per supplied hour fell {drop:.0%} ({base:.2f} -> {now:.2f} kWh/h), low since {days[start_idx]}",
+            f"Use per hour of supply fell {drop:.0%}, from {base:.2f} to {now:.2f} kWh, and has stayed low since {days[start_idx]:%d %b}",
             drop * (1 - min(0.5, cv)),
             {
                 "baseline_kwh_per_hour": round(base, 3),
@@ -142,8 +142,8 @@ def feeder_imbalance(feeder_id, feeder: list[FeederReading], meters: dict[str, l
     return [
         _flag(
             "feeder_imbalance", "feeder", feeder_id, feeder_id, period,
-            f"Metered consumption is {mean(bad.values()):.0%} below feeder energy on {len(bad)} day(s) "
-            f"(expected loss {cfg['expected_loss']:.0%}); ~{unaccounted:,.0f} kWh unaccounted",
+            f"On {len(bad)} day{'s' if len(bad) != 1 else ''}, {mean(bad.values()):.0%} of the energy entering the feeder was never "
+            f"metered against an expected {cfg['expected_loss']:.0%} loss, about {unaccounted:,.0f} kWh in total",
             0.5 + 0.4 * min(1.0, excess / 0.2) * min(1.0, len(bad) / 7),
             {
                 "days_over_limit": len(bad),
