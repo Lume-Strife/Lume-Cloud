@@ -27,12 +27,12 @@ def main() -> None:
     password = os.environ.get("DEMO_PASSWORD", "demo-password")
 
     db = Path(args.db)
-    db.unlink(missing_ok=True)
     subprocess.run(
         [sys.executable, str(ROOT / "simulator" / "simulate.py"), "--out", args.data, "--drop-rate", "0.02", "--seed", args.seed],
         check=True,
     )
     store = SQLiteStore(db)
+    store.reset()
     for kind, result in load_dir(store, Path(args.data)).items():
         print(f"Loaded {kind} readings: {result.accepted}")
     start, end = default_period(store)

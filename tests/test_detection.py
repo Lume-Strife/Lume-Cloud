@@ -124,3 +124,15 @@ def test_period_dates_on_flags():
     readings["M001"] = _readings("M001", loads["M001"], tamper_at={SLOTS[5]})
     f = _detect(loads, readings)[0]
     assert (f["period_start"], f["period_end"]) == (date(2026, 9, 1).isoformat(), date(2026, 9, 21).isoformat())
+
+
+def test_reset_clears_everything_including_the_audit_log(tmp_path):
+    store = SQLiteStore(tmp_path / "p.db")
+    store.upsert_feeder("F001", "A")
+    store.audit("ops1", "x", "y")
+    other = SQLiteStore(tmp_path / "p.db")  # e.g. the API holding the file open
+    store.reset()
+    assert store.feeders() == [] and store.audit_entries() == []
+    assert other.feeders() == []
+    store.audit("ops1", "x", "y")
+    assert store.verify_audit_chain() is None

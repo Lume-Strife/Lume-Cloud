@@ -125,6 +125,17 @@ class SQLiteStore:
     def close(self) -> None:
         self.conn.close()
 
+    def reset(self) -> None:
+        """Drop every table and recreate the schema in place. Unlike deleting the file, this
+        works while another process (such as the running API) has the database open."""
+        tables = [
+            r[0] for r in self.conn.execute("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
+        ]
+        with self.conn:
+            for table in tables:
+                self.conn.execute(f'DROP TABLE "{table}"')  # also drops its triggers
+        self.conn.executescript(SCHEMA)
+
     # Registry
 
     def upsert_feeder(self, feeder_id: str, band: str) -> None:
