@@ -6,6 +6,7 @@ from src.accountability.engine import (
     daily_supply,
     daily_supply_hours,
     evaluate_feeder,
+    fill_missing_days,
     load_config,
 )
 
@@ -110,3 +111,16 @@ def test_exemption_ends_and_streak_counts_from_april():
 def test_exemption_does_not_apply_to_other_bands():
     days = {date(2026, 3, 1) + timedelta(days=i): 10 for i in range(7)}
     assert evaluate_feeder(days, "B", CFG).downgrade_triggered
+
+
+def test_day_with_no_samples_at_all_breaks_streak():
+    days = _days([17] * 7)
+    del days[date(2026, 9, 4)]
+    r = evaluate_feeder(days, "A", CFG)
+    assert r.insufficient_data_days == [date(2026, 9, 4)] and not r.downgrade_triggered
+
+
+def test_fill_missing_days_covers_requested_period():
+    filled = fill_missing_days({}, date(2026, 9, 1), date(2026, 9, 3))
+    assert sorted(filled) == [date(2026, 9, 1), date(2026, 9, 2), date(2026, 9, 3)]
+    assert all(s.coverage == 0 for s in filled.values())

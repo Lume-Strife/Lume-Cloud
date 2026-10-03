@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
@@ -27,7 +27,7 @@ class DaySupply:
         return self.observed_hours / 24
 
 
-def _slot(ts: datetime, interval_minutes: int) -> datetime:
+def slot_start(ts: datetime, interval_minutes: int) -> datetime:
     minute = (ts.hour * 60 + ts.minute) // interval_minutes * interval_minutes
     return ts.replace(hour=minute // 60, minute=minute % 60, second=0, microsecond=0)
 
@@ -42,7 +42,7 @@ def daily_supply(samples: Iterable[tuple[datetime, float]], config: dict) -> dic
     threshold = config["supply_voltage_threshold"]
     slots: dict[datetime, float] = {}
     for ts, voltage in samples:
-        slots.setdefault(_slot(ts, interval), voltage)
+        slots.setdefault(slot_start(ts, interval), voltage)
     interval_h = interval / 60
     supplied: dict[date, float] = defaultdict(float)
     observed: dict[date, float] = defaultdict(float)
@@ -51,6 +51,20 @@ def daily_supply(samples: Iterable[tuple[datetime, float]], config: dict) -> dic
         if voltage >= threshold:
             supplied[slot.date()] += interval_h
     return {d: DaySupply(hours=supplied[d], observed_hours=observed[d]) for d in observed}
+
+
+def fill_missing_days(daily: dict, start: Optional[date] = None, end: Optional[date] = None) -> dict:
+    """Add zero-coverage days for dates with no samples at all, from start (or the first day)
+    up to and including end (or the last day)."""
+    if not daily and (start is None or end is None):
+        return dict(daily)
+    d = start or min(daily)
+    last = end or max(daily)
+    filled = dict(daily)
+    while d <= last:
+        filled.setdefault(d, DaySupply(hours=0.0, observed_hours=0.0))
+        d += timedelta(days=1)
+    return filled
 
 
 def daily_supply_hours(samples: Iterable[tuple[datetime, float]], config: dict) -> dict[date, float]:
@@ -110,6 +124,7 @@ def evaluate_feeder(
     downgrade_hours: list[float] = []  # consecutive non-exempt failed days, drives the downgrade
     judged_hours: list[float] = []
 
+    daily = fill_missing_days(daily)
     for d in sorted(daily):
         supply = daily[d] if isinstance(daily[d], DaySupply) else DaySupply(hours=daily[d])
         exemption = _exemption(d, committed_band, config)

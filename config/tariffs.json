@@ -1,0 +1,13 @@
+{
+  "_note": "PLACEHOLDER RATES. Band A reflects the 2024 NERC review (~NGN 209.5/kWh); Bands B-E are frozen per-DisCo rates that differ by DisCo. Replace every value with the target DisCo's current NERC-approved tariff before any demo.",
+  "version": "placeholder-2026-10",
+  "currency": "NGN",
+  "vat_rate": "0.075",
+  "energy_rate_per_kwh": {
+    "A": "209.50",
+    "B": "63.00",
+    "C": "50.00",
+    "D": "43.00",
+    "E": "40.00"
+  }
+}
