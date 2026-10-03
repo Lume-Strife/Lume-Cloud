@@ -7,8 +7,9 @@ import argparse
 import csv
 from pathlib import Path
 
+from src.store import IngestResult, SQLiteStore
+
 from .handler import ingest
-from src.store import SQLiteStore
 
 
 def _rows(path: Path):
@@ -16,21 +17,21 @@ def _rows(path: Path):
         yield from csv.DictReader(f)
 
 
+def load_dir(store: SQLiteStore, data: Path) -> dict[str, IngestResult]:
+    for row in _rows(data / "feeders.csv"):
+        store.upsert_feeder(row["feeder_id"], row["band"])
+    for row in _rows(data / "meters.csv"):
+        store.upsert_meter(row["meter_id"], row["feeder_id"])
+    return {kind: ingest(kind, _rows(data / f"{kind}_readings.csv"), store) for kind in ("feeder", "meter")}
+
+
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("data_dir")
     p.add_argument("--db", default="data/platform.db")
     args = p.parse_args()
-    data = Path(args.data_dir)
     store = SQLiteStore(args.db)
-
-    for row in _rows(data / "feeders.csv"):
-        store.upsert_feeder(row["feeder_id"], row["band"])
-    for row in _rows(data / "meters.csv"):
-        store.upsert_meter(row["meter_id"], row["feeder_id"])
-
-    for kind in ("feeder", "meter"):
-        result = ingest(kind, _rows(data / f"{kind}_readings.csv"), store)
+    for kind, result in load_dir(store, Path(args.data_dir)).items():
         print(
             f"{kind}: accepted={result.accepted} duplicates={result.duplicates} "
             f"conflicts={result.conflicts} rejected={len(result.rejected)}"
