@@ -2,17 +2,22 @@
 
 import { useActionState } from "react";
 
-import { decideFlag } from "@/app/actions";
+import { decideCase } from "@/app/actions";
 import type { FlagStatus } from "@/lib/types";
 
 const OPTIONS: { value: Exclude<FlagStatus, "open">; label: string; hint: string }[] = [
   { value: "investigating", label: "Investigating", hint: "A field visit is planned or under way" },
   { value: "confirmed", label: "Confirmed", hint: "Theft or tampering found on site" },
-  { value: "dismissed", label: "Dismissed", hint: "Explained by something legitimate" },
+  { value: "dismissed", label: "Dismissed", hint: "Explained by something legitimate, such as an empty house" },
 ];
 
-export function DecisionForm({ flagId, current }: { flagId: number; current: FlagStatus }) {
-  const [state, action, pending] = useActionState<{ error: string | null }, FormData>(decideFlag.bind(null, flagId), { error: null });
+type Props = { subjectType: "meter" | "feeder"; subjectId: string; current: FlagStatus };
+
+export function DecisionForm({ subjectType, subjectId, current }: Props) {
+  const [state, action, pending] = useActionState<{ error: string | null }, FormData>(
+    decideCase.bind(null, subjectType, subjectId),
+    { error: null },
+  );
   return (
     <form action={action} className="flex flex-col gap-4">
       <fieldset className="flex flex-col gap-2">

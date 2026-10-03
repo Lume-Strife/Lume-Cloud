@@ -10,7 +10,7 @@ import { signOut } from "../actions";
 const NAV: Record<Role, { href: string; label: string }[]> = {
   customer: [{ href: "/customer", label: "My supply and bill" }],
   operations: [
-    { href: "/operations", label: "Feeders and flags" },
+    { href: "/operations", label: "Feeders and cases" },
     { href: "/audit", label: "Audit trail" },
   ],
   regulator: [

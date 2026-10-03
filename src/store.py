@@ -265,11 +265,11 @@ class SQLiteStore:
         row = self.conn.execute("SELECT * FROM flags WHERE flag_id = ?", (flag_id,)).fetchone()
         return {**dict(row), "evidence": json.loads(row["evidence"])} if row else None
 
-    def decide_flag(self, flag_id: int, status: str, actor: str, note: str) -> None:
+    def decide_flags(self, flag_ids: list[int], status: str, actor: str, note: str) -> None:
         with self.conn:
-            self.conn.execute(
+            self.conn.executemany(
                 "UPDATE flags SET status = ?, decided_by = ?, decided_at = ?, decision_note = ? WHERE flag_id = ?",
-                (status, actor, _now(), note, flag_id),
+                [(status, actor, _now(), note, flag_id) for flag_id in flag_ids],
             )
 
     # Users and sessions

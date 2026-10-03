@@ -24,10 +24,11 @@ def store():
     s.add_user("cust", hash_password(PASSWORD), "customer", "Customer", "M001")
     s.add_user("ops", hash_password(PASSWORD), "operations", "Ops")
     s.add_user("reg", hash_password(PASSWORD), "regulator", "Regulator")
-    s.save_flags([{
-        "rule": "tamper_event", "subject_type": "meter", "subject_id": "M002", "feeder_id": "F001",
-        "period_start": "2026-09-01", "period_end": "2026-09-04", "reason": "test", "confidence": 0.7, "evidence": {},
-    }])
+    flag = {
+        "subject_type": "meter", "subject_id": "M002", "feeder_id": "F001",
+        "period_start": "2026-09-01", "period_end": "2026-09-04", "reason": "test", "evidence": {},
+    }
+    s.save_flags([{**flag, "rule": "tamper_event", "confidence": 0.7}, {**flag, "rule": "consumption_drop", "confidence": 0.9}])
     return s
 
 
@@ -62,12 +63,12 @@ def test_logout_ends_session(client):
 @pytest.mark.parametrize(
     "user, path, status",
     [
-        ("cust", "/ops/flags", 403),
+        ("cust", "/ops/cases", 403),
         ("cust", "/regulator/compliance", 403),
         ("cust", "/audit", 403),
         ("ops", "/customer/summary", 403),
         ("ops", "/regulator/compliance", 403),
-        ("reg", "/ops/flags", 403),
+        ("reg", "/ops/cases", 403),
         ("reg", "/customer/summary", 403),
         ("ops", "/audit", 200),
         ("reg", "/audit", 200),
@@ -85,21 +86,51 @@ def test_customer_sees_only_own_meter(client):
     assert body["supply"]["band"] == "A" and body["bill"]["total"]
 
 
-def test_flag_decision_requires_note_and_is_audited(client, store):
+def test_flags_for_one_meter_form_one_case(client):
+    cases = client.get("/ops/cases", headers=_login(client, "ops")).json()
+    assert len(cases) == 1
+    case = cases[0]
+    assert case["subject_id"] == "M002" and case["status"] == "open"
+    assert case["confidence"] == 0.9 and [f["rule"] for f in case["flags"]] == ["consumption_drop", "tamper_event"]
+
+
+def test_case_detail_includes_meter_usage_and_is_audited(client, store):
+    case = client.get("/ops/cases/meter/M002", headers=_login(client, "ops")).json()
+    assert len(case["meter"]["daily"]) == 3
+    assert store.audit_entries()[0]["action"] == "meter.view"
+
+
+def test_unknown_case_is_404(client):
     h = _login(client, "ops")
-    flag_id = client.get("/ops/flags", headers=h).json()[0]["flag_id"]
-    url = f"/ops/flags/{flag_id}/decision"
+    assert client.get("/ops/cases/meter/M001", headers=h).status_code == 404
+    assert client.get("/ops/cases/pump/M002", headers=h).status_code == 422
+
+
+def test_case_decision_requires_note_covers_every_flag_and_is_audited(client, store):
+    h = _login(client, "ops")
+    url = "/ops/cases/meter/M002/decision"
     assert client.post(url, json={"status": "confirmed"}, headers=h).status_code == 422
-    resp = client.post(url, json={"status": "confirmed", "note": "Bypass found on site"}, headers=h)
-    assert resp.json()["status"] == "confirmed" and resp.json()["decided_by"] == "ops"
+    case = client.post(url, json={"status": "confirmed", "note": "Bypass found on site"}, headers=h).json()
+    assert case["status"] == "confirmed"
+    assert {f["status"] for f in case["flags"]} == {"confirmed"} and {f["decided_by"] for f in case["flags"]} == {"ops"}
     entry = store.audit_entries()[0]
-    assert entry["action"] == "flag.decide" and entry["details"]["to"] == "confirmed"
+    assert entry["action"] == "case.decide" and entry["details"]["to"] == "confirmed" and len(entry["details"]["flag_ids"]) == 2
     assert store.verify_audit_chain() is None
 
 
-def test_feeder_overview_counts_open_flags(client):
+def test_new_flag_reopens_a_decided_case(client, store):
+    h = _login(client, "ops")
+    client.post("/ops/cases/meter/M002/decision", json={"status": "dismissed", "note": "Customer away"}, headers=h)
+    store.save_flags([{
+        "rule": "zero_with_supply", "subject_type": "meter", "subject_id": "M002", "feeder_id": "F001",
+        "period_start": "2026-09-04", "period_end": "2026-09-08", "reason": "new", "confidence": 0.5, "evidence": {},
+    }])
+    assert client.get("/ops/cases?status=open", headers=h).json()[0]["subject_id"] == "M002"
+
+
+def test_feeder_overview_counts_open_cases(client):
     feeders = client.get("/ops/feeders", headers=_login(client, "ops")).json()
-    assert feeders[0]["feeder_id"] == "F001" and feeders[0]["open_flags"] == 1 and feeders[0]["meters"] == 2
+    assert feeders[0]["feeder_id"] == "F001" and feeders[0]["open_cases"] == 1 and feeders[0]["meters"] == 2
 
 
 def test_compliance_csv_export_is_audited(client, store):

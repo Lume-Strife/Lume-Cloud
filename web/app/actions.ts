@@ -39,15 +39,21 @@ export async function signOut() {
   redirect("/login");
 }
 
-export async function decideFlag(flagId: number, _prev: { error: string | null }, form: FormData): Promise<{ error: string | null }> {
+export async function decideCase(
+  subjectType: "meter" | "feeder",
+  subjectId: string,
+  _prev: { error: string | null },
+  form: FormData,
+): Promise<{ error: string | null }> {
   const status = String(form.get("status") ?? "");
   const note = String(form.get("note") ?? "");
+  const path = `/operations/cases/${subjectType}/${encodeURIComponent(subjectId)}`;
   try {
-    await apiFetch(`/ops/flags/${flagId}/decision`, { method: "POST", body: { status, note } });
+    await apiFetch(`/ops${path.slice("/operations".length)}/decision`, { method: "POST", body: { status, note } });
   } catch (e) {
     return { error: (e as Error).message };
   }
-  redirect(`/operations/flags/${flagId}?saved=1`);
+  redirect(`${path}?saved=1`);
 }
 
 export async function runDetection() {

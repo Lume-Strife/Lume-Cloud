@@ -60,7 +60,7 @@ pytest
 - **Missing data is not an outage.** A day with less than `min_day_coverage` of its samples is reported as insufficient data, is not judged, and breaks any failure streak.
 - **Estimation needs proof of supply.** A missing meter reading is estimated only if feeder data shows supply in that slot. If supply is unknown, the slot is not billed.
 - **Recommendations are never applied.** Downgrade credits and compensation flags appear on the bill for a human to act on.
-- **Flags are leads, not findings.** Confirming or dismissing one needs a note, and every decision lands in the audit log.
+- **Flags are leads, not findings.** All flags on one meter or feeder form a single case, ranked by its strongest signal. Confirming or dismissing a case needs a note, covers every flag in it, and lands in the audit log. A new flag reopens a decided case.
 - **The audit log is append-only.** Each entry hashes the previous one; `GET /audit` reports whether the chain is intact.
 
 ## Roadmap

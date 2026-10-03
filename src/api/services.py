@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from datetime import date, datetime, timedelta
+from typing import Optional
 
 from src.accountability.engine import daily_supply, evaluate_feeder, fill_missing_days, load_config
 from src.billing.engine import build_bill, load_tariff
@@ -60,7 +61,7 @@ def feeders_overview(store: SQLiteStore, start: date, end: date) -> list[dict]:
             {
                 **{k: v for k, v in c.items() if k != "days"},
                 "meters": len(store.meter_ids(fid)),
-                "open_flags": sum(1 for f in feeder_flags if f["status"] in ("open", "investigating")),
+                "open_cases": sum(1 for c in group_cases(feeder_flags) if c["status"] in ("open", "investigating")),
                 "unaccounted_kwh": max((f["evidence"]["unaccounted_kwh"] for f in imbalance), default=0.0),
             }
         )
@@ -113,3 +114,60 @@ def meter_detail(store: SQLiteStore, meter_id: str, start: date, end: date) -> d
         "daily": [{"date": d["date"], "kwh": usage.get(d["date"], 0.0), "supply_hours": d["hours"]} for d in compliance["days"]],
         "flags": [f for f in store.flags() if f["subject_id"] == meter_id],
     }
+
+
+# A case is every flag raised against one meter or feeder. Field teams visit meters, not rules,
+# so the queue and decisions work per case.
+
+STATUS_ORDER = ("open", "investigating", "confirmed", "dismissed")
+
+
+def case_status(flags: list[dict]) -> str:
+    """The least-settled status wins: one new flag reopens an already decided case."""
+    return min((f["status"] for f in flags), key=STATUS_ORDER.index)
+
+
+def group_cases(flags: list[dict]) -> list[dict]:
+    groups: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for f in flags:
+        groups[(f["subject_type"], f["subject_id"])].append(f)
+    cases = []
+    for (subject_type, subject_id), fs in groups.items():
+        fs = sorted(fs, key=lambda f: -f["confidence"])
+        cases.append(
+            {
+                "subject_type": subject_type,
+                "subject_id": subject_id,
+                "feeder_id": fs[0]["feeder_id"],
+                # Strongest single signal, not a combined score: the rules overlap (a stopped
+                # meter trips both zero-reading and usage-drop), so combining would overstate.
+                "confidence": fs[0]["confidence"],
+                "status": case_status(fs),
+                "period_start": min(f["period_start"] for f in fs),
+                "period_end": max(f["period_end"] for f in fs),
+                "flags": fs,
+            }
+        )
+    return sorted(cases, key=lambda c: (-c["confidence"], c["subject_id"]))
+
+
+def cases(store: SQLiteStore, status: Optional[str] = None, feeder_id: Optional[str] = None) -> list[dict]:
+    found = group_cases(store.flags(feeder_id=feeder_id))
+    return [c for c in found if status is None or c["status"] == status]
+
+
+def case(store: SQLiteStore, subject_type: str, subject_id: str) -> Optional[dict]:
+    flags = [f for f in store.flags() if f["subject_type"] == subject_type and f["subject_id"] == subject_id]
+    if not flags:
+        return None
+    found = group_cases(flags)[0]
+    if subject_type == "meter":
+        start, end = date.fromisoformat(found["period_start"]), date.fromisoformat(found["period_end"])
+        found["meter"] = meter_detail(store, subject_id, start, end)
+        del found["meter"]["flags"]
+    else:
+        suspects = {m for f in flags for m in f["evidence"].get("suspect_meters", [])}
+        found["suspect_cases"] = [c for c in cases(store, feeder_id=subject_id) if c["subject_id"] in suspects]
+        for c in found["suspect_cases"]:
+            del c["flags"]
+    return found

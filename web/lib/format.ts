@@ -1,4 +1,4 @@
-import type { DayStatus, FeederStatus, Flag, FlagStatus } from "./types";
+import type { Case, DayStatus, FeederStatus, Flag, FlagStatus } from "./types";
 
 const naira = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 2 });
 const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
@@ -47,3 +47,8 @@ export const DAY_STATUS_LABEL: Record<DayStatus, string> = {
   failed: "Promise missed",
   insufficient_data: "Not enough data",
 };
+
+export const caseHref = (c: Pick<Case, "subject_type" | "subject_id">) => `/operations/cases/${c.subject_type}/${c.subject_id}`;
+
+export const caseTitle = (c: Pick<Case, "subject_type" | "subject_id" | "feeder_id">) =>
+  c.subject_type === "meter" ? `Meter ${c.subject_id} on feeder ${c.feeder_id}` : `Feeder ${c.subject_id} as a whole`;

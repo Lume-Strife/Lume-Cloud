@@ -125,34 +125,40 @@ def create_app(store: SQLiteStore, ingest_api_key: Optional[str] = None) -> Fast
     def ops_feeders(user: dict = Depends(require("operations")), p: tuple = Depends(period)):
         return services.feeders_overview(store, *p)
 
-    @app.get("/ops/flags")
-    def ops_flags(
+    @app.get("/ops/cases")
+    def ops_cases(
         status: Optional[str] = None,
         feeder: Optional[str] = None,
         user: dict = Depends(require("operations")),
     ):
-        return store.flags(status=status, feeder_id=feeder)
+        return services.cases(store, status=status, feeder_id=feeder)
 
-    @app.get("/ops/flags/{flag_id}")
-    def ops_flag(flag_id: int, user: dict = Depends(require("operations"))):
-        flag = store.flag(flag_id)
-        if flag is None:
-            raise HTTPException(404, "Flag not found")
-        return flag
+    @app.get("/ops/cases/{subject_type}/{subject_id}")
+    def ops_case(subject_type: Literal["meter", "feeder"], subject_id: str, user: dict = Depends(require("operations"))):
+        found = services.case(store, subject_type, subject_id)
+        if found is None:
+            raise HTTPException(404, "No flags for this meter or feeder")
+        if subject_type == "meter":
+            store.audit(user["username"], "meter.view", f"meter:{subject_id}", {"from": found["period_start"], "to": found["period_end"]})
+        return found
 
-    @app.post("/ops/flags/{flag_id}/decision")
-    def ops_decide(flag_id: int, body: DecisionBody, user: dict = Depends(require("operations"))):
-        flag = store.flag(flag_id)
-        if flag is None:
-            raise HTTPException(404, "Flag not found")
-        if body.status in ("confirmed", "dismissed") and len(body.note.strip()) < 3:
-            raise HTTPException(422, "A note is required to confirm or dismiss a flag")
-        store.decide_flag(flag_id, body.status, user["username"], body.note.strip())
+    @app.post("/ops/cases/{subject_type}/{subject_id}/decision")
+    def ops_decide(
+        subject_type: Literal["meter", "feeder"], subject_id: str, body: DecisionBody, user: dict = Depends(require("operations"))
+    ):
+        found = services.case(store, subject_type, subject_id)
+        if found is None:
+            raise HTTPException(404, "No flags for this meter or feeder")
+        note = body.note.strip()
+        if body.status in ("confirmed", "dismissed") and len(note) < 3:
+            raise HTTPException(422, "Add a note saying what you found before confirming or dismissing")
+        flag_ids = [f["flag_id"] for f in found["flags"]]
+        store.decide_flags(flag_ids, body.status, user["username"], note)
         store.audit(
-            user["username"], "flag.decide", f"flag:{flag_id}",
-            {"from": flag["status"], "to": body.status, "note": body.note.strip(), "subject": flag["subject_id"]},
+            user["username"], "case.decide", f"{subject_type}:{subject_id}",
+            {"from": found["status"], "to": body.status, "note": note, "flag_ids": flag_ids},
         )
-        return store.flag(flag_id)
+        return services.case(store, subject_type, subject_id)
 
     @app.get("/ops/meters/{meter_id}")
     def ops_meter(meter_id: str, user: dict = Depends(require("operations")), p: tuple = Depends(period)):

@@ -9,6 +9,7 @@ const ACTION_LABEL: Record<string, string> = {
   "auth.login_failed": "Failed sign-in",
   "auth.logout": "Signed out",
   "flag.decide": "Decided a flag",
+  "case.decide": "Decided a case",
   "meter.view": "Viewed meter data",
   "report.export": "Exported compliance report",
   "detection.run": "Ran theft detection",
@@ -17,6 +18,10 @@ const ACTION_LABEL: Record<string, string> = {
 
 function detail(e: AuditEntry) {
   const d = e.details as Record<string, string | number>;
+  if (e.action === "case.decide") {
+    const subject = e.target.replace(/^(meter|feeder):/, (_, t: string) => (t === "meter" ? "Meter " : "Feeder "));
+    return `${subject}: ${d.from} → ${d.to}${d.note ? `, “${d.note}”` : ""}`;
+  }
   if (e.action === "flag.decide") return `${d.subject}: ${d.from} → ${d.to}${d.note ? `, “${d.note}”` : ""}`;
   if (e.action === "detection.run") return `${d.flags_found} flags found, ${d.flags_created} new`;
   if (e.action === "demo.seed") return "Fresh demo database";

@@ -40,7 +40,7 @@ export type Compliance = {
 
 export type FeederOverview = Omit<Compliance, "days"> & {
   meters: number;
-  open_flags: number;
+  open_cases: number;
   unaccounted_kwh: number;
 };
 
@@ -93,6 +93,23 @@ export type CustomerSummary = {
   bill: Bill;
   supply: Pick<Compliance, "band" | "committed_hours" | "average_hours" | "days_met" | "days_failed" | "days_insufficient_data" | "status">;
   daily: { date: string; kwh: number; supply_hours: number; status: DayStatus }[];
+};
+
+/** Every flag raised against one meter or feeder; decided together after a field visit. */
+export type Case = {
+  subject_type: "meter" | "feeder";
+  subject_id: string;
+  feeder_id: string;
+  confidence: number;
+  status: FlagStatus;
+  period_start: string;
+  period_end: string;
+  flags: Flag[];
+};
+
+export type CaseDetail = Case & {
+  meter?: Omit<MeterDetail, "flags">;
+  suspect_cases?: Omit<Case, "flags">[];
 };
 
 export type MeterDetail = {
