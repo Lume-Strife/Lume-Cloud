@@ -3,7 +3,20 @@
   "bands": {"A": 20, "B": 16, "C": 12, "D": 8, "E": 4},
   "sample_interval_minutes": 15,
   "supply_voltage_threshold": 180,
+  "min_day_coverage": 0.9,
   "explanation_after_consecutive_days": 2,
   "downgrade_after_consecutive_days": 7,
-  "compensation_ratio": 0.9
+  "compensation": {
+    "_note": "Feeders averaging at or above min_average_hours but below their committed hours fall under the compensation framework. Below the floor, the 7-Day Rule downgrade applies instead.",
+    "A": {"min_average_hours": 18}
+  },
+  "downgrade_exemptions": [
+    {
+      "_note": "Feb-Mar 2026: Band A feeders under 18h were not downgraded and received special compensation. Confirm exact dates against the NERC order.",
+      "band": "A",
+      "from": "2026-02-01",
+      "to": "2026-03-31",
+      "special_compensation_below_hours": 18
+    }
+  ]
 }
