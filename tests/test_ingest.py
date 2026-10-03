@@ -4,7 +4,7 @@ from datetime import datetime
 import pytest
 
 from src.ingest.handler import MAX_BATCH, handle, ingest
-from src.ingest.store import SQLiteStore
+from src.store import SQLiteStore
 from src.ingest.validate import ValidationError, validate_feeder, validate_meter
 
 NOW = datetime(2026, 10, 1)

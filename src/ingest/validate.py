@@ -10,6 +10,7 @@ from typing import Optional, Union
 WAT = timezone(timedelta(hours=1))  # West Africa Time, no DST
 ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 MAX_KWH_PER_READING = 1000.0
+MAX_FEEDER_KWH_PER_READING = 100000.0
 MAX_VOLTAGE = 500.0
 MAX_CLOCK_SKEW = timedelta(minutes=5)
 
@@ -34,6 +35,7 @@ class FeederReading:
     feeder_id: str
     timestamp: datetime  # naive, WAT
     voltage: float
+    kwh: Optional[float] = None  # energy into the feeder in this slot, if metered at the feeder head
 
 
 Reading = Union[MeterReading, FeederReading]
@@ -110,9 +112,10 @@ def validate_feeder(raw: dict, now: Optional[datetime] = None) -> FeederReading:
     feeder_id = _id(raw, "feeder_id", errors)
     ts = _timestamp(raw, now or _now_wat(), errors)
     voltage = _number(raw, "voltage", 0, MAX_VOLTAGE, errors)
+    kwh = _number(raw, "kwh", 0, MAX_FEEDER_KWH_PER_READING, errors, required=False)
     if errors:
         raise ValidationError(errors)
-    return FeederReading(feeder_id, ts, voltage)
+    return FeederReading(feeder_id, ts, voltage, kwh)
 
 
 VALIDATORS = {"meter": validate_meter, "feeder": validate_feeder}

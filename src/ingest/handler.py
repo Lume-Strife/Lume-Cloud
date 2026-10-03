@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 from typing import Iterable, Optional
 
-from .store import IngestResult, SQLiteStore
+from src.store import IngestResult, SQLiteStore
 from .validate import VALIDATORS, ValidationError
 
 MAX_BATCH = 500

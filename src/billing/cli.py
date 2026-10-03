@@ -8,7 +8,7 @@ import sys
 from datetime import date, datetime
 
 from src.accountability.engine import load_config
-from src.ingest.store import SQLiteStore
+from src.store import SQLiteStore
 
 from .engine import build_bill, load_tariff
 

@@ -8,7 +8,7 @@ import csv
 from pathlib import Path
 
 from .handler import ingest
-from .store import SQLiteStore
+from src.store import SQLiteStore
 
 
 def _rows(path: Path):

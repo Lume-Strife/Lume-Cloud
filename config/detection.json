@@ -1,0 +1,7 @@
+{
+  "_note": "Theft and anomaly detection thresholds. Flags are for human review only, never automatic action.",
+  "min_confidence": 0.3,
+  "zero_with_supply": {"min_hours": 3},
+  "consumption_drop": {"min_baseline_days": 7, "min_recent_days": 3, "min_drop": 0.5},
+  "feeder_imbalance": {"expected_loss": 0.08, "tolerance": 0.05, "min_days": 3}
+}

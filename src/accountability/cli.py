@@ -1,4 +1,4 @@
-"""Usage: python -m src.accountability.cli data/feeder_readings.csv --band A"""
+"""Usage: python -m src.accountability.cli data/feeder_readings.csv --feeder F001 --band A"""
 import argparse
 import csv
 from datetime import datetime
@@ -9,11 +9,16 @@ from .engine import daily_supply, evaluate_feeder, load_config
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("csv_path")
+    p.add_argument("--feeder", default="F001")
     p.add_argument("--band", default="A")
     args = p.parse_args()
     config = load_config()
     with open(args.csv_path, newline="") as f:
-        samples = [(datetime.fromisoformat(r["timestamp"]), float(r["voltage"])) for r in csv.DictReader(f)]
+        samples = [
+            (datetime.fromisoformat(r["timestamp"]), float(r["voltage"]))
+            for r in csv.DictReader(f)
+            if r["feeder_id"] == args.feeder
+        ]
     report = evaluate_feeder(daily_supply(samples, config), args.band, config)
     print(f"Committed: Band {report.committed_band} ({report.committed_hours}h/day)")
     for d in report.days:
