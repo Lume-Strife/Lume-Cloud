@@ -89,6 +89,13 @@ def test_feeder_time_range_is_half_open_and_ordered(store):
     assert [ts for ts, _ in store.feeder_samples("F001", T0, end)] == [T0, T0 + timedelta(minutes=15)]
 
 
+def test_empty_or_backwards_ranges_return_nothing(store):
+    store.save([_meter(0), _feeder(0)])
+    assert store.meter_readings("M001", T0, T0) == []
+    assert store.meter_readings("M001", T0 + timedelta(hours=1), T0) == []
+    assert store.feeder_readings("F001", T0 + timedelta(hours=1), T0) == []
+
+
 def test_readings_are_per_source(store):
     store.save([_meter(0, meter_id="M001"), _meter(0, meter_id="M002", kwh=0.5)])
     got = store.meter_readings("M002", T0, T0 + timedelta(hours=1))
@@ -114,6 +121,16 @@ def test_reading_range_follows_feeder_readings(store):
     assert store.reading_range() is None
     store.save([_feeder(30), _feeder(0), _feeder(15)])
     assert store.reading_range() == (T0, T0 + timedelta(minutes=30))
+
+
+def test_reading_range_widens_across_batches_and_never_shrinks(store):
+    store.save([_feeder(30), _feeder(45)])
+    store.save([_feeder(0)])  # earlier than anything stored
+    assert store.reading_range() == (T0, T0 + timedelta(minutes=45))
+    store.save([_feeder(60)])  # later than anything stored
+    assert store.reading_range() == (T0, T0 + timedelta(minutes=60))
+    store.save([_feeder(15)])  # inside the range: nothing changes
+    assert store.reading_range() == (T0, T0 + timedelta(minutes=60))
 
 
 # Flags
