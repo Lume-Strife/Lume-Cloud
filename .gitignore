@@ -9,3 +9,5 @@ data/*.db
 .env
 
 tfplan
+
+build/
