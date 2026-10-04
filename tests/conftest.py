@@ -12,9 +12,9 @@ REGION = "eu-west-1"
 TABLES = {"readings": "test-readings", "platform": "test-platform", "audit": "test-audit"}
 
 
-def create_tables(client) -> None:
+def create_tables(client, names=TABLES) -> None:
     """Mirror infra/terraform: string pk/sk everywhere, plus gsi1 on the platform table."""
-    for key, name in TABLES.items():
+    for key, name in names.items():
         attrs = [{"AttributeName": "pk", "AttributeType": "S"}, {"AttributeName": "sk", "AttributeType": "S"}]
         extra: dict = {}
         if key == "platform":

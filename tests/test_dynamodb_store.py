@@ -5,8 +5,8 @@ import time
 
 import pytest
 
-from conftest import TABLES
-from src.ingest.validate import WAT, MeterReading
+from conftest import TABLES, create_tables
+from src.ingest.validate import WAT, FeederReading, MeterReading
 from src.store_base import Store
 from src.store_dynamodb import DynamoDBStore
 
@@ -147,3 +147,56 @@ def test_session_ttl_attribute_matches_real_expiry_when_created_through_login(dd
     items = ddb_store._scan_all(ddb_store.platform)
     ttl = int(next(i for i in items if i["pk"].startswith("SESSION#"))["ttl"])
     assert abs(ttl - (time.time() + SESSION_TTL.total_seconds())) < 10
+
+
+# bulk_load: fast seeding of empty tables
+
+def _mixed_readings(n=60):
+    readings = []
+    for i in range(n):
+        ts = T0 + timedelta(minutes=15 * i)
+        readings.append(MeterReading(f"M{i % 3}", ts, 0.1 + i / 100, voltage=None if i % 2 else 229.5, tamper=i % 7 == 0))
+        readings.append(FeederReading("F001", ts, 0.0 if i % 5 == 0 else 230.0, kwh=None if i % 3 else 1.5))
+    return readings
+
+
+def _items(store):
+    rows = store._scan_all(store.readings)
+    for r in rows:
+        r.pop("received_at")  # the only field that legitimately differs between two writes
+    return sorted(rows, key=lambda r: (r["pk"], r["sk"]))
+
+
+def _second_store(resource):
+    names = {"readings": "b-readings", "platform": "b-platform", "audit": "b-audit"}
+    create_tables(resource.meta.client, names)
+    return DynamoDBStore(names["readings"], names["platform"], names["audit"], resource=resource, allow_reset=True)
+
+
+def test_bulk_load_writes_exactly_what_save_writes(ddb_store, dynamodb_resource):
+    readings, other = _mixed_readings(), _second_store(dynamodb_resource)
+    ddb_store.save(readings)
+    assert other.bulk_load(readings) == len(readings)
+    assert _items(other) == _items(ddb_store)
+    assert other.reading_range() == ddb_store.reading_range()
+
+
+def test_bulk_load_works_with_several_workers_and_reports_progress(ddb_store):
+    readings, seen = _mixed_readings(400), []
+    assert ddb_store.bulk_load(readings, workers=4, progress=seen.append) == len(readings)
+    assert seen and seen[-1] == len(readings) and seen == sorted(seen)
+    assert len(ddb_store._scan_all(ddb_store.readings)) == len(readings)
+    assert len(ddb_store.meter_readings("M0", T0, T0 + timedelta(days=30))) == 400 // 3 + (1 if 400 % 3 else 0)
+
+
+def test_bulk_load_replaces_existing_values_without_conflict_detection(ddb_store):
+    """Documented behaviour: it is for seeding empty tables, not for ingest."""
+    ddb_store.save([MeterReading("M1", T0, 0.25)])
+    ddb_store.bulk_load([MeterReading("M1", T0, 9.99)])
+    assert [r.kwh for r in ddb_store.meter_readings("M1", T0, T0 + timedelta(minutes=1))] == [9.99]
+    assert ddb_store.conflict_count() == 0
+
+
+def test_bulk_load_handles_duplicate_keys_inside_one_load(ddb_store):
+    ddb_store.bulk_load([MeterReading("M1", T0, 0.25), MeterReading("M1", T0, 0.26)])
+    assert len(ddb_store.meter_readings("M1", T0, T0 + timedelta(minutes=1))) == 1

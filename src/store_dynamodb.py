@@ -23,8 +23,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from decimal import Decimal
 from typing import Iterable, Optional
@@ -183,6 +185,75 @@ class DynamoDBStore:
 
     # Readings
 
+    @staticmethod
+    def _reading_item(r: Reading, received_at: str):
+        """How a reading is stored. The one definition, shared by save() and bulk_load().
+
+        Returns (kind, source_id, item, comparable values, conflict payload)."""
+        ts = r.timestamp.isoformat()
+        if isinstance(r, MeterReading):
+            item = {"pk": f"METER#{r.meter_id}", "sk": ts, "kwh": _dec(r.kwh), "tamper": bool(r.tamper), "received_at": received_at}
+            if r.voltage is not None:
+                item["voltage"] = _dec(r.voltage)
+            return "meter", r.meter_id, item, (r.kwh, r.voltage, bool(r.tamper)), {"kwh": r.kwh, "voltage": r.voltage, "tamper": int(r.tamper)}
+        item = {"pk": f"FEEDER#{r.feeder_id}", "sk": ts, "voltage": _dec(r.voltage), "received_at": received_at}
+        if r.kwh is not None:
+            item["kwh"] = _dec(r.kwh)
+        return "feeder", r.feeder_id, item, (r.voltage, r.kwh), {"voltage": r.voltage, "kwh": r.kwh}
+
+    def bulk_load(self, readings: Iterable[Reading], workers: int = 1, progress=None) -> int:
+        """Write many readings fast with BatchWriteItem (25 per request, several requests at once).
+
+        FOR SEEDING EMPTY TABLES ONLY. Unlike save(), it does not detect duplicates or conflicts:
+        a reading with an existing key silently replaces it. Returns the number written."""
+        received_at = _now()
+        region = self._client.meta.region_name
+        local = threading.local()
+
+        def table():  # boto3 resources are not thread-safe, so each worker thread gets its own
+            if not hasattr(local, "table"):
+                local.table = boto3.session.Session().resource("dynamodb", region_name=region).Table(self.readings.name)
+            return local.table
+
+        def write(items: list[dict]) -> int:
+            with table().batch_writer(overwrite_by_pkeys=["pk", "sk"]) as batch:
+                for item in items:
+                    batch.put_item(Item=item)
+            return len(items)
+
+        low: Optional[str] = None
+        high: Optional[str] = None
+        written, pending, chunk = 0, [], []
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+            def flush():
+                nonlocal chunk
+                if chunk:
+                    pending.append(pool.submit(write, chunk))
+                    chunk = []
+
+            def drain(limit: int):
+                nonlocal written
+                while len(pending) > limit:
+                    written += pending.pop(0).result()
+                    if progress:
+                        progress(written)
+
+            for r in readings:
+                kind, _, item, _, _ = self._reading_item(r, received_at)
+                chunk.append(item)
+                if kind == "feeder":
+                    ts = item["sk"]
+                    low = ts if low is None or ts < low else low
+                    high = ts if high is None or ts > high else high
+                if len(chunk) >= 250:
+                    flush()
+                    drain(workers * 2)  # keeps memory bounded on large files
+            flush()
+            drain(0)
+        if low is not None and high is not None:
+            self._widen_range(low, high)
+        return written
+
     def save(self, readings: Iterable[Reading], result: Optional[IngestResult] = None) -> IngestResult:
         """Insert validated readings idempotently. Safe to replay and order-independent."""
         result = result or IngestResult()
@@ -190,21 +261,8 @@ class DynamoDBStore:
         feeder_low: Optional[str] = None
         feeder_high: Optional[str] = None
         for r in readings:
-            ts = r.timestamp.isoformat()
-            if isinstance(r, MeterReading):
-                kind, source_id = "meter", r.meter_id
-                item = {"pk": f"METER#{r.meter_id}", "sk": ts, "kwh": _dec(r.kwh), "tamper": bool(r.tamper), "received_at": received_at}
-                if r.voltage is not None:
-                    item["voltage"] = _dec(r.voltage)
-                new = (r.kwh, r.voltage, bool(r.tamper))
-                payload = {"kwh": r.kwh, "voltage": r.voltage, "tamper": int(r.tamper)}
-            else:
-                kind, source_id = "feeder", r.feeder_id
-                item = {"pk": f"FEEDER#{r.feeder_id}", "sk": ts, "voltage": _dec(r.voltage), "received_at": received_at}
-                if r.kwh is not None:
-                    item["kwh"] = _dec(r.kwh)
-                new = (r.voltage, r.kwh)
-                payload = {"voltage": r.voltage, "kwh": r.kwh}
+            kind, source_id, item, new, payload = self._reading_item(r, received_at)
+            ts = item["sk"]
             try:
                 self.readings.put_item(Item=item, ConditionExpression="attribute_not_exists(pk)")
             except ClientError as err:

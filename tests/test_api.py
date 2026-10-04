@@ -14,8 +14,8 @@ PASSWORD = "test-password"
 
 
 @pytest.fixture()
-def store():
-    s = SQLiteStore()
+def store(store):  # builds on the shared fixture in conftest, so every test runs against each store
+    s = store
     s.upsert_feeder("F001", "A")
     for m in ("M001", "M002"):
         s.upsert_meter(m, "F001")
