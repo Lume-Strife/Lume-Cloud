@@ -7,3 +7,5 @@ data/*.db
 *.tfstate*
 *.tfvars
 .env
+
+tfplan
