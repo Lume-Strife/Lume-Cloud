@@ -78,7 +78,7 @@ class DynamoDBStore:
         resource=None,
         allow_reset: bool = False,
     ):
-        self._ddb = resource or boto3.resource("dynamodb", region_name=region_name)
+        self._ddb = resource or boto3.session.Session().resource("dynamodb", region_name=region_name)  # own session: not shared
         self._client = self._ddb.meta.client
         self._allow_reset = allow_reset
         self._audit_name = audit_table
