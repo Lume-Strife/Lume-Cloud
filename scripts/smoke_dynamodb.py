@@ -22,7 +22,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.ingest.validate import FeederReading, MeterReading  # noqa: E402
+from src.ingest.validate import WAT, FeederReading, MeterReading  # noqa: E402
 from src.store_dynamodb import DynamoDBStore  # noqa: E402
 
 T0 = datetime(2026, 9, 1, 10, 0)
@@ -96,12 +96,22 @@ def check_flags(s: DynamoDBStore, wait: float) -> None:
 
 
 def check_users(s: DynamoDBStore) -> None:
-    now = datetime(2026, 10, 1, 12, 0)
+    # Real clock, not fixed dates: the platform table has TTL enabled, and a session whose
+    # expiry is already far in the past is a candidate for background deletion at any moment.
+    now = datetime.now(WAT).replace(tzinfo=None, microsecond=0)
     s.add_user("smoke", "hash", "ops", "Smoke Test")
     s.add_session("smoke-ok", "smoke", now + timedelta(hours=1))
     s.add_session("smoke-old", "smoke", now - timedelta(minutes=1))
-    assert s.session_user("smoke-ok", now)["username"] == "smoke"
-    assert s.session_user("smoke-old", now) is None
+    key = {"pk": "SESSION#smoke-ok", "sk": "SESSION"}
+    raw_session = s.platform.get_item(Key=key, ConsistentRead=True).get("Item")
+    raw_user = s.platform.get_item(Key={"pk": "USER#smoke", "sk": "PROFILE"}, ConsistentRead=True).get("Item")
+    who = s.session_user("smoke-ok", now)
+    assert who, (
+        f"session_user returned None | session item stored: {bool(raw_session)} | user item stored: {bool(raw_user)} | "
+        f"stored expires_at: {raw_session.get('expires_at') if raw_session else None} | checked against now: {now.isoformat()}"
+    )
+    assert who["username"] == "smoke", who
+    assert s.session_user("smoke-old", now) is None  # expired: rejected whether or not TTL has removed it yet
     s.delete_session("smoke-ok")
     assert s.session_user("smoke-ok", now) is None
 
