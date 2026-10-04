@@ -8,6 +8,7 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 
+from src.clock import now_wat
 from src.store import SQLiteStore
 
 ROLES = ("customer", "operations", "regulator")
@@ -45,12 +46,12 @@ def login(store: SQLiteStore, username: str, password: str, now: Optional[dateti
     if not verify_password(password, user["password_hash"] if user else _DUMMY_HASH) or user is None:
         return None
     token = secrets.token_urlsafe(32)
-    store.add_session(_token_hash(token), username, (now or datetime.now()) + SESSION_TTL)
+    store.add_session(_token_hash(token), username, (now or now_wat()) + SESSION_TTL)
     return token, user
 
 
 def user_for_token(store: SQLiteStore, token: str, now: Optional[datetime] = None) -> Optional[dict]:
-    return store.session_user(_token_hash(token), now or datetime.now())
+    return store.session_user(_token_hash(token), now or now_wat())
 
 
 def logout(store: SQLiteStore, token: str) -> None:

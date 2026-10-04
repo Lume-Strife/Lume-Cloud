@@ -4,10 +4,11 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Optional, Union
 
-WAT = timezone(timedelta(hours=1))  # West Africa Time, no DST
+from src.clock import WAT, now_wat  # noqa: F401  (WAT is re-exported for callers)
+
 ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 MAX_KWH_PER_READING = 1000.0
 MAX_FEEDER_KWH_PER_READING = 100000.0
@@ -92,7 +93,7 @@ def _flag(raw: dict, key: str, errors: list[str]) -> bool:
 
 
 def _now_wat() -> datetime:
-    return datetime.now(WAT).replace(tzinfo=None)
+    return now_wat()
 
 
 def validate_meter(raw: dict, now: Optional[datetime] = None) -> MeterReading:

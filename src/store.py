@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterable, Optional, Union
 
+from src.clock import now_wat_iso
 from src.ingest.validate import FeederReading, MeterReading, Reading
 
 SCHEMA = """
@@ -97,7 +98,7 @@ GENESIS_HASH = "0" * 64
 
 
 def _now() -> str:
-    return datetime.now().isoformat(timespec="seconds")
+    return now_wat_iso()
 
 
 @dataclass

@@ -1,6 +1,8 @@
 """Behaviour specific to DynamoDBStore (the shared contract lives in test_store_contract.py)."""
 from datetime import datetime, timedelta
 
+import time
+
 import pytest
 
 from conftest import TABLES
@@ -134,3 +136,14 @@ def test_two_store_instances_share_one_intact_chain(dynamodb_resource):
         b.audit("b", f"y{i}", "t")
     assert [e["seq"] for e in a.audit_entries()] == [6, 5, 4, 3, 2, 1]
     assert a.verify_audit_chain() is None
+
+
+def test_session_ttl_attribute_matches_real_expiry_when_created_through_login(ddb_store):
+    """DynamoDB deletes sessions by this epoch value, so it must be the true expiry instant."""
+    from src.api.auth import SESSION_TTL, hash_password, login
+
+    ddb_store.add_user("ops", hash_password("pw"), "operations", "Ops")
+    login(ddb_store, "ops", "pw")
+    items = ddb_store._scan_all(ddb_store.platform)
+    ttl = int(next(i for i in items if i["pk"].startswith("SESSION#"))["ttl"])
+    assert abs(ttl - (time.time() + SESSION_TTL.total_seconds())) < 10

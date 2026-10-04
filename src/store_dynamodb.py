@@ -33,7 +33,8 @@ import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 
-from src.ingest.validate import WAT, FeederReading, MeterReading, Reading
+from src.clock import WAT, now_wat_iso
+from src.ingest.validate import FeederReading, MeterReading, Reading
 from src.store import GENESIS_HASH, IngestResult
 
 FLAG_STATUSES = ("open", "investigating", "confirmed", "dismissed")
@@ -41,8 +42,7 @@ MAX_AUDIT_RETRIES = 10
 
 
 def _now() -> str:
-    """Current time as naive WAT. Lambda runs in UTC, so datetime.now() would be an hour behind."""
-    return datetime.now(WAT).replace(tzinfo=None).isoformat(timespec="seconds")
+    return now_wat_iso()
 
 
 def _dec(value: Optional[float]) -> Optional[Decimal]:
