@@ -47,7 +47,7 @@ export type FeederOverview = Omit<Compliance, "days"> & {
 export type FlagStatus = "open" | "investigating" | "confirmed" | "dismissed";
 
 export type Flag = {
-  flag_id: number;
+  flag_id: string | number;
   rule: "tamper_event" | "zero_with_supply" | "consumption_drop" | "feeder_imbalance";
   subject_type: "meter" | "feeder";
   subject_id: string;
