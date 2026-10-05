@@ -130,8 +130,23 @@ class DynamoDBStore:
 
     # Registry
 
-    def upsert_feeder(self, feeder_id: str, band: str) -> None:
-        self.platform.put_item(Item={"pk": "REGISTRY", "sk": f"FEEDER#{feeder_id}", "feeder_id": feeder_id, "band": band})
+    def upsert_feeder(
+        self,
+        feeder_id: str,
+        band: str,
+        metadata: Optional[dict] = None,
+    ) -> None:
+        item = {
+            "pk": "REGISTRY",
+            "sk": f"FEEDER#{feeder_id}",
+            "feeder_id": feeder_id,
+            "band": band,
+        }
+
+        if metadata is not None:
+            item["metadata"] = metadata
+
+        self.platform.put_item(Item=item)
 
     def upsert_meter(self, meter_id: str, feeder_id: str) -> None:
         self.platform.put_item(Item={"pk": "REGISTRY", "sk": f"METER#{meter_id}", "meter_id": meter_id, "feeder_id": feeder_id})
@@ -149,6 +164,22 @@ class DynamoDBStore:
     def feeder_band(self, feeder_id: str) -> Optional[str]:
         item = self._get(self.platform, "REGISTRY", f"FEEDER#{feeder_id}")
         return item["band"] if item else None
+
+    def feeder_details(self, feeder_id: str) -> Optional[dict]:
+        item = self._get(
+            self.platform,
+            "REGISTRY",
+            f"FEEDER#{feeder_id}",
+        )
+
+        if not item:
+            return None
+
+        return {
+            "feeder_id": item["feeder_id"],
+            "band": item["band"],
+            **item.get("metadata", {}),
+        }
 
     def meter_feeder(self, meter_id: str) -> Optional[str]:
         item = self._get(self.platform, "REGISTRY", f"METER#{meter_id}")

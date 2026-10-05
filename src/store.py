@@ -17,6 +17,16 @@ CREATE TABLE IF NOT EXISTS feeders (
     feeder_id TEXT PRIMARY KEY,
     band TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS feeder_metadata (
+    feeder_id TEXT PRIMARY KEY REFERENCES feeders(feeder_id),
+    source_feeder_name TEXT,
+    disco TEXT,
+    state TEXT,
+    business_unit TEXT,
+    monthly_energy_cap_kwh REAL,
+    data_type TEXT NOT NULL DEFAULT 'unknown',
+    source_url TEXT
+);
 CREATE TABLE IF NOT EXISTS meters (
     meter_id TEXT PRIMARY KEY,
     feeder_id TEXT NOT NULL REFERENCES feeders(feeder_id)
@@ -139,12 +149,53 @@ class SQLiteStore:
 
     # Registry
 
-    def upsert_feeder(self, feeder_id: str, band: str) -> None:
+    def upsert_feeder(
+        self,
+        feeder_id: str,
+        band: str,
+        metadata: Optional[dict] = None,
+    ) -> None:
         with self.conn:
             self.conn.execute(
-                "INSERT INTO feeders VALUES (?, ?) ON CONFLICT(feeder_id) DO UPDATE SET band = excluded.band",
+                "INSERT INTO feeders VALUES (?, ?) "
+                "ON CONFLICT(feeder_id) DO UPDATE SET band = excluded.band",
                 (feeder_id, band),
             )
+
+            if metadata is not None:
+                self.conn.execute(
+                    """
+                    INSERT INTO feeder_metadata (
+                        feeder_id,
+                        source_feeder_name,
+                        disco,
+                        state,
+                        business_unit,
+                        monthly_energy_cap_kwh,
+                        data_type,
+                        source_url
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(feeder_id) DO UPDATE SET
+                        source_feeder_name = excluded.source_feeder_name,
+                        disco = excluded.disco,
+                        state = excluded.state,
+                        business_unit = excluded.business_unit,
+                        monthly_energy_cap_kwh = excluded.monthly_energy_cap_kwh,
+                        data_type = excluded.data_type,
+                        source_url = excluded.source_url
+                    """,
+                    (
+                        feeder_id,
+                        metadata.get("source_feeder_name"),
+                        metadata.get("disco"),
+                        metadata.get("state"),
+                        metadata.get("business_unit"),
+                        metadata.get("monthly_energy_cap_kwh"),
+                        metadata.get("data_type", "unknown"),
+                        metadata.get("source_url"),
+                    ),
+                )
 
     def upsert_meter(self, meter_id: str, feeder_id: str) -> None:
         with self.conn:
@@ -159,6 +210,29 @@ class SQLiteStore:
     def feeder_band(self, feeder_id: str) -> Optional[str]:
         row = self.conn.execute("SELECT band FROM feeders WHERE feeder_id = ?", (feeder_id,)).fetchone()
         return row[0] if row else None
+
+    def feeder_details(self, feeder_id: str) -> Optional[dict]:
+        row = self.conn.execute(
+            """
+            SELECT
+                f.feeder_id,
+                f.band,
+                m.source_feeder_name,
+                m.disco,
+                m.state,
+                m.business_unit,
+                m.monthly_energy_cap_kwh,
+                m.data_type,
+                m.source_url
+            FROM feeders f
+            LEFT JOIN feeder_metadata m
+                ON m.feeder_id = f.feeder_id
+            WHERE f.feeder_id = ?
+            """,
+            (feeder_id,),
+        ).fetchone()
+
+        return dict(row) if row else None
 
     def meter_feeder(self, meter_id: str) -> Optional[str]:
         row = self.conn.execute("SELECT feeder_id FROM meters WHERE meter_id = ?", (meter_id,)).fetchone()
