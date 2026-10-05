@@ -59,6 +59,22 @@ def _code(err: ClientError) -> str:
     return err.response["Error"]["Code"]
 
 
+FEEDER_METADATA_FIELDS = (
+    "source_feeder_name", "disco", "state", "business_unit", "monthly_energy_cap_kwh", "data_type", "source_url",
+)
+
+
+def _feeder_metadata(metadata: dict) -> dict:
+    """Only the known fields, numbers as Decimal (DynamoDB refuses floats), unset fields left out."""
+    clean = {}
+    for field in FEEDER_METADATA_FIELDS:
+        value = metadata.get(field)
+        if value is not None:
+            clean[field] = _dec(value) if field == "monthly_energy_cap_kwh" else value
+    clean.setdefault("data_type", "unknown")
+    return clean
+
+
 def _audit_hash(prev_hash: str, at: str, actor: str, action: str, target: str, details: str) -> str:
     payload = json.dumps([prev_hash, at, actor, action, target, details])
     return hashlib.sha256(payload.encode()).hexdigest()
@@ -130,8 +146,35 @@ class DynamoDBStore:
 
     # Registry
 
-    def upsert_feeder(self, feeder_id: str, band: str) -> None:
-        self.platform.put_item(Item={"pk": "REGISTRY", "sk": f"FEEDER#{feeder_id}", "feeder_id": feeder_id, "band": band})
+    def upsert_feeder(self, feeder_id: str, band: str, metadata: Optional[dict] = None) -> None:
+        """Create or update a feeder. Without metadata, any stored metadata is kept (as in SQLite).
+        With metadata, it replaces the stored metadata completely."""
+        names = {"#f": "feeder_id", "#b": "band"}
+        values = {":f": feeder_id, ":b": band}
+        expression = "SET #f = :f, #b = :b"
+        if metadata is not None:
+            names["#m"] = "metadata"
+            values[":m"] = _feeder_metadata(metadata)
+            expression += ", #m = :m"
+        self.platform.update_item(
+            Key={"pk": "REGISTRY", "sk": f"FEEDER#{feeder_id}"},
+            UpdateExpression=expression,
+            ExpressionAttributeNames=names,
+            ExpressionAttributeValues=values,
+        )
+
+    def feeder_details(self, feeder_id: str) -> Optional[dict]:
+        """The feeder, its band and its official metadata, in the same shape SQLite returns."""
+        item = self._get(self.platform, "REGISTRY", f"FEEDER#{feeder_id}")
+        if not item:
+            return None
+        stored = item.get("metadata", {})
+        details = {"feeder_id": item["feeder_id"], "band": item["band"]}
+        for field in FEEDER_METADATA_FIELDS:
+            details[field] = stored.get(field)
+        details["monthly_energy_cap_kwh"] = _float(details["monthly_energy_cap_kwh"])
+        details["data_type"] = stored.get("data_type", "unknown")
+        return details
 
     def upsert_meter(self, meter_id: str, feeder_id: str) -> None:
         self.platform.put_item(Item={"pk": "REGISTRY", "sk": f"METER#{meter_id}", "meter_id": meter_id, "feeder_id": feeder_id})

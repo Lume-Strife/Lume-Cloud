@@ -1,0 +1,22 @@
+feeder_id,source_feeder_name,disco,state,business_unit,service_band,monthly_energy_cap_kwh,cap_month,energy_reference_month,data_type,source_page,source_url
+IBEDC-KWARA-CHALLENGE-AGBA-SHOPRITE-11KV,AGBA/SHOPRITE 11KV FEEDER,IBEDC,KWARA,CHALLENGE,A,323,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-BABA-ODE-11KV,BABA ODE 11KV FEEDER,IBEDC,KWARA,CHALLENGE,D,173,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-BASIN-11KV,BASIN 11KV FEEDER,IBEDC,KWARA,CHALLENGE,B,234,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-CHALLENGE-AWOLOWO-11KV,CHALLENGE AWOLOWO 11KV FEEDER,IBEDC,KWARA,CHALLENGE,B,173,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-CHALLENGE-INDUSTRIAL-33KV,CHALLENGE INDUSTRIAL 33KV FEEDER,IBEDC,KWARA,CHALLENGE,A,187,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-DANIALU-11KV,DANIALU 11KV FEEDER,IBEDC,KWARA,CHALLENGE,D,228,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-F-DIVISION-11KV,F-DIVISION 11KV FEEDER,IBEDC,KWARA,CHALLENGE,B,136,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-GANMO-11KV,GANMO 11KV FEEDER,IBEDC,KWARA,CHALLENGE,D,179,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-GOVERNMENT-HOUSE-11KV,GOVERNMENT HOUSE 11KV FEEDER,IBEDC,KWARA,CHALLENGE,B,227,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-GRA-ILORIN-33KV,GRA (ILORIN) 33KV FEEDER,IBEDC,KWARA,CHALLENGE,A,408,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-IDOFIAN-33KV,IDOFIAN 33KV FEEDER,IBEDC,KWARA,CHALLENGE,B,221,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-IDOFIAN-33KV-IGBAJA-11KV,IDOFIAN 33KV FEEDER_IGBAJA 11KV (UNMANNED),IBEDC,KWARA,CHALLENGE,D,221,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-IDOFIAN-33KV-YARU-11KV,IDOFIAN 33KV FEEDER_YARU 11KV (UNMANNED),IBEDC,KWARA,CHALLENGE,D,221,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-IREWOLEDE-11KV,IREWOLEDE 11KV FEEDER,IBEDC,KWARA,CHALLENGE,D,265,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-KINLAKO-11KV,KINLAKO 11KV FEEDER,IBEDC,KWARA,CHALLENGE,D,187,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-MURITALA-MOHAMMED-11KV,MURITALA MOHAMMED 11KV FEEDER,IBEDC,KWARA,CHALLENGE,B,209,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-NEW-YIDI-11KV,NEW YIDI 11KV FEEDER,IBEDC,KWARA,CHALLENGE,A,265,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-SABO-OKE-11KV,SABO OKE 11KV FEEDER,IBEDC,KWARA,CHALLENGE,E,222,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-TANKE-11KV,TANKE 11KV FEEDER,IBEDC,KWARA,CHALLENGE,B,219,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-TAOHEED-11KV,TAOHEED 11KV FEEDER,IBEDC,KWARA,CHALLENGE,B,136,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf
+IBEDC-KWARA-CHALLENGE-UNILORIN-33KV,UNILORIN 33KV FEEDER,IBEDC,KWARA,CHALLENGE,A,258,2026-09,2026-08,official,2,https://nerc.gov.ng/wp-content/uploads/2026/09/IBEDC-Monthly-Energy-Cap-September-2026.pdf

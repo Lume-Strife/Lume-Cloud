@@ -242,3 +242,56 @@ def test_reset_clears_everything_and_the_store_still_works(store):
     assert store.meter_readings("M001", T0, T0 + timedelta(hours=1)) == []
     store.upsert_feeder("F001", "B")
     assert store.feeder_band("F001") == "B"
+
+
+# Feeder metadata (official NERC data). Both stores must behave identically.
+
+OFFICIAL = {
+    "source_feeder_name": "UNILORIN 33KV FEEDER", "disco": "IBEDC", "state": "KWARA", "business_unit": "CHALLENGE",
+    "monthly_energy_cap_kwh": 258.0, "data_type": "official", "source_url": "https://nerc.gov.ng/example.pdf",
+}
+EMPTY_DETAILS = {
+    "source_feeder_name": None, "disco": None, "state": None, "business_unit": None,
+    "monthly_energy_cap_kwh": None, "data_type": "unknown", "source_url": None,
+}
+
+
+def test_unknown_feeder_has_no_details(store):
+    assert store.feeder_details("nope") is None
+
+
+def test_a_feeder_without_metadata_has_the_full_shape_with_empty_fields(store):
+    store.upsert_feeder("F001", "A")
+    assert store.feeder_details("F001") == {"feeder_id": "F001", "band": "A", **EMPTY_DETAILS}
+
+
+def test_metadata_round_trips_including_decimal_numbers(store):
+    store.upsert_feeder("F001", "A", OFFICIAL)
+    assert store.feeder_details("F001") == {"feeder_id": "F001", "band": "A", **OFFICIAL}
+    store.upsert_feeder("F002", "B", {**OFFICIAL, "monthly_energy_cap_kwh": 120000.5})
+    cap = store.feeder_details("F002")["monthly_energy_cap_kwh"]
+    assert cap == 120000.5 and isinstance(cap, float)
+
+
+def test_new_metadata_replaces_the_old_completely(store):
+    store.upsert_feeder("F001", "A", OFFICIAL)
+    store.upsert_feeder("F001", "A", {"disco": "EKEDC"})
+    assert store.feeder_details("F001") == {"feeder_id": "F001", "band": "A", **EMPTY_DETAILS, "disco": "EKEDC"}
+
+
+def test_changing_only_the_band_keeps_the_metadata(store):
+    store.upsert_feeder("F001", "A", OFFICIAL)
+    store.upsert_feeder("F001", "C")
+    details = store.feeder_details("F001")
+    assert details["band"] == "C" and details["disco"] == "IBEDC" and details["monthly_energy_cap_kwh"] == 258.0
+
+
+def test_unknown_metadata_fields_are_ignored(store):
+    store.upsert_feeder("F001", "A", {**OFFICIAL, "surprise": "ignored"})
+    assert "surprise" not in store.feeder_details("F001")
+
+
+def test_metadata_does_not_change_the_plain_feeder_list(store):
+    store.upsert_feeder("F001", "A", OFFICIAL)
+    store.upsert_feeder("F002", "B")
+    assert store.feeders() == [{"feeder_id": "F001", "band": "A"}, {"feeder_id": "F002", "band": "B"}]
