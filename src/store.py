@@ -222,7 +222,7 @@ class SQLiteStore:
                 m.state,
                 m.business_unit,
                 m.monthly_energy_cap_kwh,
-                m.data_type,
+                COALESCE(m.data_type, 'unknown') AS data_type,
                 m.source_url
             FROM feeders f
             LEFT JOIN feeder_metadata m
