@@ -250,9 +250,10 @@ OFFICIAL = {
     "source_feeder_name": "UNILORIN 33KV FEEDER", "disco": "IBEDC", "state": "KWARA", "business_unit": "CHALLENGE",
     "monthly_energy_cap_kwh": 258.0, "data_type": "official", "source_url": "https://nerc.gov.ng/example.pdf",
 }
+UNLABELLED = {"feeder_telemetry_source": "unknown", "meter_telemetry_source": "unknown"}
 EMPTY_DETAILS = {
     "source_feeder_name": None, "disco": None, "state": None, "business_unit": None,
-    "monthly_energy_cap_kwh": None, "data_type": "unknown", "source_url": None,
+    "monthly_energy_cap_kwh": None, "data_type": "unknown", "source_url": None, **UNLABELLED,
 }
 
 
@@ -267,7 +268,7 @@ def test_a_feeder_without_metadata_has_the_full_shape_with_empty_fields(store):
 
 def test_metadata_round_trips_including_decimal_numbers(store):
     store.upsert_feeder("F001", "A", OFFICIAL)
-    assert store.feeder_details("F001") == {"feeder_id": "F001", "band": "A", **OFFICIAL}
+    assert store.feeder_details("F001") == {"feeder_id": "F001", "band": "A", **OFFICIAL, **UNLABELLED}
     store.upsert_feeder("F002", "B", {**OFFICIAL, "monthly_energy_cap_kwh": 120000.5})
     cap = store.feeder_details("F002")["monthly_energy_cap_kwh"]
     assert cap == 120000.5 and isinstance(cap, float)
@@ -295,3 +296,85 @@ def test_metadata_does_not_change_the_plain_feeder_list(store):
     store.upsert_feeder("F001", "A", OFFICIAL)
     store.upsert_feeder("F002", "B")
     assert store.feeders() == [{"feeder_id": "F001", "band": "A"}, {"feeder_id": "F002", "band": "B"}]
+
+
+# Telemetry source labels: where each feeder's readings come from.
+
+import pytest  # noqa: E402
+
+ALLOWED_SOURCES = ["simulated", "authorized_external", "lume_hardware", "none", "unknown"]
+
+
+def test_a_new_feeder_is_unlabelled_not_assumed_real(store):
+    store.upsert_feeder("F001", "A")
+    details = store.feeder_details("F001")
+    assert (details["feeder_telemetry_source"], details["meter_telemetry_source"]) == ("unknown", "unknown")
+
+
+@pytest.mark.parametrize("source", ALLOWED_SOURCES)
+def test_every_allowed_source_can_be_set(store, source):
+    store.upsert_feeder("F001", "A")
+    store.set_telemetry_sources("F001", source, source)
+    details = store.feeder_details("F001")
+    assert (details["feeder_telemetry_source"], details["meter_telemetry_source"]) == (source, source)
+
+
+def test_feeder_and_meter_sources_are_independent(store):
+    store.upsert_feeder("F001", "A")
+    store.set_telemetry_sources("F001", feeder_source="authorized_external", meter_source="simulated")
+    store.set_telemetry_sources("F001", meter_source="lume_hardware")  # only the meters change
+    details = store.feeder_details("F001")
+    assert (details["feeder_telemetry_source"], details["meter_telemetry_source"]) == ("authorized_external", "lume_hardware")
+
+
+def test_an_unrecognised_source_is_refused_and_changes_nothing(store):
+    store.upsert_feeder("F001", "A")
+    store.set_telemetry_sources("F001", "simulated", "simulated")
+    for bad in ("real", "SIMULATED", "", "observed"):
+        with pytest.raises(ValueError):
+            store.set_telemetry_sources("F001", feeder_source=bad)
+        with pytest.raises(ValueError):
+            store.set_telemetry_sources("F001", meter_source=bad)
+    assert store.feeder_details("F001")["feeder_telemetry_source"] == "simulated"
+
+
+def test_labelling_a_feeder_that_does_not_exist_is_an_error(store):
+    with pytest.raises(KeyError):
+        store.set_telemetry_sources("NOPE", "simulated", "simulated")
+    with pytest.raises(KeyError):
+        store.set_telemetry_sources("NOPE")
+    assert store.feeder_details("NOPE") is None and store.feeders() == []
+
+
+def test_a_call_with_nothing_to_change_changes_nothing(store):
+    store.upsert_feeder("F001", "A")
+    store.set_telemetry_sources("F001", "simulated", "none")
+    store.set_telemetry_sources("F001")
+    details = store.feeder_details("F001")
+    assert (details["feeder_telemetry_source"], details["meter_telemetry_source"]) == ("simulated", "none")
+
+
+def test_labels_survive_band_and_metadata_updates(store):
+    store.upsert_feeder("F001", "A", OFFICIAL)
+    store.set_telemetry_sources("F001", "none", "none")
+    store.upsert_feeder("F001", "C")
+    store.upsert_feeder("F001", "C", {"disco": "EKEDC"})
+    details = store.feeder_details("F001")
+    assert (details["feeder_telemetry_source"], details["meter_telemetry_source"]) == ("none", "none")
+    assert details["disco"] == "EKEDC" and details["band"] == "C"
+
+
+def test_labelling_does_not_touch_metadata_or_the_feeder_list(store):
+    store.upsert_feeder("F001", "A", OFFICIAL)
+    store.set_telemetry_sources("F001", "simulated", "simulated")
+    details = store.feeder_details("F001")
+    assert {k: details[k] for k in OFFICIAL} == OFFICIAL
+    assert store.feeders() == [{"feeder_id": "F001", "band": "A"}]
+
+
+def test_reset_forgets_labels(store):
+    store.upsert_feeder("F001", "A")
+    store.set_telemetry_sources("F001", "simulated", "simulated")
+    store.reset()
+    store.upsert_feeder("F001", "A")
+    assert store.feeder_details("F001")["feeder_telemetry_source"] == "unknown"

@@ -23,6 +23,8 @@ def feeder_compliance(store: SQLiteStore, feeder_id: str, band: str, start: date
     met = sum(1 for d in judged if d["status"] == "met")
     if r.downgrade_triggered:
         status = "downgrade"
+    elif not judged:
+        status = "no_data"  # nothing could be judged, which is unknown, never "compliant"
     elif r.compensation_flag or r.explanation_required:
         status = "at_risk"
     else:
@@ -46,14 +48,35 @@ def feeder_compliance(store: SQLiteStore, feeder_id: str, band: str, start: date
     }
 
 
-def all_compliance(store: SQLiteStore, start: date, end: date) -> list[dict]:
-    return [feeder_compliance(store, f["feeder_id"], f["band"], start, end) for f in store.feeders()]
+OFFICIAL_FIELDS = ("source_feeder_name", "disco", "state", "business_unit", "monthly_energy_cap_kwh", "data_type", "source_url")
 
 
-def feeders_overview(store: SQLiteStore, start: date, end: date) -> list[dict]:
+def _feeder_context(details: dict) -> dict:
+    """Where this feeder's information comes from, so a screen never has to guess real from simulated."""
+    official = {k: details[k] for k in OFFICIAL_FIELDS} if details["data_type"] == "official" else None
+    return {
+        "feeder_telemetry_source": details["feeder_telemetry_source"],
+        "meter_telemetry_source": details["meter_telemetry_source"],
+        "official": official,
+    }
+
+
+def all_compliance(store: SQLiteStore, start: date, end: date, include_untracked: bool = False) -> list[dict]:
+    """One row per feeder. Feeders labelled telemetry "none" (official register entries with no readings
+    expected) are left out unless asked for, and show as "no_data" when they are included."""
+    rows = []
+    for f in store.feeders():
+        details = store.feeder_details(f["feeder_id"])
+        if details["feeder_telemetry_source"] == "none" and not include_untracked:
+            continue
+        rows.append({**feeder_compliance(store, f["feeder_id"], f["band"], start, end), **_feeder_context(details)})
+    return rows
+
+
+def feeders_overview(store: SQLiteStore, start: date, end: date, include_untracked: bool = False) -> list[dict]:
     flags = store.flags()
     out = []
-    for c in all_compliance(store, start, end):
+    for c in all_compliance(store, start, end, include_untracked):
         fid = c["feeder_id"]
         feeder_flags = [f for f in flags if f["feeder_id"] == fid]
         imbalance = [f for f in feeder_flags if f["rule"] == "feeder_imbalance" and f["status"] != "dismissed"]

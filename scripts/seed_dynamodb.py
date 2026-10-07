@@ -57,6 +57,7 @@ def seed(store: DynamoDBStore, data: Path, workers: int = 8, progress=None, out=
     started = time.time()
     for row in csv.DictReader(open(data / "feeders.csv", newline="")):
         store.upsert_feeder(row["feeder_id"], row["band"])
+        store.set_telemetry_sources(row["feeder_id"], "simulated", "simulated")
     for row in csv.DictReader(open(data / "meters.csv", newline="")):
         store.upsert_meter(row["meter_id"], row["feeder_id"])
     rejected: list = []

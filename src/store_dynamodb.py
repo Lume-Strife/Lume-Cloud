@@ -37,7 +37,7 @@ from botocore.exceptions import ClientError
 
 from src.clock import WAT, now_wat_iso
 from src.ingest.validate import FeederReading, MeterReading, Reading
-from src.store import GENESIS_HASH, IngestResult
+from src.store import GENESIS_HASH, TELEMETRY_SOURCES, IngestResult
 
 FLAG_STATUSES = ("open", "investigating", "confirmed", "dismissed")
 MAX_AUDIT_RETRIES = 10
@@ -174,7 +174,36 @@ class DynamoDBStore:
             details[field] = stored.get(field)
         details["monthly_energy_cap_kwh"] = _float(details["monthly_energy_cap_kwh"])
         details["data_type"] = stored.get("data_type", "unknown")
+        details["feeder_telemetry_source"] = item.get("feeder_telemetry_source", "unknown")
+        details["meter_telemetry_source"] = item.get("meter_telemetry_source", "unknown")
         return details
+
+    def set_telemetry_sources(self, feeder_id: str, feeder_source: Optional[str] = None, meter_source: Optional[str] = None) -> None:
+        """Say where a feeder's readings and its meters' readings come from. Only the given values change."""
+        for value in (feeder_source, meter_source):
+            if value is not None and value not in TELEMETRY_SOURCES:
+                raise ValueError(f"telemetry source must be one of {TELEMETRY_SOURCES}, got {value!r}")
+        names, values, parts = {}, {}, []
+        for placeholder, attribute, value in (("#f", "feeder_telemetry_source", feeder_source), ("#m", "meter_telemetry_source", meter_source)):
+            if value is not None:
+                names[placeholder], values[f":{placeholder[1]}"] = attribute, value
+                parts.append(f"{placeholder} = :{placeholder[1]}")
+        if not parts:
+            if self.feeder_band(feeder_id) is None:
+                raise KeyError(f"unknown feeder {feeder_id!r}")
+            return
+        try:
+            self.platform.update_item(
+                Key={"pk": "REGISTRY", "sk": f"FEEDER#{feeder_id}"},
+                UpdateExpression="SET " + ", ".join(parts),
+                ConditionExpression="attribute_exists(pk)",
+                ExpressionAttributeNames=names,
+                ExpressionAttributeValues=values,
+            )
+        except ClientError as err:
+            if _code(err) == "ConditionalCheckFailedException":
+                raise KeyError(f"unknown feeder {feeder_id!r}") from err
+            raise
 
     def upsert_meter(self, meter_id: str, feeder_id: str) -> None:
         self.platform.put_item(Item={"pk": "REGISTRY", "sk": f"METER#{meter_id}", "meter_id": meter_id, "feeder_id": feeder_id})
