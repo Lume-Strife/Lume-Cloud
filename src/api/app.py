@@ -122,8 +122,8 @@ def create_app(store: SQLiteStore, ingest_api_key: Optional[str] = None) -> Fast
     # DisCo operations
 
     @app.get("/ops/feeders")
-    def ops_feeders(user: dict = Depends(require("operations")), p: tuple = Depends(period)):
-        return services.feeders_overview(store, *p)
+    def ops_feeders(include_untracked: bool = False, user: dict = Depends(require("operations")), p: tuple = Depends(period)):
+        return services.feeders_overview(store, *p, include_untracked=include_untracked)
 
     @app.get("/ops/cases")
     def ops_cases(
@@ -176,12 +176,12 @@ def create_app(store: SQLiteStore, ingest_api_key: Optional[str] = None) -> Fast
     # Regulator
 
     @app.get("/regulator/compliance")
-    def compliance(user: dict = Depends(require("regulator")), p: tuple = Depends(period)):
-        return services.all_compliance(store, *p)
+    def compliance(include_untracked: bool = False, user: dict = Depends(require("regulator")), p: tuple = Depends(period)):
+        return services.all_compliance(store, *p, include_untracked=include_untracked)
 
     @app.get("/regulator/compliance.csv")
-    def compliance_csv(user: dict = Depends(require("regulator")), p: tuple = Depends(period)):
-        rows = services.all_compliance(store, *p)
+    def compliance_csv(include_untracked: bool = False, user: dict = Depends(require("regulator")), p: tuple = Depends(period)):
+        rows = services.all_compliance(store, *p, include_untracked=include_untracked)
         buf = io.StringIO()
         cols = [
             "feeder_id", "band", "committed_hours", "average_hours", "days_met", "days_failed",
@@ -189,10 +189,12 @@ def create_app(store: SQLiteStore, ingest_api_key: Optional[str] = None) -> Fast
             "compensation_flag", "special_compensation_days",
         ]
         w = csv.writer(buf)
-        w.writerow(["# SIMULATED DATA", f"period {p[0]} to {p[1]} (end exclusive)"])
-        w.writerow(cols + ["explanation_dates"])
+        sources = sorted({r["feeder_telemetry_source"] for r in rows} | {r["meter_telemetry_source"] for r in rows})
+        banner = "# SIMULATED DATA" if sources == ["simulated"] else "# TELEMETRY SOURCES: " + " / ".join(sources or ["none"])
+        w.writerow([banner, f"period {p[0]} to {p[1]} (end exclusive)"])
+        w.writerow(cols + ["explanation_dates", "feeder_telemetry_source", "meter_telemetry_source"])
         for r in rows:
-            w.writerow([r[c] for c in cols] + [" ".join(r["explanation_dates"])])
+            w.writerow([r[c] for c in cols] + [" ".join(r["explanation_dates"]), r["feeder_telemetry_source"], r["meter_telemetry_source"]])
         store.audit(user["username"], "report.export", "compliance.csv", {"from": p[0].isoformat(), "to": p[1].isoformat()})
         filename = f"feeder-compliance-{p[0]}-{p[1]}.csv"
         return Response(buf.getvalue(), media_type="text/csv", headers={"Content-Disposition": f'attachment; filename="{filename}"'})

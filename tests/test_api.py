@@ -17,6 +17,7 @@ PASSWORD = "test-password"
 def store(store):  # builds on the shared fixture in conftest, so every test runs against each store
     s = store
     s.upsert_feeder("F001", "A")
+    s.set_telemetry_sources("F001", "simulated", "simulated")
     for m in ("M001", "M002"):
         s.upsert_meter(m, "F001")
     s.save([FeederReading("F001", t, 230.0 if t.hour >= 6 else 0.0, 2.0) for t in SLOTS])
@@ -157,3 +158,78 @@ def test_ingest_disabled_without_configured_key(store):
     client = TestClient(create_app(store))
     body = {"kind": "meter", "readings": [{"meter_id": "M001", "timestamp": "2026-09-05T00:00:00", "kwh": 0.1}]}
     assert client.post("/ingest", json=body, headers={"X-Api-Key": ""}).status_code == 503
+
+
+# Official feeders with no telemetry, and the source labels on every feeder row.
+
+UNILORIN = "IBEDC-KWARA-CHALLENGE-UNILORIN-33KV"
+OFFICIAL_META = {
+    "source_feeder_name": "UNILORIN 33KV FEEDER", "disco": "IBEDC", "state": "KWARA", "business_unit": "CHALLENGE",
+    "monthly_energy_cap_kwh": 258.0, "data_type": "official", "source_url": "https://nerc.gov.ng/example.pdf",
+}
+
+
+def _add_official(store):
+    store.upsert_feeder(UNILORIN, "A", OFFICIAL_META)
+    store.upsert_feeder("IBEDC-KWARA-CHALLENGE-BABA-ODE-11KV", "D", {**OFFICIAL_META, "source_feeder_name": "BABA ODE 11KV FEEDER"})
+    for fid in (UNILORIN, "IBEDC-KWARA-CHALLENGE-BABA-ODE-11KV"):
+        store.set_telemetry_sources(fid, "none", "none")
+
+
+def test_official_feeders_without_telemetry_are_hidden_by_default(client, store):
+    _add_official(store)
+    ops, reg = _login(client, "ops"), _login(client, "reg")
+    assert [f["feeder_id"] for f in client.get("/ops/feeders", headers=ops).json()] == ["F001"]
+    assert [f["feeder_id"] for f in client.get("/regulator/compliance", headers=reg).json()] == ["F001"]
+
+
+def test_official_feeders_without_telemetry_are_never_reported_compliant(client, store):
+    _add_official(store)
+    rows = client.get("/regulator/compliance?include_untracked=true", headers=_login(client, "reg")).json()
+    official = {r["feeder_id"]: r for r in rows if r["feeder_id"].startswith("IBEDC")}
+    assert len(official) == 2
+    for row in official.values():
+        assert row["status"] == "no_data" and row["compliance_rate"] is None
+        assert row["days_met"] == row["days_failed"] == 0 and row["days_insufficient_data"] == len(row["days"])
+        assert (row["feeder_telemetry_source"], row["meter_telemetry_source"]) == ("none", "none")
+    assert official[UNILORIN]["official"] == OFFICIAL_META and official[UNILORIN]["band"] == "A"
+    assert next(r for r in rows if r["feeder_id"] == "F001")["status"] != "no_data"
+
+
+def test_ops_overview_can_include_them_too(client, store):
+    _add_official(store)
+    rows = client.get("/ops/feeders?include_untracked=true", headers=_login(client, "ops")).json()
+    row = next(r for r in rows if r["feeder_id"] == UNILORIN)
+    assert (row["status"], row["meters"], row["open_cases"]) == ("no_data", 0, 0)
+
+
+def test_tracked_feeders_say_where_their_data_comes_from(client, store):
+    row = client.get("/regulator/compliance", headers=_login(client, "reg")).json()[0]
+    assert (row["feeder_telemetry_source"], row["meter_telemetry_source"], row["official"]) == ("simulated", "simulated", None)
+
+
+def test_a_tracked_feeder_whose_data_stops_is_no_data_not_compliant(client, store):
+    store.upsert_feeder("F002", "B")
+    store.set_telemetry_sources("F002", "authorized_external", "simulated")
+    rows = client.get("/regulator/compliance?from=2026-09-01&to=2026-09-04", headers=_login(client, "reg")).json()
+    row = next(r for r in rows if r["feeder_id"] == "F002")
+    assert row["status"] == "no_data" and row["compliance_rate"] is None  # listed, because telemetry is expected
+
+
+def test_csv_banner_is_truthful_about_sources(client, store):
+    reg = _login(client, "reg")
+    text = client.get("/regulator/compliance.csv", headers=reg).text
+    assert text.splitlines()[0].startswith("# SIMULATED DATA") and text.splitlines()[1].endswith("feeder_telemetry_source,meter_telemetry_source")
+    _add_official(store)
+    mixed = client.get("/regulator/compliance.csv?include_untracked=true", headers=reg).text
+    assert mixed.splitlines()[0].startswith("# TELEMETRY SOURCES: none / simulated,period") and UNILORIN in mixed and ",no_data," in mixed
+
+
+def test_csv_never_claims_simulated_for_unlabelled_data(client, store):
+    store.upsert_feeder("F001", "A")  # relabelling is not part of this call, so F001 stays simulated
+    store.reset()
+    store.upsert_feeder("F009", "A")
+    store.save([FeederReading("F009", t, 230.0, 2.0) for t in SLOTS])
+    store.add_user("reg", hash_password(PASSWORD), "regulator", "Regulator")
+    text = client.get("/regulator/compliance.csv", headers=_login(client, "reg")).text
+    assert text.splitlines()[0].startswith("# TELEMETRY SOURCES: unknown") and "SIMULATED" not in text.splitlines()[0]

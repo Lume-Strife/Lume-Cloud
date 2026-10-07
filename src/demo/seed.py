@@ -35,6 +35,8 @@ def main() -> None:
     store.reset()
     for kind, result in load_dir(store, Path(args.data)).items():
         print(f"Loaded {kind} readings: {result.accepted}")
+    for f in store.feeders():  # everything this seed loads is simulated, and the data says so
+        store.set_telemetry_sources(f["feeder_id"], "simulated", "simulated")
     start, end = default_period(store)
     print(f"Detection over {start}..{end}: {len(run_detection(store, start, end))} flags")
 

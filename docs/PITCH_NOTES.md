@@ -7,6 +7,8 @@
 | A database problem does not lose readings | Readings go through SQS with a dead-letter queue, and writes are idempotent. The smoke test replays readings and nothing changes |
 | Sending a reading twice cannot change what is stored | Contract tests on both stores, plus the live replay check |
 | Every decision is audited and tamper-evident | Hash-chained audit log, verified through `GET /audit`. Say "tamper-evident", never "tamper-proof" |
+| Every feeder says where its data comes from | Each feeder row carries a source label (`simulated`, `none`, and so on), and the regulator CSV banner lists the sources present |
+| Real regulator data is in the platform | 21 official NERC feeders from the September 2026 IBEDC publication, including your university's. State clearly that they have no telemetry |
 | Missing data is never treated as an outage | A day with too little data is reported as insufficient, not judged against the 7-Day Rule |
 | Detection works on the demo data | 9 of 9 injected theft cases caught, 0 false positives. Always add: simulated, scored against the simulator's own ground truth |
 | There are no always-on costs | Serverless only, with a $10 budget alert. Do not quote a monthly figure you have not measured |
@@ -17,6 +19,8 @@
 - **"Production-ready" or just "secure."** The demo logins are public, the deployer has broad permissions, there is no load test and no firewall.
 - **Any bill as real money.** The tariffs are placeholders.
 - **"NERC compliant."** The rules come from public orders and press reports. Check them against the current order first.
+- **Calling the NERC energy cap "supply hours" or "delivered energy".** It is regulatory information only.
+- **Implying the official feeders have live data.** They are register entries. Their status is "no data", on purpose.
 - **"Handles N meters."** It has not been load tested. The demo has 90.
 
 ## Likely questions, honest answers

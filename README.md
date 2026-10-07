@@ -50,6 +50,8 @@ flowchart LR
 | Theft cases | **Simulated**, injected by the simulator with ground truth |
 | Detection accuracy | On the demo data, 9 of 9 injected cases caught and 0 false positives. The same team wrote the simulator and the detector, so this shows the logic works, **not** how it would perform on real meters |
 | Band rules and the 7-Day Rule | Encoded from public NERC orders and press reports. Thresholds live in `config/bands.json`. Confirm them against the current order before relying on them |
+| Official NERC feeder register (21 Kwara and Challenge feeders, including `UNILORIN 33KV FEEDER`, Band A) | **Real**, transcribed by hand from NERC's September 2026 IBEDC energy-cap publication. These feeders have no telemetry, so they are labelled `none` and hidden from the dashboards unless `?include_untracked=true` is passed. The energy cap is regulatory information, never delivered energy |
+| Where each feeder's readings come from | Every feeder carries `simulated`, `authorized_external`, `lume_hardware`, `none` or `unknown`, and the API returns it. Unlabelled data is never treated as real |
 | Tariffs and bills | **Placeholder rates** |
 | Accounts | Demo accounts. The AWS seed generates random passwords and prints them once |
 | Customer disputes, payments, live DisCo feeds | Not built |

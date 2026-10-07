@@ -27,6 +27,11 @@ CREATE TABLE IF NOT EXISTS feeder_metadata (
     data_type TEXT NOT NULL DEFAULT 'unknown',
     source_url TEXT
 );
+CREATE TABLE IF NOT EXISTS feeder_telemetry (
+    feeder_id TEXT PRIMARY KEY REFERENCES feeders(feeder_id),
+    feeder_source TEXT NOT NULL DEFAULT 'unknown',
+    meter_source TEXT NOT NULL DEFAULT 'unknown'
+);
 CREATE TABLE IF NOT EXISTS meters (
     meter_id TEXT PRIMARY KEY,
     feeder_id TEXT NOT NULL REFERENCES feeders(feeder_id)
@@ -105,6 +110,10 @@ BEGIN SELECT RAISE(ABORT, 'audit_log is append-only'); END;
 """
 
 GENESIS_HASH = "0" * 64
+
+# Where a feeder's readings come from. "none": no telemetry is expected (official register entry only).
+# "unknown": nobody has said yet, which is never treated as real data.
+TELEMETRY_SOURCES = ("simulated", "authorized_external", "lume_hardware", "none", "unknown")
 
 
 def _now() -> str:
@@ -197,6 +206,20 @@ class SQLiteStore:
                     ),
                 )
 
+    def set_telemetry_sources(self, feeder_id: str, feeder_source: Optional[str] = None, meter_source: Optional[str] = None) -> None:
+        """Say where a feeder's readings and its meters' readings come from. Only the given values change."""
+        for value in (feeder_source, meter_source):
+            if value is not None and value not in TELEMETRY_SOURCES:
+                raise ValueError(f"telemetry source must be one of {TELEMETRY_SOURCES}, got {value!r}")
+        if self.feeder_band(feeder_id) is None:
+            raise KeyError(f"unknown feeder {feeder_id!r}")
+        with self.conn:
+            self.conn.execute("INSERT INTO feeder_telemetry (feeder_id) VALUES (?) ON CONFLICT(feeder_id) DO NOTHING", (feeder_id,))
+            if feeder_source is not None:
+                self.conn.execute("UPDATE feeder_telemetry SET feeder_source = ? WHERE feeder_id = ?", (feeder_source, feeder_id))
+            if meter_source is not None:
+                self.conn.execute("UPDATE feeder_telemetry SET meter_source = ? WHERE feeder_id = ?", (meter_source, feeder_id))
+
     def upsert_meter(self, meter_id: str, feeder_id: str) -> None:
         with self.conn:
             self.conn.execute(
@@ -223,10 +246,14 @@ class SQLiteStore:
                 m.business_unit,
                 m.monthly_energy_cap_kwh,
                 COALESCE(m.data_type, 'unknown') AS data_type,
-                m.source_url
+                m.source_url,
+                COALESCE(t.feeder_source, 'unknown') AS feeder_telemetry_source,
+                COALESCE(t.meter_source, 'unknown') AS meter_telemetry_source
             FROM feeders f
             LEFT JOIN feeder_metadata m
                 ON m.feeder_id = f.feeder_id
+            LEFT JOIN feeder_telemetry t
+                ON t.feeder_id = f.feeder_id
             WHERE f.feeder_id = ?
             """,
             (feeder_id,),

@@ -67,3 +67,10 @@ def test_wipe_needs_confirmation(ddb):
 
 def test_empty_tables_are_fine_to_seed(ddb):
     assert prepare(ddb, wipe=False, out=lambda *_: None) is True
+
+
+def test_seeded_feeders_are_labelled_simulated(ddb, sim_dir):
+    seed(ddb, sim_dir, workers=1, out=lambda *_: None)
+    for f in ddb.feeders():
+        details = ddb.feeder_details(f["feeder_id"])
+        assert (details["feeder_telemetry_source"], details["meter_telemetry_source"]) == ("simulated", "simulated")
