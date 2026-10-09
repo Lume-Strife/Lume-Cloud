@@ -30,7 +30,7 @@ export async function apiFetch<T>(path: string, opts: Options = {}): Promise<T> 
       cache: "no-store",
     });
   } catch {
-    throw new ApiError(503, `The platform API is not reachable at ${API_URL}. Start it with: uvicorn src.api.main:app`);
+    throw new ApiError(503, `The platform API is unreachable at ${API_URL}. Please verify that the API server is running and accessible.`);
   }
   if (res.status === 401 && token) redirect("/login?expired=1");
   if (!res.ok) {

@@ -55,6 +55,8 @@ function changeStart(flags: Flag[]): string | undefined {
   return dates.sort()[0];
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function CasePage({ params, searchParams }: PageProps<"/operations/cases/[type]/[id]">) {
   await requireRole("operations");
   const { type, id } = await params;
@@ -72,36 +74,39 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
   return (
     <div className="flex flex-col gap-10">
       <div>
-        <Link href="/operations#cases" className="text-sm text-ink-2 underline underline-offset-2">
-          Back to all cases
+        <Link href="/operations#cases" className="text-xs font-semibold text-slate-400 hover:text-white transition">
+          ← Back to all cases
         </Link>
-        <h1 className="mt-4 text-3xl font-semibold">{caseTitle(c)}</h1>
-        <p className="mt-1 text-lg text-ink-2">
-          {plural(c.flags.length, "signal", "signals")}, {periodLabel(c.period_start, c.period_end)}
+        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white">{caseTitle(c)}</h1>
+        <p className="mt-1 text-sm text-slate-400">
+          {plural(c.flags.length, "anomaly signal", "anomaly signals")} · {periodLabel(c.period_start, c.period_end)}
         </p>
-        <div className="mt-4 flex flex-wrap items-center gap-6">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <ConfidenceMeter value={c.confidence} />
           <FlagStatusMark status={c.status} />
+          <span className="rounded-md border border-slate-700 bg-[#0E1524] px-2.5 py-0.5 text-xs font-semibold text-slate-300">
+            Feeder: <strong className="text-white">{c.feeder_id}</strong>
+          </span>
         </div>
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr]">
-        <div className="flex flex-col gap-10">
+      <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+        <div className="flex flex-col gap-8">
           <section aria-labelledby="why-heading">
-            <h2 id="why-heading" className="text-xl font-semibold">Why this was flagged</h2>
-            <div className="mt-4 flex flex-col gap-6">
+            <h2 id="why-heading" className="text-lg font-bold text-white">Why This Lead Was Flagged</h2>
+            <div className="mt-4 flex flex-col gap-4">
               {c.flags.map((f) => (
-                <article key={f.flag_id} aria-labelledby={`flag-${f.flag_id}`}>
-                  <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-                    <h3 id={`flag-${f.flag_id}`} className="font-semibold">{RULE_LABEL[f.rule]}</h3>
+                <article key={f.flag_id} aria-labelledby={`flag-${f.flag_id}`} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md text-slate-900">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-4 border-b border-slate-100 pb-3">
+                    <h3 id={`flag-${f.flag_id}`} className="font-bold text-slate-900 text-sm">{RULE_LABEL[f.rule]}</h3>
                     <ConfidenceMeter value={f.confidence} />
                   </div>
-                  <p className="mt-1 max-w-[68ch] text-ink-2">{f.reason}.</p>
-                  <dl className="mt-3 divide-y divide-rule border-y border-rule">
+                  <p className="mt-3 text-xs leading-relaxed text-slate-600">{f.reason}.</p>
+                  <dl className="mt-3.5 divide-y divide-slate-100 border-y border-slate-100 text-xs">
                     {evidenceRows(f).map(([k, v]) => (
                       <div key={k} className="grid grid-cols-[1fr_auto] gap-4 py-2">
-                        <dt className="text-ink-2">{k}</dt>
-                        <dd className="text-right font-medium">{v}</dd>
+                        <dt className="text-slate-500">{k}</dt>
+                        <dd className="text-right font-semibold text-slate-900">{v}</dd>
                       </div>
                     ))}
                   </dl>
@@ -112,8 +117,8 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
 
           {c.meter && (
             <section aria-labelledby="usage-heading">
-              <h2 id="usage-heading" className="text-xl font-semibold">Energy this meter recorded each day</h2>
-              <div className="mt-4 rounded-lg border border-rule bg-surface p-4 pt-8 md:p-6 md:pt-8">
+              <h2 id="usage-heading" className="text-lg font-bold text-white">Energy Recorded Each Day</h2>
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-md text-slate-900">
                 <DayBars
                   days={c.meter.daily.map((d) => ({ date: d.date, value: d.kwh }))}
                   max={Math.max(...c.meter.daily.map((d) => d.kwh), 0.1) * 1.15}
@@ -124,9 +129,9 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
                   caption={`Energy recorded each day by meter ${c.subject_id}`}
                 />
               </div>
-              <h3 className="mt-6 font-semibold">Hours the feeder had power each day</h3>
-              <p className="text-sm text-ink-2">If these stay steady while recorded energy falls, the drop is not explained by outages.</p>
-              <div className="mt-3 rounded-lg border border-rule bg-surface p-4 md:p-6">
+              <h3 className="mt-6 text-sm font-bold text-white">Hours Feeder Had Power Each Day</h3>
+              <p className="text-xs text-slate-400">If these stay steady while recorded energy falls, the drop is not explained by grid outages.</p>
+              <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-md text-slate-900">
                 <DayBars
                   days={c.meter.daily.map((d) => ({ date: d.date, value: d.supply_hours }))}
                   max={24}
@@ -141,8 +146,8 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
 
           {imbalance && (
             <section aria-labelledby="loss-heading">
-              <h2 id="loss-heading" className="text-xl font-semibold">Share of feeder energy that was never metered</h2>
-              <div className="mt-4 rounded-lg border border-rule bg-surface p-4 pt-8 md:p-6 md:pt-10">
+              <h2 id="loss-heading" className="text-lg font-bold text-white">Share of Feeder Energy Never Metered</h2>
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-md text-slate-900">
                 <DayBars
                   days={dailyLoss.map(([date, v]) => ({ date, value: Math.max(0, v) }))}
                   max={Math.max(...dailyLoss.map(([, v]) => v), 0.2) * 1.15}
@@ -158,35 +163,41 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
 
           {c.suspect_cases && (
             <section aria-labelledby="suspects-heading">
-              <h2 id="suspects-heading" className="text-xl font-semibold">Meters on this feeder with their own cases</h2>
+              <h2 id="suspects-heading" className="text-lg font-bold text-white">Meters on This Feeder with Their Own Cases</h2>
               {c.suspect_cases.length === 0 ? (
-                <p className="mt-2 text-ink-2">No individual meter explains the loss yet. Look for bypasses upstream of the meters.</p>
+                <p className="mt-2 text-xs text-slate-400">No individual meter explains the loss yet. Inspect physical bypasses upstream of the meters.</p>
               ) : (
-                <ul className="mt-3 divide-y divide-rule border-y border-rule">
-                  {c.suspect_cases.map((s) => (
-                    <li key={s.subject_id}>
-                      <Link href={caseHref(s)} className="flex flex-wrap items-center justify-between gap-4 py-2.5 hover:bg-surface">
-                        <span className="font-medium underline underline-offset-2">Meter {s.subject_id}</span>
-                        <span className="flex items-center gap-6">
-                          <ConfidenceMeter value={s.confidence} />
-                          <FlagStatusMark status={s.status} />
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md">
+                  <ul className="divide-y divide-slate-100 text-xs">
+                    {c.suspect_cases.map((s) => (
+                      <li key={s.subject_id}>
+                        <Link href={caseHref(s)} className="flex flex-wrap items-center justify-between gap-4 p-4 hover:bg-slate-50 transition">
+                          <span className="font-bold text-slate-900 underline underline-offset-2">Meter {s.subject_id}</span>
+                          <span className="flex items-center gap-6">
+                            <ConfidenceMeter value={s.confidence} />
+                            <FlagStatusMark status={s.status} />
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </section>
           )}
         </div>
 
-        <aside aria-labelledby="decision-heading" className="self-start rounded-lg border border-rule bg-surface p-6">
-          <h2 id="decision-heading" className="text-xl font-semibold">Record what you found</h2>
-          <p className="mt-1 text-sm text-ink-2">One decision covers every signal in this case.</p>
-          {saved && <p role="status" className="mt-3 border-l-4 border-met pl-3 text-sm">Decision recorded in the audit trail.</p>}
+        <aside aria-labelledby="decision-heading" className="self-start rounded-2xl border border-slate-200 bg-white p-6 shadow-md text-slate-900">
+          <h2 id="decision-heading" className="text-lg font-bold text-slate-900">Record Field Findings</h2>
+          <p className="mt-1 text-xs text-slate-500">One decision covers every anomaly signal in this case.</p>
+          {saved && (
+            <div role="status" className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-2.5 text-xs text-emerald-800 font-medium">
+              Decision permanently recorded in the cryptographic audit trail.
+            </div>
+          )}
           {decided && (
-            <p className="mt-3 text-sm text-ink-2">
-              Last updated by {decided.decided_by} on {when(decided.decided_at!)}
+            <p className="mt-3 text-xs text-slate-500">
+              Last updated by <strong className="text-slate-800">{decided.decided_by}</strong> on {when(decided.decided_at!)}
               {decided.decision_note ? `: “${decided.decision_note}”` : "."}
             </p>
           )}

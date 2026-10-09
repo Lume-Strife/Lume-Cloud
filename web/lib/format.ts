@@ -1,4 +1,4 @@
-import type { Case, DayStatus, FeederStatus, Flag, FlagStatus } from "./types";
+import type { Case, DayStatus, FeederStatus, Flag, FlagStatus, TelemetrySource } from "./types";
 
 const naira = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 2 });
 const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
@@ -40,6 +40,15 @@ export const FEEDER_STATUS_LABEL: Record<FeederStatus, string> = {
   compliant: "Meeting its Band",
   at_risk: "Falling short",
   downgrade: "Downgrade due",
+  no_data: "Untracked / No data",
+};
+
+export const TELEMETRY_SOURCE_LABEL: Record<TelemetrySource, string> = {
+  simulated: "Simulated data",
+  authorized_external: "Authorized external",
+  lume_hardware: "Lume hardware verified",
+  none: "NERC register only (no telemetry)",
+  unknown: "Unverified",
 };
 
 export const DAY_STATUS_LABEL: Record<DayStatus, string> = {

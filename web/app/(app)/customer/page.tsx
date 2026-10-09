@@ -1,16 +1,20 @@
 import { DayBars } from "@/components/DayBars";
 import { FeederStatusMark } from "@/components/StatusMark";
+import { CustomerDisputeModal } from "@/components/CustomerDisputeModal";
+import { TelemetrySourceBadge } from "@/components/TelemetrySourceBadge";
 import { apiFetch } from "@/lib/api";
 import { kwh, money, periodLabel, plural } from "@/lib/format";
 import { requireRole } from "@/lib/session";
 import type { CustomerSummary } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 function supplyExplanation(s: CustomerSummary["supply"]) {
   if (s.status === "downgrade")
-    return `Your feeder missed its Band ${s.band} promise 7 days in a row. Under the NERC 7-Day Rule it should be moved to the band it actually delivered, and you should pay that band's lower tariff.`;
+    return `Your feeder missed its Band ${s.band} commitment 7 consecutive days. Under the statutory NERC 7-Day Rule, your feeder is due to be downgraded to its delivered supply band, and you are eligible for a tariff refund/credit.`;
   if (s.status === "at_risk")
-    return `Your feeder fell short of the ${s.committed_hours} hours a day Band ${s.band} promises on ${s.days_failed} days.`;
-  return `Your feeder kept its Band ${s.band} promise.`;
+    return `Your feeder delivered an average of ${s.average_hours.toFixed(1)}h/day, falling short of the ${s.committed_hours} hours promised by Band ${s.band} on ${s.days_failed} days.`;
+  return `Your feeder kept its Band ${s.band} commitment, averaging ${s.average_hours.toFixed(1)} hours of supply per day.`;
 }
 
 export default async function CustomerPage() {
@@ -22,127 +26,273 @@ export default async function CustomerPage() {
   const others = bill.recommendations.filter((r) => r.type !== "downgrade_credit");
   const q = bill.data_quality;
 
+  const fulfillmentRate = Math.min(100, Math.round((supply.average_hours / supply.committed_hours) * 100));
+
   return (
-    <div className="flex flex-col gap-14">
-      <section aria-labelledby="supply-heading">
-        <h1 id="supply-heading" className="text-lg font-semibold text-ink-2">
-          Power at meter {data.meter_id}, {period}
-        </h1>
-        <div className="mt-6 flex flex-wrap items-end gap-x-14 gap-y-6">
-          <div>
-            <p className="figure text-6xl md:text-8xl">{supply.average_hours.toFixed(1)}</p>
-            <p className="mt-2 text-ink-2">hours a day delivered, on average</p>
+    <div className="flex flex-col gap-10">
+      {/* Top Header & Context */}
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#1E293B] pb-5">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-[#131C2E] border border-slate-700 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
+              Customer Portal
+            </span>
+            <TelemetrySourceBadge source="simulated" labelPrefix="Demo" />
           </div>
-          <div>
-            <p className="figure text-6xl text-muted md:text-8xl">{supply.committed_hours}</p>
-            <p className="mt-2 text-ink-2">hours a day promised by Band {supply.band}</p>
-          </div>
-        </div>
-        <div className="mt-8 flex flex-col gap-2 md:max-w-[68ch]">
-          <FeederStatusMark status={supply.status} />
-          <p className="text-ink-2">{supplyExplanation(supply)}</p>
-        </div>
-        <div className="mt-8 rounded-lg border border-rule bg-surface p-4 md:p-6">
-          <p className="mb-6 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-2">
-            <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-sm bg-met" />Promise kept, {plural(supply.days_met, "day", "days")}</span>
-            <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-sm bg-breach" />Promise missed, {plural(supply.days_failed, "day", "days")}</span>
-            {supply.days_insufficient_data > 0 && (
-              <span className="inline-flex items-center gap-2"><span className="hatch h-3 w-3 rounded-sm" />Not enough data, {plural(supply.days_insufficient_data, "day", "days")}</span>
-            )}
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
+            Meter {data.meter_id}
+          </h1>
+          <p className="mt-1 text-xs text-slate-400">
+            Assigned to Feeder <strong className="font-semibold text-slate-200">{bill.feeder_id}</strong> (Band {supply.band} · {supply.committed_hours}h/day commitment) · Billing Cycle: {period}
           </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <CustomerDisputeModal data={data} periodText={period} />
+        </div>
+      </div>
+
+      {/* Hero Section: Supply Delivered vs Band Commitment */}
+      <section aria-labelledby="supply-heading" className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 id="supply-heading" className="text-xl font-bold tracking-tight text-slate-900">
+              Supply Received vs Band {supply.band} Guarantee
+            </h2>
+            <p className="mt-1 text-xs text-slate-500 max-w-[65ch]">
+              Continuous voltage telemetry audited to confirm whether your DisCo delivered the daily power hours your tariff pays for.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <FeederStatusMark status={supply.status} />
+          </div>
+        </div>
+
+        {/* Big Numbers & Compliance Progress */}
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Delivered Daily Average</span>
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className="figure text-5xl font-bold text-slate-900">{supply.average_hours.toFixed(1)}</span>
+              <span className="text-sm font-semibold text-slate-500">hours / day</span>
+            </div>
+            <span className="mt-1 block text-[11px] text-slate-400">Audited from 15-min voltage readings (&gt;180V)</span>
+          </div>
+
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Band {supply.band} Guaranteed Minimum</span>
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className="figure text-5xl font-bold text-slate-400">{supply.committed_hours}</span>
+              <span className="text-sm font-semibold text-slate-400">hours / day</span>
+            </div>
+            <span className="mt-1 block text-[11px] text-slate-400">Statutory minimum per NERC tariff band</span>
+          </div>
+
+          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Commitment Fulfillment</span>
+            <div className="mt-2 flex items-baseline gap-2">
+              <span className={`figure text-5xl font-bold ${fulfillmentRate >= 100 ? "text-emerald-600" : fulfillmentRate >= 75 ? "text-amber-600" : "text-rose-600"}`}>
+                {fulfillmentRate}%
+              </span>
+            </div>
+            <span className="mt-1 block text-[11px] text-slate-400">
+              {supply.days_met} of {supply.days_met + supply.days_failed} days achieved commitment
+            </span>
+          </div>
+        </div>
+
+        {/* Status Callout Banner */}
+        <div className={`mt-5 rounded-xl border p-4 text-xs ${
+          supply.status === "downgrade"
+            ? "border-rose-200 bg-rose-50 text-rose-800"
+            : supply.status === "at_risk"
+            ? "border-amber-200 bg-amber-50 text-amber-800"
+            : "border-emerald-200 bg-emerald-50 text-emerald-800"
+        }`}>
+          <div className="flex items-start gap-2.5">
+            <span className="font-bold text-sm">
+              {supply.status === "downgrade" ? "⚠️" : supply.status === "at_risk" ? "ℹ️" : "✓"}
+            </span>
+            <div>
+              <p className="font-semibold text-sm">{supplyExplanation(supply)}</p>
+              {supply.status === "downgrade" && (
+                <p className="mt-0.5 text-xs opacity-90">
+                  See the credit recommendation in the billing section below for your refund calculation.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Daily Supply Hours Chart */}
+        <div className="mt-7 border-t border-slate-100 pt-5">
+          <div className="mb-3.5 flex flex-wrap items-center justify-between gap-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-700">Daily Feeder Supply Hours Profile</h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-xs bg-emerald-500" /> Kept ({plural(supply.days_met, "day", "days")})
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-xs bg-rose-500" /> Missed ({plural(supply.days_failed, "day", "days")})
+              </span>
+              {supply.days_insufficient_data > 0 && (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="hatch h-2 w-2 rounded-xs" /> Gap ({plural(supply.days_insufficient_data, "day", "days")})
+                </span>
+              )}
+            </div>
+          </div>
+
           <DayBars
             days={daily.map((d) => ({ date: d.date, value: d.supply_hours, status: d.status }))}
             max={24}
             unit="Hours of supply"
             kind="hours"
-            reference={{ value: supply.committed_hours, label: `Band ${supply.band} promise: ${supply.committed_hours}h` }}
-            caption={`Hours of supply each day, ${period}`}
+            reference={{ value: supply.committed_hours, label: `Band ${supply.band}: ${supply.committed_hours}h` }}
+            caption={`Hours of supply each day on feeder ${bill.feeder_id}, ${period}`}
           />
-
         </div>
       </section>
 
-      <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
-        <section aria-labelledby="bill-heading">
-          <h2 id="bill-heading" className="text-2xl font-semibold">Your bill for {period}</h2>
-          <table className="mt-4 w-full text-left">
+      {/* Bill & Recommendations Grid */}
+      <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+        {/* Bill Breakdown */}
+        <section aria-labelledby="bill-heading" className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs">
+          <div className="flex items-baseline justify-between border-b border-slate-100 pb-3">
+            <h2 id="bill-heading" className="text-xl font-bold tracking-tight text-slate-900">
+              Itemized Electricity Bill
+            </h2>
+            <span className="text-xs text-slate-400">Tariff Ref: {bill.tariff_version}</span>
+          </div>
+
+          <table className="mt-3.5 w-full text-left">
             <thead>
-              <tr className="border-b border-rule-strong text-sm text-muted">
-                <th className="py-2 pr-3 font-medium">Charge</th>
-                <th className="py-2 pr-3 text-right font-medium">Energy</th>
-                <th className="hidden py-2 pr-3 text-right font-medium sm:table-cell">Rate</th>
-                <th className="py-2 text-right font-medium">Amount</th>
+              <tr className="border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                <th className="py-2.5 pr-3">Billing Component</th>
+                <th className="py-2.5 pr-3 text-right">Energy</th>
+                <th className="hidden py-2.5 pr-3 text-right sm:table-cell">Rate</th>
+                <th className="py-2.5 text-right">Amount</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-xs">
               {bill.lines.map((l) => (
-                <tr key={l.description} className="border-b border-rule align-top">
+                <tr key={l.description} className="align-top">
                   <td className="py-3 pr-3">
-                    {l.estimated ? "Estimated energy" : "Metered energy"}
-                    {l.estimated && <span className="block text-sm text-muted">for readings that didn&apos;t arrive while your feeder had power</span>}
+                    <span className="font-semibold text-slate-900">{l.estimated ? "Estimated Supply-Backed Energy" : "Metered Active Energy"}</span>
+                    {l.estimated ? (
+                      <span className="block text-[11px] text-slate-500 mt-0.5">
+                        Applied only when feeder telemetry proved voltage was live during meter offline interval.
+                      </span>
+                    ) : (
+                      <span className="block text-[11px] text-slate-500 mt-0.5">
+                        Direct reading recorded by physical meter.
+                      </span>
+                    )}
                   </td>
-                  <td className="whitespace-nowrap py-3 pr-3 text-right">{kwh(l.kwh)}</td>
-                  <td className="hidden whitespace-nowrap py-3 pr-3 text-right sm:table-cell">{money(l.rate)}/kWh</td>
-                  <td className="whitespace-nowrap py-3 text-right">{money(l.amount)}</td>
+                  <td className="whitespace-nowrap py-3 pr-3 text-right font-medium text-slate-900">{kwh(l.kwh)}</td>
+                  <td className="hidden whitespace-nowrap py-3 pr-3 text-right text-slate-500 sm:table-cell">{money(l.rate)}/kWh</td>
+                  <td className="whitespace-nowrap py-3 text-right font-bold text-slate-900">{money(l.amount)}</td>
                 </tr>
               ))}
-              <tr className="border-b border-rule">
-                <td className="py-3" colSpan={2}>VAT</td>
+              <tr>
+                <td className="py-3 pr-3 text-slate-600" colSpan={2}>Value Added Tax (VAT 7.5%)</td>
                 <td className="hidden sm:table-cell" />
-                <td className="py-3 text-right">{money(bill.vat)}</td>
+                <td className="whitespace-nowrap py-3 text-right font-medium text-slate-700">{money(bill.vat)}</td>
               </tr>
             </tbody>
             <tfoot>
-              <tr>
-                <td className="pt-4 text-lg font-semibold" colSpan={2}>Total</td>
+              <tr className="border-t-2 border-slate-900">
+                <td className="pt-3.5 text-base font-bold text-slate-900" colSpan={2}>Total Payable</td>
                 <td className="hidden sm:table-cell" />
-                <td className="figure whitespace-nowrap pt-4 text-right text-2xl sm:text-3xl">{money(bill.total)}</td>
+                <td className="figure whitespace-nowrap pt-3.5 text-right text-2xl font-bold text-slate-900">{money(bill.total)}</td>
               </tr>
             </tfoot>
           </table>
-          <p className="mt-6 text-sm text-ink-2">
-            {q.metered_slots.toLocaleString()} of {plural(q.expected_slots, "meter reading", "meter readings")} arrived.
-            {q.estimated_slots > 0 &&
-              ` ${q.estimated_slots} ${q.estimated_slots === 1 ? "was" : "were"} estimated because your feeder had power at the time.`}
-            {q.unbilled_unknown_slots > 0 &&
-              ` ${q.unbilled_unknown_slots} ${q.unbilled_unknown_slots === 1 ? "was" : "were"} not billed because nobody can confirm you had power then.`}
-          </p>
+
+          {/* Supply-Backed Estimation Transparency */}
+          <div className="mt-5 rounded-xl bg-slate-50/70 p-3.5 text-xs text-slate-600 border border-slate-100">
+            <p className="font-semibold text-slate-800">Proof-of-Supply Billing Guarantee:</p>
+            <p className="mt-0.5 text-[11px] leading-relaxed">
+              Of {plural(q.expected_slots, "expected telemetry interval", "expected telemetry intervals")}, {q.metered_slots.toLocaleString()} arrived from your meter.
+              {q.estimated_slots > 0 &&
+                ` Exactly ${q.estimated_slots} missing intervals were estimated because feeder logs proved power was present.`}
+              {q.unbilled_unknown_slots > 0 &&
+                ` Importantly, ${q.unbilled_unknown_slots} intervals were waived (0 NGN charged) because supply could not be verified by feeder data.`}
+            </p>
+          </div>
         </section>
 
-        <section aria-labelledby="owed-heading" className="rounded-lg border border-rule bg-surface p-6 self-start">
-          <h2 id="owed-heading" className="text-2xl font-semibold">What you may be owed</h2>
+        {/* What You May Be Owed: Downgrade Credit & Compensation */}
+        <section aria-labelledby="owed-heading" className="self-start rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 id="owed-heading" className="text-xl font-bold tracking-tight text-slate-900">
+              Regulatory Entitlements
+            </h2>
+            <p className="mt-0.5 text-xs text-slate-400">NERC 7-Day Rule and Compensation Framework</p>
+          </div>
+
           {credit ? (
-            <>
-              <p className="figure mt-5 text-4xl text-met sm:text-5xl">{money(credit.amount!)}</p>
-              <p className="mt-3 text-ink-2">
-                Credit if the 7-Day Rule downgrade is applied to energy you used after your feeder was due to move band.
+            <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/80 p-4">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Recommended Downgrade Refund</span>
+              <p className="figure mt-1.5 text-3xl font-bold text-emerald-600 sm:text-4xl">{money(credit.amount!)}</p>
+              <p className="mt-2 text-xs leading-relaxed text-emerald-900">
+                Calculated tariff differential credit. Because your feeder breached its Band {supply.band} commitment for 7 consecutive days, consumption following the breach must be rebilled at the lower band tariff.
               </p>
-            </>
+            </div>
           ) : (
-            <p className="mt-4 text-ink-2">Nothing this period. Your feeder did not trigger a downgrade.</p>
+            <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50/70 p-4 text-xs text-slate-600">
+              <p className="font-semibold text-slate-800">No Downgrade Penalty Triggered</p>
+              <p className="mt-0.5 text-slate-400">
+                Your feeder has not incurred 7 consecutive days below commitment during this cycle.
+              </p>
+            </div>
           )}
-          {others.map((r) => (
-            <p key={r.type} className="mt-4 border-t border-rule pt-4 text-ink-2">
-              {r.type === "compensation_review"
-                ? "Your feeder's average was below its Band promise, so you may also qualify under the NERC compensation framework."
-                : r.description}
-            </p>
-          ))}
-          <p className="mt-6 text-sm text-muted">These are recommendations. They are not yet applied to your bill and need your DisCo to review them.</p>
+
+          {others.length > 0 && (
+            <div className="mt-3.5 flex flex-col gap-2.5">
+              {others.map((r) => (
+                <div key={r.type} className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 text-xs text-slate-600">
+                  <p className="font-semibold text-slate-800">
+                    {r.type === "compensation_review" ? "NERC Compensation Review" : r.type}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-slate-500">
+                    {r.type === "compensation_review"
+                      ? "Because monthly average hours fell below Band standard, you qualify for DisCo customer service credits under NERC framework guidelines."
+                      : r.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <p className="mt-5 text-[11px] leading-relaxed text-slate-400">
+            All credit amounts represent algorithmic recommendations derived from verified telemetry and require formal review before automatic ledger crediting.
+          </p>
         </section>
       </div>
 
-      <section aria-labelledby="usage-heading">
-        <h2 id="usage-heading" className="text-2xl font-semibold">Energy you used each day</h2>
-        <p className="mt-1 text-ink-2">Days with fewer hours of supply usually show lower use.</p>
-        <div className="mt-6 rounded-lg border border-rule bg-surface p-4 md:p-6">
+      {/* Customer Daily Consumption Profile */}
+      <section aria-labelledby="usage-heading" className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs">
+        <div className="flex flex-wrap items-baseline justify-between gap-4">
+          <div>
+            <h2 id="usage-heading" className="text-xl font-bold tracking-tight text-slate-900">
+              Daily Consumption Pattern
+            </h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              Cross-reference your energy usage (kWh) against feeder availability to detect unexpected surges or metering anomalies.
+            </p>
+          </div>
+          <span className="text-xs font-semibold text-slate-600">Total Energy: {kwh(daily.reduce((sum, d) => sum + d.kwh, 0))}</span>
+        </div>
+
+        <div className="mt-5">
           <DayBars
             days={daily.map((d) => ({ date: d.date, value: d.kwh }))}
-            max={Math.max(...daily.map((d) => d.kwh), 1) * 1.1}
+            max={Math.max(...daily.map((d) => d.kwh), 1) * 1.15}
             unit="Energy used"
             kind="kwh"
             height={160}
-            caption={`Energy used each day, ${period}`}
+            caption={`Energy used each day by meter ${data.meter_id}, ${period}`}
           />
         </div>
       </section>

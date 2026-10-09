@@ -18,7 +18,19 @@ export type ComplianceDay = {
   streak: number;
 };
 
-export type FeederStatus = "compliant" | "at_risk" | "downgrade";
+export type FeederStatus = "compliant" | "at_risk" | "downgrade" | "no_data";
+
+export type TelemetrySource = "simulated" | "authorized_external" | "lume_hardware" | "none" | "unknown";
+
+export type OfficialFeederMetadata = {
+  source_feeder_name: string | null;
+  disco: string | null;
+  state: string | null;
+  business_unit: string | null;
+  monthly_energy_cap_kwh: number | null;
+  data_type: string;
+  source_url: string | null;
+};
 
 export type Compliance = {
   feeder_id: string;
@@ -36,6 +48,9 @@ export type Compliance = {
   compensation_flag: boolean;
   special_compensation_days: number;
   days: ComplianceDay[];
+  feeder_telemetry_source: TelemetrySource;
+  meter_telemetry_source: TelemetrySource;
+  official: OfficialFeederMetadata | null;
 };
 
 export type FeederOverview = Omit<Compliance, "days"> & {

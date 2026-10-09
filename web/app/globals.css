@@ -1,42 +1,82 @@
 @import "tailwindcss";
 
-/* Porcelain insulator, cable navy, lamp amber. Status pair validated for CVD separation
-   in both modes (dataviz validate_palette.js): met/breach ΔE >= 8.7. */
+/* Premium Dark Grid-Intelligence Foundation */
 :root {
-  --paper: #eef1ee;
-  --surface: #ffffff;
-  --ink: #1b2a4a;
-  --ink-2: #44526e;
-  --muted: #5f6b80;
-  --rule: #d3d9d4;
-  --rule-strong: #aab4ad;
-  --lamp: #e8a200;
-  --lamp-ink: #7a4d00;
-  --met: #1f7a4d;
-  --breach: #c2410c;
-  --nodata: #9aa4b2;
-  --focus: #2b59c3;
-}
+  /* Dark Graphite & Charcoal Application Canvas */
+  --bg-canvas: #090d16;
+  --bg-surface: #0e1524;
+  --bg-surface-elevated: #141d30;
+  --border-subtle: #1e293b;
+  --border-strong: #334155;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #0f1a2e;
-    --surface: #16233b;
-    --ink: #e7ecf3;
-    --ink-2: #b9c3d2;
-    --muted: #93a0b4;
-    --rule: #26354f;
-    --rule-strong: #3a4c6b;
-    --lamp: #f5b82e;
-    --lamp-ink: #f5c75a;
-    --met: #2fa06b;
-    --breach: #e0612e;
-    --nodata: #5f6c80;
-    --focus: #8fb0ff;
-  }
+  /* Typographic Hierarchy (Dark Foundations) */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+
+  /* Deliberate High-Contrast Lighter Data Panels for High Tabular & Audit Readability */
+  --panel-light: #ffffff;
+  --panel-light-muted: #f8fafc;
+  --panel-light-border: #e2e8f0;
+  --panel-light-border-strong: #cbd5e1;
+  --panel-light-text: #0f172a;
+  --panel-light-text-secondary: #334155;
+  --panel-light-text-muted: #64748b;
+
+  /* Restrained Electric-Lime Accent */
+  --lime-accent: #10b981;
+  --lime-bright: #34d399;
+  --lime-glow: rgba(16, 185, 129, 0.15);
+  --lime-border: rgba(16, 185, 129, 0.35);
+
+  /* Regulatory & Telemetry State Colors */
+  --status-good: #10b981;
+  --status-warn: #f59e0b;
+  --status-bad: #ef4444;
+  --status-neutral: #64748b;
+  --status-info: #0284c7;
+
+  /* Legacy CSS Variable Compatibility */
+  --paper: #090d16;
+  --surface: #0e1524;
+  --ink: #f8fafc;
+  --ink-2: #cbd5e1;
+  --muted: #64748b;
+  --rule: #1e293b;
+  --rule-strong: #334155;
+  --lamp: #f59e0b;
+  --lamp-ink: #fde68a;
+  --met: #10b981;
+  --breach: #ef4444;
+  --nodata: #64748b;
+  --focus: #10b981;
 }
 
 @theme inline {
+  --color-canvas: var(--bg-canvas);
+  --color-surface-dark: var(--bg-surface);
+  --color-surface-elevated: var(--bg-surface-elevated);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  --color-panel: var(--panel-light);
+  --color-panel-muted: var(--panel-light-muted);
+  --color-panel-border: var(--panel-light-border);
+  --color-panel-border-strong: var(--panel-light-border-strong);
+  --color-panel-text: var(--panel-light-text);
+  --color-panel-secondary: var(--panel-light-text-secondary);
+  --color-panel-muted-text: var(--panel-light-text-muted);
+
+  --color-lime: var(--lime-accent);
+  --color-lime-bright: var(--lime-bright);
+
+  --color-good: var(--status-good);
+  --color-warn: var(--status-warn);
+  --color-bad: var(--status-bad);
+  --color-neutral: var(--status-neutral);
+  --color-info: var(--status-info);
+
+  /* Legacy theme aliases */
   --color-paper: var(--paper);
   --color-surface: var(--surface);
   --color-ink: var(--ink);
@@ -49,30 +89,40 @@
   --color-met: var(--met);
   --color-breach: var(--breach);
   --color-nodata: var(--nodata);
-  --font-sans: var(--font-archivo), system-ui, sans-serif;
+
+  --font-sans: var(--font-archivo), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  background: var(--paper);
-  color: var(--ink);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   font-feature-settings: "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Wide cut of Archivo for numbers that carry the story. */
+/* Subtle Geometric Grid Matrix */
+.grid-canvas {
+  background-image: radial-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Wide cut of Archivo for prominent numbers */
 .figure {
   font-variation-settings: "wdth" 125;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   line-height: 1;
 }
 
+/* Diagonal hatch pattern for missing/untracked data */
 .hatch {
-  background-image: repeating-linear-gradient(135deg, var(--nodata) 0 2px, transparent 2px 5px);
+  background-image: repeating-linear-gradient(135deg, rgba(100, 116, 139, 0.4) 0 2px, transparent 2px 6px);
 }
 
 :focus-visible {
-  outline: 2px solid var(--focus);
+  outline: 2px solid var(--lime-accent);
   outline-offset: 2px;
 }
 
