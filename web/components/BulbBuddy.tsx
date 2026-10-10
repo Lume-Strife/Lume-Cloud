@@ -2,25 +2,42 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { BulbShape } from "./BulbShape";
+
 type Mood = "idle" | "happy" | "dizzy";
 
-const ON_LINES = ["Lights on!", "Hi there!", "Ooh, bright.", "Back in business.", "Hello again."];
+const ON_LINES = [
+  "Lights on!",
+  "Hi there!",
+  "Ooh, bright.",
+  "Back in business.",
+  "Hello again.",
+];
 const OFF_LINES = ["Night night…", "Lights out.", "Five more minutes…"];
 const DIZZY_LINES = ["Whoa, easy!", "I'm seeing stars…", "Okay okay, I'm up!"];
 const STILL_DIZZY_LINES = ["Hey!", "Give me a sec…", "Stop spinning me!"];
-const pick = (lines: string[]) => lines[Math.floor(Math.random() * lines.length)];
+const pick = (lines: string[]) =>
+  lines[Math.floor(Math.random() * lines.length)];
 
-/** Eye centres in the SVG's own coordinates, and how far a pupil may travel. */
+/** The SVG viewBox (bulb coordinates plus room for the glow and the Zzz). */
+const VIEW = { x: -6, y: -8, w: 112, h: 136 };
+/** Eye centres in bulb coordinates. */
 const EYES = [
-  { cx: 88, cy: 84 },
-  { cx: 132, cy: 84 },
+  { cx: 40, cy: 49 },
+  { cx: 60, cy: 49 },
 ];
-const REACH = 6;
+/** Where the face sits, and how far it turns toward the pointer: the whole face moves
+ *  a little, like a head turning, and the eyes glance a touch further. */
+const FACE = { cx: 50, cy: 54 };
+const TURN = { x: 3.2, y: 2.2 };
+const GLANCE = 0.9;
+/** Warm near-black for the face, so it sits in the glow instead of on top of it. */
+const INK = "#3A1D08";
 
 /**
  * Lume's mascot: a bulb whose eyes follow the pointer. Tap to switch it on or off.
  * It blinks, looks around when left alone, blushes when you hover, and gets dizzy
- * if you tap it too fast. Pupils move by direct DOM updates so tracking never re-renders.
+ * if you tap it too fast. Eyes move by direct DOM updates so tracking never re-renders.
  */
 export function BulbBuddy() {
   const [lit, setLit] = useState(true);
@@ -31,6 +48,7 @@ export function BulbBuddy() {
   const [line, setLine] = useState<{ text: string; id: number } | null>(null);
 
   const svgRef = useRef<SVGSVGElement>(null);
+  const faceRef = useRef<SVGGElement>(null);
   const pupils = useRef<(SVGGElement | null)[]>([]);
   const lastMove = useRef(0);
   const taps = useRef<number[]>([]);
@@ -50,21 +68,29 @@ export function BulbBuddy() {
     [later],
   );
 
-  const lookAt = useCallback((x: number, y: number) => {
-    const svg = svgRef.current;
-    if (!svg) return;
-    const box = svg.getBoundingClientRect();
-    const scale = box.width / 220;
-    EYES.forEach((eye, i) => {
-      const ex = box.left + eye.cx * scale;
-      const ey = box.top + eye.cy * scale;
-      const dx = x - ex;
-      const dy = y - ey;
-      const dist = Math.hypot(dx, dy) || 1;
-      const travel = Math.min(REACH, dist / 25);
-      pupils.current[i]?.setAttribute("transform", `translate(${(dx / dist) * travel} ${(dy / dist) * travel})`);
-    });
+  /** Turn the face toward a direction (ux, uy unit vector) by `amount` (0 to 1). */
+  const turn = useCallback((ux: number, uy: number, amount: number) => {
+    const face = faceRef.current;
+    if (face)
+      face.style.transform = `translate(${ux * TURN.x * amount}px, ${uy * TURN.y * amount}px)`;
+    const g = `translate(${ux * GLANCE * amount}px, ${uy * GLANCE * amount}px)`;
+    pupils.current.forEach((p) => p && (p.style.transform = g));
   }, []);
+
+  const lookAt = useCallback(
+    (x: number, y: number) => {
+      const svg = svgRef.current;
+      if (!svg) return;
+      const box = svg.getBoundingClientRect();
+      const scale = box.width / VIEW.w;
+      const dx = x - (box.left + (FACE.cx - VIEW.x) * scale);
+      const dy = y - (box.top + (FACE.cy - VIEW.y) * scale);
+      const dist = Math.hypot(dx, dy) || 1;
+      // Full turn once the pointer is about a bulb's width away.
+      turn(dx / dist, dy / dist, Math.min(1, dist / box.width));
+    },
+    [turn],
+  );
 
   // Follow the pointer (mouse, pen or finger) anywhere on the page.
   useEffect(() => {
@@ -85,24 +111,26 @@ export function BulbBuddy() {
     const id = window.setInterval(() => {
       if (Date.now() - lastMove.current < 4000) return;
       const a = Math.random() * Math.PI * 2;
-      const r = Math.random() * REACH;
-      pupils.current.forEach((p) => p?.setAttribute("transform", `translate(${Math.cos(a) * r} ${Math.sin(a) * r})`));
+      turn(Math.cos(a), Math.sin(a), 0.4 + Math.random() * 0.6);
     }, 1700);
     return () => window.clearInterval(id);
-  }, []);
+  }, [turn]);
 
   // Blinks every few seconds while awake.
   useEffect(() => {
     if (!lit) return;
     let t: number;
     const schedule = () => {
-      t = window.setTimeout(() => {
-        setBlink(true);
-        t = window.setTimeout(() => {
-          setBlink(false);
-          schedule();
-        }, 140);
-      }, 2200 + Math.random() * 3500);
+      t = window.setTimeout(
+        () => {
+          setBlink(true);
+          t = window.setTimeout(() => {
+            setBlink(false);
+            schedule();
+          }, 140);
+        },
+        2200 + Math.random() * 3500,
+      );
     };
     schedule();
     return () => window.clearTimeout(t);
@@ -144,13 +172,23 @@ export function BulbBuddy() {
   };
 
   const asleep = !lit && mood !== "dizzy";
-  const face = mood === "dizzy" ? "dizzy" : asleep ? "asleep" : mood === "happy" ? "happy" : "awake";
+  const face =
+    mood === "dizzy"
+      ? "dizzy"
+      : asleep
+        ? "asleep"
+        : mood === "happy"
+          ? "happy"
+          : "awake";
 
   return (
-    <div className="bulb-buddy relative mx-auto flex w-full max-w-[280px] flex-col items-center select-none">
+    <div className="bulb-buddy relative mx-auto flex w-full max-w-[230px] flex-col items-center select-none">
       <div aria-live="polite" className="h-10">
         {line && (
-          <p key={line.id} className="bulb-speech rounded-xl border-2 border-[var(--border-strong)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm font-semibold shadow-[var(--shadow-btn)]">
+          <p
+            key={line.id}
+            className="bulb-speech rounded-xl border-2 border-[var(--border-strong)] bg-[var(--bg-surface)] px-3 py-1.5 text-sm font-semibold shadow-[var(--shadow-btn)]"
+          >
             {line.text}
           </p>
         )}
@@ -166,103 +204,144 @@ export function BulbBuddy() {
         className={`bulb-body relative w-full cursor-pointer rounded-full ${lit ? "is-lit" : ""} ${mood === "dizzy" ? "is-dizzy" : ""}`}
       >
         <span key={bump} className={bump ? "bulb-bounce block" : "block"}>
-          <svg ref={svgRef} viewBox="0 0 220 260" className="w-full overflow-visible" aria-hidden>
-            <defs>
-              <radialGradient id="buddy-glow">
-                <stop offset="0" stopColor="#FDE68A" stopOpacity="0.95" />
-                <stop offset="0.45" stopColor="#FBBF24" stopOpacity="0.35" />
-                <stop offset="1" stopColor="#FBBF24" stopOpacity="0" />
-              </radialGradient>
-              <radialGradient id="buddy-glass-lit" cx="0.4" cy="0.3" r="0.8">
-                <stop offset="0" stopColor="#FFF7D6" />
-                <stop offset="0.55" stopColor="#FDE68A" />
-                <stop offset="1" stopColor="#FBBF24" />
-              </radialGradient>
-            </defs>
+          <svg
+            ref={svgRef}
+            viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.w} ${VIEW.h}`}
+            className="w-full overflow-visible"
+            aria-hidden
+          >
+            <BulbShape id="buddy" />
 
-            <circle className="buddy-glow" cx="110" cy="92" r="125" fill="url(#buddy-glow)" />
+            <g ref={faceRef} className="buddy-face">
+              {/* Cheeks: a soft warm flush */}
+              <g
+                className={`buddy-cheeks ${(hover && !asleep) || face === "happy" ? "is-on" : ""}`}
+                filter="url(#buddy-haze)"
+              >
+                <ellipse cx="30" cy="60" rx="5" ry="3" />
+                <ellipse cx="70" cy="60" rx="5" ry="3" />
+              </g>
 
-            {/* The brand bulb, scaled up. */}
-            <g transform="translate(-30 -18) scale(7)">
-              <path
-                className="buddy-glass"
-                d="M20 4C14.477 4 10 8.477 10 14c0 3.63 1.874 6.817 4.708 8.68V26a1 1 0 001 1h8.584a1 1 0 001-1v-3.32C28.126 20.817 30 17.63 30 14c0-5.523-4.477-10-10-10z"
-                strokeWidth="3.5"
-                vectorEffect="non-scaling-stroke"
-                strokeLinejoin="round"
-              />
-              <path d="M15 12c0-2.21 1.79-4 4-4" stroke="white" strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinecap="round" opacity="0.7" />
-              {[
-                [14.5, 27, 11, 2.5],
-                [15.5, 30, 9, 2.5],
-                [17, 32.5, 6, 2],
-              ].map(([x, y, w, h]) => (
-                <rect key={y} className="buddy-base" x={x} y={y} width={w} height={h} rx={0.6} strokeWidth="3" vectorEffect="non-scaling-stroke" />
-              ))}
-            </g>
-
-            {/* Cheeks */}
-            <g className={`buddy-cheeks ${(hover && !asleep) || face === "happy" ? "is-on" : ""}`}>
-              <ellipse cx="70" cy="106" rx="9" ry="5" />
-              <ellipse cx="150" cy="106" rx="9" ry="5" />
-            </g>
-
-            {/* Eyes */}
-            {face === "awake" &&
-              EYES.map((e, i) => (
-                <g
-                  key={i}
-                  className="buddy-eye"
-                  style={{ transform: `scaleY(${blink ? 0.08 : 1}) scale(${hover ? 1.12 : 1})` }}
-                >
-                  <ellipse cx={e.cx} cy={e.cy} rx="13" ry="15" fill="white" stroke="#1A1E29" strokeWidth="3" />
-                  <g ref={(el) => void (pupils.current[i] = el)}>
-                    <circle cx={e.cx} cy={e.cy + 1} r="6.5" fill="#1A1E29" />
-                    <circle cx={e.cx + 2.5} cy={e.cy - 2} r="2" fill="white" />
+              {/* Eyes: no outlines, just soft dark eyes with a catch-light */}
+              {face === "awake" &&
+                EYES.map((e, i) => (
+                  <g key={i} ref={(el) => void (pupils.current[i] = el)}>
+                    <g
+                      className="buddy-eye"
+                      style={{
+                        transform: `scaleY(${blink ? 0.1 : 1}) scale(${hover ? 1.15 : 1})`,
+                      }}
+                    >
+                      <ellipse
+                        cx={e.cx}
+                        cy={e.cy}
+                        rx="3.7"
+                        ry="4.7"
+                        fill={INK}
+                      />
+                      <circle
+                        cx={e.cx + 1.1}
+                        cy={e.cy - 1.7}
+                        r="1.15"
+                        fill="#FFF8E6"
+                      />
+                    </g>
                   </g>
-                </g>
-              ))}
-            {face === "happy" &&
-              EYES.map((e, i) => (
-                <path key={i} d={`M${e.cx - 11} ${e.cy + 4} Q${e.cx} ${e.cy - 12} ${e.cx + 11} ${e.cy + 4}`} fill="none" stroke="#1A1E29" strokeWidth="4" strokeLinecap="round" />
-              ))}
-            {face === "asleep" &&
-              EYES.map((e, i) => (
-                <path key={i} d={`M${e.cx - 11} ${e.cy} Q${e.cx} ${e.cy + 8} ${e.cx + 11} ${e.cy}`} fill="none" stroke="var(--buddy-ink)" strokeWidth="4" strokeLinecap="round" />
-              ))}
-            {face === "dizzy" &&
-              EYES.map((e, i) => (
+                ))}
+              {face === "happy" &&
+                EYES.map((e, i) => (
+                  <path
+                    key={i}
+                    d={`M${e.cx - 4.2} ${e.cy + 1.5} Q${e.cx} ${e.cy - 4.5} ${e.cx + 4.2} ${e.cy + 1.5}`}
+                    fill="none"
+                    stroke={INK}
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
+                ))}
+              {face === "asleep" &&
+                EYES.map((e, i) => (
+                  <path
+                    key={i}
+                    d={`M${e.cx - 4.2} ${e.cy} Q${e.cx} ${e.cy + 3.4} ${e.cx + 4.2} ${e.cy}`}
+                    fill="none"
+                    stroke="var(--buddy-ink)"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                ))}
+              {face === "dizzy" &&
+                EYES.map((e, i) => (
+                  <path
+                    key={i}
+                    className="buddy-swirl"
+                    style={{ transformOrigin: `${e.cx}px ${e.cy}px` }}
+                    d={`M${e.cx} ${e.cy} m-1 0 a1 1 0 1 1 2 0 a2 2 0 1 1 -4 0 a3 3 0 1 1 6 0 a4 4 0 1 1 -8 0`}
+                    fill="none"
+                    stroke={INK}
+                    strokeWidth="1.1"
+                    strokeLinecap="round"
+                  />
+                ))}
+
+              {/* Mouth */}
+              {face === "happy" && (
+                <path d="M44.5 61 Q50 68.5 55.5 61 Z" fill={INK} />
+              )}
+              {face === "awake" &&
+                (hover ? (
+                  <ellipse cx="50" cy="63.5" rx="2" ry="2.5" fill={INK} />
+                ) : (
+                  <path
+                    d="M45.8 62 Q50 65.2 54.2 62"
+                    fill="none"
+                    stroke={INK}
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                ))}
+              {face === "asleep" && (
                 <path
-                  key={i}
-                  className="buddy-swirl"
-                  style={{ transformOrigin: `${e.cx}px ${e.cy}px` }}
-                  d={`M${e.cx} ${e.cy} m-2 0 a2 2 0 1 1 4 0 a4 4 0 1 1 -8 0 a6 6 0 1 1 12 0 a8 8 0 1 1 -16 0`}
+                  d="M47.8 63 Q50 64.3 52.2 63"
                   fill="none"
-                  stroke="#1A1E29"
-                  strokeWidth="2.5"
+                  stroke="var(--buddy-ink)"
+                  strokeWidth="1.3"
                   strokeLinecap="round"
                 />
-              ))}
-
-            {/* Mouth */}
-            {face === "happy" && <path d="M96 114 Q110 134 124 114 Z" fill="#1A1E29" />}
-            {face === "awake" && (hover ? <ellipse cx="110" cy="120" rx="5" ry="6" fill="#1A1E29" /> : <path d="M99 117 Q110 126 121 117" fill="none" stroke="#1A1E29" strokeWidth="3.5" strokeLinecap="round" />)}
-            {face === "asleep" && <path d="M104 121 Q110 124 116 121" fill="none" stroke="var(--buddy-ink)" strokeWidth="3" strokeLinecap="round" />}
-            {face === "dizzy" && <path d="M95 121 q4 -5 7.5 0 t7.5 0 t7.5 0 t7.5 0" fill="none" stroke="#1A1E29" strokeWidth="3" strokeLinecap="round" />}
+              )}
+              {face === "dizzy" && (
+                <path
+                  d="M44 63 q1.5 -2 3 0 t3 0 t3 0 t3 0"
+                  fill="none"
+                  stroke={INK}
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                />
+              )}
+            </g>
 
             {/* Zzz while asleep */}
             {face === "asleep" && (
-              <g className="buddy-zzz" fill="var(--text-muted)" fontWeight="800" fontFamily="var(--font-display)">
-                <text x="160" y="40" fontSize="16">z</text>
-                <text x="172" y="26" fontSize="20">z</text>
-                <text x="188" y="10" fontSize="24">Z</text>
+              <g
+                className="buddy-zzz"
+                fill="var(--text-muted)"
+                fontWeight="800"
+                fontFamily="var(--font-display)"
+              >
+                <text x="80" y="18" fontSize="8">
+                  z
+                </text>
+                <text x="86" y="9" fontSize="10">
+                  z
+                </text>
+                <text x="93" y="-1" fontSize="12">
+                  Z
+                </text>
               </g>
             )}
           </svg>
         </span>
       </button>
-
-      <p className="mt-3 text-xs text-[var(--text-muted)]">{lit ? "Tap to switch me off" : "Tap to wake me up"}</p>
     </div>
   );
 }

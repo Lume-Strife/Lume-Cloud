@@ -31,20 +31,16 @@
   --amber-500:           #F59E0B;
   --amber-600:           #D97706;
   --amber-700:           #B45309;
-  --on-amber:            #1A1E29;
+  --on-amber:            #1A1E29;   /* text on amber fills, both themes */
 
-  /* Sign-in scene (GridScene) */
-  --scene-sky-top:       #FAF8F5;
-  --scene-sky-bottom:    #FBE3B8;
-  --scene-far:           #EDE4D5;
-  --scene-near:          #E1D5C2;
-  --scene-pole:          #CDBFA9;
-  --scene-wire:          #C2B49D;
-  --scene-window:        #F5B83D;
 
-  /* Bulb buddy, switched off */
-  --buddy-off-glass:     #E4DED3;
-  --buddy-ink:           #1A1E29;   /* text on amber fills, both themes */
+  /* The bulb (BulbShape): unlit orb, base, and the mascot's sleeping face */
+  --orb-off-1:           #F4F0E9;
+  --orb-off-2:           #DED6C9;
+  --orb-off-3:           #CBC1B1;
+  --orb-cap-1:           #DAD4CB;
+  --orb-cap-2:           #A39B8F;
+  --buddy-ink:           #5B5248;
 
   /* ── Accent 2: Sky Blue ────────────────────────────────────── */
   --sky-100:             #E0F2FE;
@@ -146,16 +142,13 @@
 
   --color-stone-600: #A8A29E;
 
-  --scene-sky-top:    #0D0F14;
-  --scene-sky-bottom: #241C12;
-  --scene-far:        #191C23;
-  --scene-near:       #20242C;
-  --scene-pole:       #2C3039;
-  --scene-wire:       #363B46;
-  --scene-window:     #FBBF24;
 
-  --buddy-off-glass:  #2A2D35;
-  --buddy-ink:        #A0A6B3;
+  --orb-off-1:        #57524B;
+  --orb-off-2:        #3B3833;
+  --orb-off-3:        #2C2A27;
+  --orb-cap-1:        #6E6A64;
+  --orb-cap-2:        #45423E;
+  --buddy-ink:        #D6CDBF;
 }
 
 /* Amber fills stay bright in the dark, so their text stays dark. Unlayered, so it beats utilities. */
@@ -365,22 +358,19 @@ table { font-variant-numeric: tabular-nums; }
   }
 }
 
-/* ── Theme toggle bulb ──────────────────────────────────────────
-   Lit (light mode): amber glass and a soft glow. Unlit: dark glass. */
-.theme-bulb-glass    { fill: #2A2D35; stroke: var(--text-muted); transition: fill 0.2s ease; }
-.theme-bulb-filament { stroke: #4A4F5C; transition: stroke 0.2s ease; }
-.theme-bulb-base     { fill: transparent; stroke: var(--text-muted); }
-.theme-bulb-glow     { fill: #FDE68A; opacity: 0; transition: opacity 0.25s ease; }
-.theme-bulb.is-lit .theme-bulb-glass    { fill: #FDE68A; stroke: var(--border-strong); animation: bulb-on 0.35s linear; }
-.theme-bulb.is-lit .theme-bulb-filament { stroke: #F59E0B; }
-.theme-bulb.is-lit .theme-bulb-base     { stroke: var(--border-strong); }
-.theme-bulb.is-lit:hover .theme-bulb-glow { opacity: 0.35; }
-.theme-bulb:not(.is-lit):hover .theme-bulb-filament { stroke: #8A6A1E; }
-@keyframes bulb-on {
-  0%   { fill: #2A2D35; }
-  30%  { fill: #FDE68A; }
-  50%  { fill: #6B5F3A; }
-  70%, 100% { fill: #FDE68A; }
+/* Sign-in photo tint: keeps the dusk colours but calms them behind the card. */
+.login-tint { background: linear-gradient(180deg, rgba(18, 20, 25, 0.15) 0%, rgba(18, 20, 25, 0.45) 100%); }
+:root[data-theme="dark"] .login-tint { background: linear-gradient(180deg, rgba(10, 11, 15, 0.55) 0%, rgba(10, 11, 15, 0.8) 100%); }
+
+/* ── Realistic bulb (BulbShape) ─────────────────────────────────
+   Lit layers are always drawn; each context fades them in with a class. */
+.rb-on { opacity: 0; transition: opacity 0.3s ease; }
+.theme-bulb.is-lit .rb-on,
+.bulb-body.is-lit .rb-on { opacity: 1; }
+.theme-bulb.is-lit .rb-on,
+.bulb-body.is-lit .rb-on:not(.rb-glow) { animation: rb-flicker 0.45s linear; }
+@keyframes rb-flicker {
+  0% { opacity: 0; } 25% { opacity: 1; } 45% { opacity: 0.25; } 70%, 100% { opacity: 1; }
 }
 
 /* ── Landing: hover ─────────────────────────────────────────────
@@ -430,27 +420,17 @@ table { font-variant-numeric: tabular-nums; }
   transform: translateY(18px);
 }
 
-/* Some windows in the sign-in scene switch off and on, slowly. */
-.scene-flicker { animation: scene-flicker 9s ease-in-out infinite; }
-@keyframes scene-flicker {
-  0%, 40%, 100% { opacity: 1; }
-  45%, 70%      { opacity: 0.15; }
-}
-
 /* ── Bulb buddy (homepage mascot) ───────────────────────────── */
 .bulb-body { animation: buddy-float 4.5s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
 .bulb-body.is-dizzy { animation: buddy-wobble 0.5s ease-in-out 3; }
 .bulb-bounce { animation: buddy-bounce 0.45s cubic-bezier(0.3, 1.6, 0.5, 1); transform-origin: 50% 90%; }
 
-.buddy-glass { fill: var(--buddy-off-glass); stroke: var(--border-strong); transition: fill 0.25s ease; }
-.bulb-body.is-lit .buddy-glass { fill: url(#buddy-glass-lit); animation: buddy-on 0.4s linear; }
-.buddy-base { fill: #C9CED6; stroke: var(--border-strong); }
-.buddy-glow { opacity: 0; transform-origin: 110px 92px; transition: opacity 0.35s ease; }
-.bulb-body.is-lit .buddy-glow { opacity: 1; animation: buddy-pulse 3.2s ease-in-out infinite; }
-
+.bulb-body.is-lit .rb-glow { animation: buddy-pulse 3.2s ease-in-out infinite; transform-origin: 50px 50px; }
+@keyframes buddy-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+.buddy-face { transition: transform 0.18s ease-out; }
 .buddy-eye { transform-box: fill-box; transform-origin: center; transition: transform 0.12s ease; }
-.buddy-cheeks ellipse { fill: #F9A8B8; opacity: 0; transition: opacity 0.25s ease; }
-.buddy-cheeks.is-on ellipse { opacity: 0.75; }
+.buddy-cheeks ellipse { fill: #FF7A59; opacity: 0; transition: opacity 0.3s ease; }
+.buddy-cheeks.is-on ellipse { opacity: 0.5; }
 .buddy-swirl { animation: buddy-spin 0.8s linear infinite; }
 .buddy-zzz text { opacity: 0; animation: buddy-zzz 2.4s ease-in-out infinite; }
 .buddy-zzz text:nth-child(2) { animation-delay: 0.5s; }
@@ -460,13 +440,6 @@ table { font-variant-numeric: tabular-nums; }
 @keyframes buddy-float  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 @keyframes buddy-wobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
 @keyframes buddy-bounce { 0% { transform: scale(1); } 35% { transform: scale(1.06, 0.92); } 70% { transform: scale(0.97, 1.04); } 100% { transform: scale(1); } }
-@keyframes buddy-on {
-  0%   { fill: var(--buddy-off-glass); }
-  30%  { fill: #FDE68A; }
-  50%  { fill: var(--buddy-off-glass); }
-  75%  { fill: #FDE68A; }
-}
-@keyframes buddy-pulse  { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 @keyframes buddy-spin   { to { transform: rotate(360deg); } }
 @keyframes buddy-zzz    { 0% { opacity: 0; transform: translateY(6px); } 30%, 60% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
 @keyframes buddy-speech { from { opacity: 0; transform: translateY(6px) scale(0.9); } to { opacity: 1; transform: none; } }
@@ -500,6 +473,9 @@ table { font-variant-numeric: tabular-nums; }
   cursor: pointer;
   background: #111318;
   animation: splash-scene 2.8s ease forwards;
+  /* The splash starts in the dark, so its unlit bulb uses the dark orb. */
+  --orb-off-1: #57524B; --orb-off-2: #3B3833; --orb-off-3: #2C2A27;
+  --orb-cap-1: #6E6A64; --orb-cap-2: #45423E;
 }
 html[data-splash="seen"] .splash { display: none; }
 
@@ -520,20 +496,18 @@ html[data-splash="seen"] .splash { display: none; }
   animation: splash-letter 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
 
-.splash-bulb { position: relative; width: 1.05em; height: 1.05em; }
+.splash-bulb { position: relative; width: 0.85em; height: 1.2em; margin-left: 0.04em; }
 .splash-bulb svg { position: relative; width: 100%; height: 100%; }
 .splash-glow {
   position: absolute;
-  inset: -60%;
+  inset: -45% -110%;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(253, 230, 138, 0.9) 0%, rgba(245, 158, 11, 0.35) 40%, transparent 70%);
   opacity: 0;
   transform: scale(0.3);
   animation: splash-glow 2.8s ease-out forwards;
 }
-.splash-glass    { animation: splash-glass 2.8s linear forwards; }
-.splash-filament { animation: splash-filament 2.8s linear forwards; }
-.splash-base     { animation: splash-base 2.8s linear forwards; }
+.splash .rb-on { animation: splash-lit 2.8s linear forwards; }
 
 @keyframes splash-letter {
   from { opacity: 0; transform: translateY(0.12em); }
@@ -551,22 +525,11 @@ html[data-splash="seen"] .splash { display: none; }
   90%, 100% { color: var(--text-primary); opacity: 0; transform: scale(0.97); }
 }
 /* The flicker: on at 36%, dips at 39%, steady from 42%. */
-@keyframes splash-glass {
-  0%, 35%   { fill: #23262F; stroke: #5A5F6B; }
-  36%       { fill: #FDE68A; stroke: #5A5F6B; }
-  39%       { fill: #6B5F3A; stroke: #5A5F6B; }
-  42%, 46%  { fill: #FDE68A; stroke: #5A5F6B; }
-  62%, 100% { fill: #FDE68A; stroke: var(--border-strong); }
-}
-@keyframes splash-filament {
-  0%, 35%  { stroke: #3A3E48; }
-  36%      { stroke: #F59E0B; }
-  39%      { stroke: #4A3F22; }
-  42%, 100% { stroke: #F59E0B; }
-}
-@keyframes splash-base {
-  0%, 46%   { fill: #2A2D35; stroke: #5A5F6B; }
-  62%, 100% { fill: #D1FAE5; stroke: var(--border-strong); }
+@keyframes splash-lit {
+  0%, 35%   { opacity: 0; }
+  36%       { opacity: 1; }
+  39%       { opacity: 0.2; }
+  42%, 100% { opacity: 1; }
 }
 @keyframes splash-glow {
   0%, 35% { opacity: 0; transform: scale(0.3); }
