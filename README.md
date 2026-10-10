@@ -60,6 +60,7 @@ flowchart LR
 
 - The flag list reads a DynamoDB index that is eventually consistent, so a list can briefly show a stale status right after a decision. A single case view is always current.
 - A full detection run takes about 12.5 s on 14 days of data and grows with the period. API Gateway cuts requests off at 30 s.
+- A reading takes about 20 to 25 s to go from request to database (measured twice): cold starts plus a 5 s batching window. Ingestion is reliable, not real-time.
 - The audit log is tamper-evident, not tamper-proof: the API role can overwrite an entry, and the hash chain would reveal it.
 - Single region, no load test, no web application firewall, and no per-user login throttling (the API is rate-limited as a whole).
 - The deployer account used during development has broad permissions.
@@ -120,9 +121,29 @@ terraform plan -var="alert_email=you@example.com" -out=tfplan
 terraform apply tfplan
 
 python scripts/seed_dynamodb.py --days 14                                  # simulated data, random passwords printed once
+python scripts/set_telemetry_source.py --list                              # which feeders are simulated, official or real
+python scripts/set_telemetry_source.py --feeder F001 F002 F003 --feeder-source simulated --meter-source simulated
+python scripts/load_official_dynamodb.py --dry-run                         # then run it without --dry-run: adds the 21 official NERC feeders
 python scripts/smoke_dynamodb.py                                           # refuses tables that hold data
 python scripts/smoke_ingest.py --url "$(terraform output -raw ingest_url)" # live end-to-end check, cleans up after itself
 ```
+
+The order matters: deploy the Lambdas first, label the demo feeders, and only then load the official feeders. Older API code would report a feeder with no readings as compliant.
+
+## Host the dashboards on Vercel
+
+The dashboards are a server-rendered Next.js app in `web/`. They call the AWS API from the server, so there is no CORS to set up and the login token stays in an httpOnly cookie.
+
+1. Get the dashboard API address (not the ingest address, which ends in `/ingest`):
+   ```bash
+   terraform -chdir=infra/terraform output -raw api_url
+   # no Terraform state on this machine? ask AWS instead:
+   aws apigatewayv2 get-apis --region eu-west-1 --query "Items[?Name=='nesi-powertech-api'].ApiEndpoint" --output text
+   ```
+2. In Vercel: Root Directory `web`, and one environment variable, `API_URL`, set to that address with no trailing slash.
+3. Redeploy. Environment variables only reach new deployments.
+
+If the login page says the platform API is not reachable, the message shows the address the site is using. `http://127.0.0.1:8000` means `API_URL` was not picked up. See [docs/FRONTEND.md](docs/FRONTEND.md) for the API contract.
 
 ## Command-line tools
 
@@ -151,7 +172,9 @@ pytest
 5. [x] Theft detection (rules-based)
 6. [x] Auth, roles, audit log
 7. [x] AWS: DynamoDB store, ingest path (API Gateway, SQS, Lambda), dashboard API on Lambda, Terraform, alarms
-8. [ ] Host the dashboards (Vercel planned)
-9. [ ] Narrow the deployer's permissions
-10. [ ] Detection runtime headroom: cap the period or run it asynchronously
-11. [ ] Customer disputes (P2)
+8. [x] Official NERC feeder register in the platform, with every feeder labelled simulated, official, or real
+9. [ ] Dashboards on Vercel connected to the AWS API (set `API_URL`, redeploy)
+10. [ ] Real feeder data from UNILORIN or IBEDC (requested, not received; simulation is the fallback)
+11. [ ] Narrow the deployer's permissions
+12. [ ] Detection runtime headroom: cap the period or run it asynchronously
+13. [ ] Customer disputes (P2)
