@@ -39,22 +39,22 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-[#131C2E] border border-slate-700 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
+            <span className="section-pill">
               NERC Service Accountability
             </span>
-            <span className="text-xs text-slate-500">Order NERC/2024/032</span>
+            <span className="text-xs text-[var(--text-muted)] font-medium">Order NERC/2024/032</span>
           </div>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-[var(--text-primary)]">
             Feeder Compliance: {periodLabel(period.start, period.end)}
           </h1>
-          <p className="mt-1.5 max-w-[72ch] text-sm text-slate-400 leading-relaxed">
+          <p className="mt-1.5 max-w-[72ch] text-sm text-[var(--text-secondary)] leading-relaxed">
             Independent verification of DisCo feeder supply hours against committed Band A–E standards and the statutory NERC 7-Day Rule.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <a
             href={exportUrl}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-[#0E1524] px-4 py-2.5 text-xs font-semibold text-slate-200 shadow-xs transition hover:border-emerald-500/60 hover:text-white active:scale-[0.98]"
+            className="inline-flex items-center gap-2 rounded-xl border-2 border-[var(--border-strong)] bg-white px-4 py-2.5 text-xs font-semibold text-[var(--text-secondary)] shadow-[2px_2px_0px_rgba(26,30,41,0.08)] transition hover:border-amber-500 hover:text-amber-700 active:scale-[0.98]"
             download
           >
             <svg className="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
@@ -67,99 +67,99 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
 
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
-        <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">Feeders</span>
-            <span className="h-2 w-2 rounded-full bg-slate-500" />
+        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+          <div className="flex items-center justify-between text-[var(--text-secondary)]">
+            <span className="text-[11px] font-bold uppercase tracking-wider">Feeders</span>
+            <span className="h-2 w-2 rounded-full bg-slate-400" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-bold text-white">{feeders.length}</p>
-          <span className="mt-0.5 block text-[11px] text-slate-500">
+          <p className="figure mt-2.5 text-2xl font-black text-[var(--text-primary)]">{feeders.length}</p>
+          <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">
             {includeUntracked ? "Live & registered" : "Live telemetry"}
           </span>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">Meeting Band</span>
+        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+          <div className="flex items-center justify-between text-[var(--text-secondary)]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Meeting Band</span>
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-bold text-emerald-400">{compliant}</p>
-          <span className="mt-0.5 block text-[11px] text-emerald-500/70">Kept commitments</span>
+          <p className="figure mt-2.5 text-2xl font-black text-emerald-600">{compliant}</p>
+          <span className="mt-0.5 block text-[11px] text-emerald-700 font-medium">Kept commitments</span>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-400">Falling Short</span>
+        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+          <div className="flex items-center justify-between text-[var(--text-secondary)]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Falling Short</span>
             <span className="h-2 w-2 rounded-full bg-amber-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-bold text-amber-400">{breached}</p>
-          <span className="mt-0.5 block text-[11px] text-amber-500/70">At risk of breach</span>
+          <p className="figure mt-2.5 text-2xl font-black text-amber-600">{breached}</p>
+          <span className="mt-0.5 block text-[11px] text-amber-700 font-medium">At risk of breach</span>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-400">7-Day Downgrades</span>
+        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+          <div className="flex items-center justify-between text-[var(--text-secondary)]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600">7-Day Downgrades</span>
             <span className="h-2 w-2 rounded-full bg-rose-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-bold text-rose-400">{downgrades}</p>
-          <span className="mt-0.5 block text-[11px] text-rose-500/70">Mandated tariff drops</span>
+          <p className="figure mt-2.5 text-2xl font-black text-rose-600">{downgrades}</p>
+          <span className="mt-0.5 block text-[11px] text-rose-700 font-medium">Mandated tariff drops</span>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">Explanations</span>
-            <span className="h-2 w-2 rounded-full bg-slate-500" />
+        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+          <div className="flex items-center justify-between text-[var(--text-secondary)]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Explanations</span>
+            <span className="h-2 w-2 rounded-full bg-slate-400" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-bold text-white">{explanations}</p>
-          <span className="mt-0.5 block text-[11px] text-slate-500">≥2 consecutive failures</span>
+          <p className="figure mt-2.5 text-2xl font-black text-[var(--text-primary)]">{explanations}</p>
+          <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">≥2 consecutive failures</span>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-400">Compensation</span>
+        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+          <div className="flex items-center justify-between text-[var(--text-secondary)]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Compensation</span>
             <span className="h-2 w-2 rounded-full bg-sky-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-bold text-sky-400">{compensations}</p>
-          <span className="mt-0.5 block text-[11px] text-sky-500/70">Eligible for credits</span>
+          <p className="figure mt-2.5 text-2xl font-black text-sky-600">{compensations}</p>
+          <span className="mt-0.5 block text-[11px] text-sky-700 font-medium">Eligible for credits</span>
         </div>
       </div>
 
       {/* Filter and Register Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-800 bg-[#0E1524] px-4 py-3 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border-2 border-[var(--border-default)] bg-white px-4 py-3 shadow-[3px_3px_0px_rgba(26,30,41,0.06)]">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-slate-300">Filter View:</span>
+          <span className="text-xs font-bold text-[var(--text-primary)]">Filter View:</span>
           <Link
             href="/regulator"
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
               !includeUntracked
-                ? "bg-[#162032] text-emerald-400 border border-emerald-500/40 shadow-xs"
-                : "border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white"
+                ? "border-2 border-slate-900 bg-amber-400 text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
+                : "border-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
             }`}
           >
             Live Telemetry Only
           </Link>
           <Link
             href="/regulator?include_untracked=true"
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
               includeUntracked
-                ? "bg-[#162032] text-emerald-400 border border-emerald-500/40 shadow-xs"
-                : "border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white"
+                ? "border-2 border-slate-900 bg-amber-400 text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
+                : "border-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
             }`}
           >
             Include Untracked NERC Register (+21 Kwara Feeders)
           </Link>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <span className="inline-block h-2 w-2 rounded-full bg-amber-400" />
+        <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] font-medium">
+          <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
           <span>Simulated demo data is explicitly labeled per audit standards</span>
         </div>
       </div>
 
       {includeUntracked && (
-        <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 p-4 text-xs text-sky-200">
-          <p className="font-semibold text-sm text-sky-300">Official NERC Feeder Register Included</p>
-          <p className="mt-1 max-w-[80ch] leading-relaxed text-sky-200/90">
+        <div className="rounded-2xl border-2 border-sky-300 bg-sky-50 p-4 text-xs text-sky-950 shadow-[3px_3px_0px_rgba(14,165,233,0.1)]">
+          <p className="font-bold text-sm text-sky-900">Official NERC Feeder Register Included</p>
+          <p className="mt-1 max-w-[80ch] leading-relaxed text-sky-950/90">
             Displaying 21 official Kwara State / Challenge Business Unit feeders transcribed from NERC’s published September 2026 energy cap bulletin (including UNILORIN 33KV Band A). Because DisCos have not yet deployed public telemetry loggers to these lines, their status is recorded as <strong>Untracked / No data</strong>. Under regulatory rules, untracked status is never judged as compliant or breached.
           </p>
         </div>
@@ -171,7 +171,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
           const hasReadings = f.days && f.days.length > 0;
 
           return (
-            <li key={f.feeder_id} className="rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs transition hover:shadow-sm">
+            <li key={f.feeder_id} className="rounded-2xl border-2 border-[var(--border-default)] bg-white p-5 sm:p-6 shadow-[3px_3px_0px_rgba(26,30,41,0.06)] transition-all hover:border-[var(--border-strong)] hover:shadow-[4px_4px_0px_rgba(26,30,41,0.1)]">
               <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-slate-100 pb-3.5">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h2 className="text-lg font-bold tracking-tight text-slate-900">
@@ -269,8 +269,8 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
       </ul>
 
       {/* Regulatory footnotes */}
-      <div className="rounded-2xl border border-slate-800 bg-[#0E1524] p-5 text-xs text-slate-400 shadow-sm">
-        <p className="font-semibold text-slate-200">NERC Methodology &amp; Regulatory Principles:</p>
+      <div className="rounded-2xl border-2 border-[var(--border-default)] bg-amber-50/60 p-5 text-xs text-slate-700 shadow-[2px_2px_0px_rgba(26,30,41,0.04)]">
+        <p className="font-bold text-amber-950">NERC Methodology &amp; Regulatory Principles:</p>
         <p className="mt-1 leading-relaxed">
           Delivered supply hours are derived from continuous 15-minute feeder busbar voltage measurements maintained above 180V. Under NERC Service Accountability orders, days exhibiting under 90% telemetry coverage are categorized as insufficient data and break consecutive failure sequences rather than triggering automatic penalties. Official NERC energy caps are published billing limits, not delivered energy or telemetry.
         </p>

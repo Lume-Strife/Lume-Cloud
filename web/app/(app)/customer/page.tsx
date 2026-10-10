@@ -31,19 +31,17 @@ export default async function CustomerPage() {
   return (
     <div className="flex flex-col gap-10">
       {/* Top Header & Context */}
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#1E293B] pb-5">
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-[var(--border-default)] pb-5">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#131C2E] border border-slate-700 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
-              Customer Portal
-            </span>
+            <span className="section-pill">Customer Portal</span>
             <TelemetrySourceBadge source="simulated" labelPrefix="Demo" />
           </div>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Meter {data.meter_id}
           </h1>
-          <p className="mt-1 text-xs text-slate-400">
-            Assigned to Feeder <strong className="font-semibold text-slate-200">{bill.feeder_id}</strong> (Band {supply.band} · {supply.committed_hours}h/day commitment) · Billing Cycle: {period}
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            Assigned to Feeder <strong className="font-semibold text-[var(--text-secondary)]">{bill.feeder_id}</strong> (Band {supply.band} · {supply.committed_hours}h/day commitment) · Billing Cycle: {period}
           </p>
         </div>
 
@@ -53,13 +51,13 @@ export default async function CustomerPage() {
       </div>
 
       {/* Hero Section: Supply Delivered vs Band Commitment */}
-      <section aria-labelledby="supply-heading" className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs">
+      <section aria-labelledby="supply-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-8 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 id="supply-heading" className="text-xl font-bold tracking-tight text-slate-900">
+            <h2 id="supply-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
               Supply Received vs Band {supply.band} Guarantee
             </h2>
-            <p className="mt-1 text-xs text-slate-500 max-w-[65ch]">
+            <p className="mt-1 text-xs text-[var(--text-muted)] max-w-[65ch]">
               Continuous voltage telemetry audited to confirm whether your DisCo delivered the daily power hours your tariff pays for.
             </p>
           </div>
@@ -70,32 +68,32 @@ export default async function CustomerPage() {
 
         {/* Big Numbers & Compliance Progress */}
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Delivered Daily Average</span>
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Delivered Daily Average</span>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="figure text-5xl font-bold text-slate-900">{supply.average_hours.toFixed(1)}</span>
-              <span className="text-sm font-semibold text-slate-500">hours / day</span>
+              <span className="figure text-5xl font-bold text-[var(--text-primary)]">{supply.average_hours.toFixed(1)}</span>
+              <span className="text-sm font-semibold text-[var(--text-muted)]">hours / day</span>
             </div>
-            <span className="mt-1 block text-[11px] text-slate-400">Audited from 15-min voltage readings (&gt;180V)</span>
+            <span className="mt-1 block text-[11px] text-[var(--text-muted)]">Audited from 15-min voltage readings (&gt;180V)</span>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Band {supply.band} Guaranteed Minimum</span>
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Band {supply.band} Guaranteed Minimum</span>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="figure text-5xl font-bold text-slate-400">{supply.committed_hours}</span>
-              <span className="text-sm font-semibold text-slate-400">hours / day</span>
+              <span className="figure text-5xl font-bold text-[var(--text-muted)]">{supply.committed_hours}</span>
+              <span className="text-sm font-semibold text-[var(--text-muted)]">hours / day</span>
             </div>
-            <span className="mt-1 block text-[11px] text-slate-400">Statutory minimum per NERC tariff band</span>
+            <span className="mt-1 block text-[11px] text-[var(--text-muted)]">Statutory minimum per NERC tariff band</span>
           </div>
 
-          <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Commitment Fulfillment</span>
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Commitment Fulfillment</span>
             <div className="mt-2 flex items-baseline gap-2">
               <span className={`figure text-5xl font-bold ${fulfillmentRate >= 100 ? "text-emerald-600" : fulfillmentRate >= 75 ? "text-amber-600" : "text-rose-600"}`}>
                 {fulfillmentRate}%
               </span>
             </div>
-            <span className="mt-1 block text-[11px] text-slate-400">
+            <span className="mt-1 block text-[11px] text-[var(--text-muted)]">
               {supply.days_met} of {supply.days_met + supply.days_failed} days achieved commitment
             </span>
           </div>
@@ -127,8 +125,8 @@ export default async function CustomerPage() {
         {/* Daily Supply Hours Chart */}
         <div className="mt-7 border-t border-slate-100 pt-5">
           <div className="mb-3.5 flex flex-wrap items-center justify-between gap-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-700">Daily Feeder Supply Hours Profile</h3>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Daily Feeder Supply Hours Profile</h3>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--text-muted)]">
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-xs bg-emerald-500" /> Kept ({plural(supply.days_met, "day", "days")})
               </span>
@@ -157,12 +155,12 @@ export default async function CustomerPage() {
       {/* Bill & Recommendations Grid */}
       <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
         {/* Bill Breakdown */}
-        <section aria-labelledby="bill-heading" className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs">
-          <div className="flex items-baseline justify-between border-b border-slate-100 pb-3">
-            <h2 id="bill-heading" className="text-xl font-bold tracking-tight text-slate-900">
+        <section aria-labelledby="bill-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
+          <div className="flex items-baseline justify-between border-b border-[var(--border-subtle)] pb-3">
+            <h2 id="bill-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
               Itemized Electricity Bill
             </h2>
-            <span className="text-xs text-slate-400">Tariff Ref: {bill.tariff_version}</span>
+            <span className="text-xs text-[var(--text-muted)]">Tariff Ref: {bill.tariff_version}</span>
           </div>
 
           <table className="mt-3.5 w-full text-left">
@@ -223,7 +221,7 @@ export default async function CustomerPage() {
         </section>
 
         {/* What You May Be Owed: Downgrade Credit & Compensation */}
-        <section aria-labelledby="owed-heading" className="self-start rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs">
+        <section aria-labelledby="owed-heading" className="self-start rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
           <div className="border-b border-slate-100 pb-3">
             <h2 id="owed-heading" className="text-xl font-bold tracking-tight text-slate-900">
               Regulatory Entitlements
@@ -272,7 +270,7 @@ export default async function CustomerPage() {
       </div>
 
       {/* Customer Daily Consumption Profile */}
-      <section aria-labelledby="usage-heading" className="rounded-2xl border border-slate-200/80 bg-white p-6 sm:p-7 shadow-xs">
+      <section aria-labelledby="usage-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
         <div className="flex flex-wrap items-baseline justify-between gap-4">
           <div>
             <h2 id="usage-heading" className="text-xl font-bold tracking-tight text-slate-900">

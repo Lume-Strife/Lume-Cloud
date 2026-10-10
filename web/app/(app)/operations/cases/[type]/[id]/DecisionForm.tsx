@@ -43,14 +43,14 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
   return (
     <form action={action} className="flex flex-col gap-5">
       <fieldset className="flex flex-col gap-2.5">
-        <legend className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">Actionable Outcome</legend>
+        <legend className="mb-2 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Actionable Outcome</legend>
         {OPTIONS.map((o) => (
           <label
             key={o.value}
-            className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-all ${
+            className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 p-3.5 transition-all ${
               selectedStatus === o.value
-                ? "border-slate-900 bg-slate-50 shadow-xs ring-1 ring-slate-900"
-                : "border-slate-200 bg-white hover:bg-slate-50/70"
+                ? "border-slate-900 bg-amber-50/70 shadow-[2px_2px_0px_rgba(26,30,41,0.1)] ring-1 ring-slate-900"
+                : "border-[var(--border-default)] bg-white hover:border-[var(--border-strong)]"
             }`}
           >
             <input
@@ -74,16 +74,16 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
         <div className="flex justify-between items-baseline">
           <span>
             Field Findings &amp; Decision Notes{" "}
-            {noteRequired && <span className="text-rose-600 text-xs font-normal">(Required, ≥ 3 characters)</span>}
+            {noteRequired && <span className="text-rose-600 text-xs font-bold">(Required, ≥ 3 characters)</span>}
           </span>
-          <span className="text-[11px] text-slate-400 font-normal">{noteLength}/1000</span>
+          <span className="text-[11px] text-slate-400 font-medium">{noteLength}/1000</span>
         </div>
         <textarea
           name="note"
           rows={4}
           maxLength={1000}
           onChange={(e) => setNoteLength(e.target.value.length)}
-          className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-normal text-slate-900 focus:border-emerald-500 focus:outline-hidden focus:ring-1 focus:ring-emerald-500 transition shadow-2xs"
+          className="rounded-xl border-2 border-[var(--border-default)] bg-white px-3.5 py-2.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
           placeholder={
             noteRequired
               ? "Describe evidence inspected on site, technician name, and seal status..."
@@ -93,21 +93,21 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
       </label>
 
       {state.error && (
-        <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
-          <p className="font-semibold">Unable to save decision</p>
-          <p className="mt-0.5">{state.error}</p>
+        <div role="alert" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-xs text-rose-800">
+          <p className="font-bold">Unable to save decision</p>
+          <p className="mt-0.5 font-medium">{state.error}</p>
         </div>
       )}
 
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl bg-slate-900 px-4 py-2.5 font-semibold text-xs text-white shadow-xs transition hover:bg-slate-800 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+        className="rounded-xl border-2 border-slate-900 bg-amber-400 px-4 py-2.5 font-bold text-xs text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)] transition hover:bg-amber-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
       >
         {pending ? "Writing to audit log…" : "Record Final Decision"}
       </button>
 
-      <p className="text-[11px] text-slate-400 text-center">
+      <p className="text-[11px] text-[var(--text-muted)] text-center font-medium">
         This decision permanently seals across all signals in this case and appends a SHA-256 hash to the tamper-evident audit trail.
       </p>
     </form>

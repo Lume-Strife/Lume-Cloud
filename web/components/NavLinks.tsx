@@ -14,10 +14,10 @@ export function NavLinks({ links }: { links: { href: string; label: string }[] }
             key={l.href}
             href={l.href}
             aria-current={current ? "page" : undefined}
-            className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold transition ${
+            className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold transition-all ${
               current
-                ? "bg-[#162032] text-emerald-400 border border-emerald-500/30 shadow-xs"
-                : "text-slate-400 hover:bg-[#111A2B] hover:text-slate-200 border border-transparent"
+                ? "bg-amber-100 text-amber-800 border border-amber-300"
+                : "text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)] border border-transparent"
             }`}
           >
             {l.label}

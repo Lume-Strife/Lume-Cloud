@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo } from "next/font/google";
+import { Archivo, Inter } from "next/font/google";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -8,15 +8,31 @@ const archivo = Archivo({
   axes: ["wdth"],
 });
 
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Lume",
-  description: "Metering, billing and Band accountability for Nigerian electricity feeders. Demo on simulated data.",
+  title: {
+    template: "%s | Lume",
+    default: "Lume — Smart Electricity Monitoring",
+  },
+  description:
+    "Lume verifies electricity supply hours against NERC tariff band guarantees, detects meter anomalies, and gives every stakeholder transparent, auditable energy data.",
+  openGraph: {
+    siteName: "Lume",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${archivo.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+    <html lang="en" className={`${archivo.variable} ${inter.variable} h-full antialiased`}>
+      <body className="min-h-full bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+        {children}
+      </body>
     </html>
   );
 }

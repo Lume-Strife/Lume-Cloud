@@ -1,9 +1,16 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { LumeLogo } from "@/components/LumeLogo";
 import { getUser, HOME } from "@/lib/session";
 import { LoginForm } from "./LoginForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sign In",
+};
 
 type PageProps = {
-  searchParams: Promise<{ expired?: string }>;
+  searchParams: Promise<{ expired?: string; as?: string }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -11,71 +18,91 @@ export const dynamic = "force-dynamic";
 export default async function LoginPage({ searchParams }: PageProps) {
   const user = await getUser().catch(() => null);
   if (user) redirect(HOME[user.role]);
-  const { expired } = await searchParams;
+  const { expired, as } = await searchParams;
 
   return (
-    <main className="min-h-screen bg-[#090D16] text-slate-100 grid-canvas flex items-center justify-center p-4 sm:p-6 md:p-10">
-      <div className="mx-auto grid w-full max-w-5xl items-center gap-12 lg:grid-cols-[1.15fr_1fr]">
-        {/* Left Column: Mission & Persona Value */}
-        <section className="flex flex-col gap-6">
-          <div className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
-            <span>NESI Innovation Challenge 2026 · PowerTech Track 1</span>
-          </div>
+    <main className="min-h-screen bg-[var(--bg-canvas)] grid-canvas flex items-center justify-center p-4 sm:p-6 md:p-10">
+      <div className="mx-auto grid w-full max-w-5xl items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
 
+        {/* ── Left Column: Lume Brand + Value ─────────────────── */}
+        <section className="flex flex-col gap-7">
+          {/* Wordmark */}
+          <Link href="/" className="self-start" aria-label="Lume home">
+            <LumeLogo size="xl" />
+          </Link>
+
+          {/* Headline */}
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-mono text-5xl sm:text-6xl font-bold tracking-tight text-white">
-                LUME
-              </h1>
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-xs shadow-emerald-400 ring-4 ring-emerald-500/20" aria-hidden />
-            </div>
-            <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-200">
-              Service Accountability &amp; Smart Metering for Nigeria&apos;s Grid
-            </p>
-            <p className="mt-3 text-sm text-slate-400 leading-relaxed max-w-[48ch]">
-              Instead of only billing kWh consumed, Lume continuously verifies the daily supply hours feeders delivered against NERC Band A–E guarantees, enforcing the 7-Day Rule directly from telemetry.
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05] text-[var(--text-primary)]" style={{ fontFamily: "var(--font-display)" }}>
+              Smart electricity
+              <br />
+              <span className="relative inline-block isolate mt-1">
+                <span className="relative z-10 text-amber-600">accountability.</span>
+                <span
+                  className="absolute inset-0 -bottom-0.5 rounded bg-amber-200 -z-10 rotate-[-1.5deg]"
+                  aria-hidden
+                />
+              </span>
+            </h1>
+            <p className="mt-4 text-sm text-[var(--text-muted)] leading-relaxed max-w-[44ch]">
+              Lume continuously verifies whether your feeder delivered the supply hours your
+              NERC tariff band guarantees — and flags tamper events, bypass attempts, and billing
+              anomalies before they become disputes.
             </p>
           </div>
 
-          {/* Persona Value Highlights */}
-          <div className="grid gap-3 pt-2 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-3.5 shadow-sm">
-              <span className="text-xs font-bold text-white">Customers</span>
-              <p className="mt-1 text-[11px] text-slate-400 leading-normal">
-                Audited daily supply hours alongside itemized bills &amp; automatic downgrade credits.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-3.5 shadow-sm">
-              <span className="text-xs font-bold text-white">DisCo Operations</span>
-              <p className="mt-1 text-[11px] text-slate-400 leading-normal">
-                Automated theft &amp; bypass detection ranking field leads by algorithmic confidence.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-3.5 shadow-sm">
-              <span className="text-xs font-bold text-white">Regulators</span>
-              <p className="mt-1 text-[11px] text-slate-400 leading-normal">
-                Feeder-level 7-Day Rule compliance reports and tamper-evident CSV evidence dockets.
-              </p>
-            </div>
+          {/* Role highlights */}
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[
+              {
+                role: "Customers",
+                body: "Audited daily supply hours alongside itemised bills and automatic downgrade credits.",
+                color: "border-emerald-200 bg-emerald-50",
+                dot: "bg-emerald-500",
+              },
+              {
+                role: "DisCo Ops",
+                body: "Algorithmic theft and bypass detection ranking field leads by confidence.",
+                color: "border-sky-200 bg-sky-50",
+                dot: "bg-sky-500",
+              },
+              {
+                role: "Regulators",
+                body: "Feeder 7-Day Rule compliance reports and tamper-evident CSV evidence dockets.",
+                color: "border-amber-200 bg-amber-50",
+                dot: "bg-amber-500",
+              },
+            ].map(({ role, body, color, dot }) => (
+              <div
+                key={role}
+                className={`rounded-xl border-2 border-[var(--border-strong)] ${color} p-3.5 shadow-[2px_2px_0px_rgba(26,30,41,0.08)]`}
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
+                  <span className="text-xs font-bold text-[var(--text-primary)]">{role}</span>
+                </div>
+                <p className="text-[11px] text-[var(--text-muted)] leading-normal">{body}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Right Column: High-Contrast Light Sign-In Panel */}
-        <section className="rounded-2xl border border-slate-200 bg-white p-7 sm:p-9 shadow-2xl text-slate-900">
-          <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-xl font-bold text-slate-900">Sign In to Dashboard</h2>
-            <p className="mt-1 text-xs text-slate-500">Select a demo persona or authenticate with credentials</p>
+        {/* ── Right Column: Sign-In Panel ──────────────────────── */}
+        <section className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-7 sm:p-9 shadow-[6px_6px_0px_rgba(26,30,41,0.10)]">
+          <div className="border-b border-[var(--border-subtle)] pb-5">
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">Sign in to Lume</h2>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
+              Select a demo persona or enter credentials
+            </p>
           </div>
 
           <div className="mt-6">
-            <LoginForm notice={expired ? "Your session ended. Sign in again." : null} />
+            <LoginForm notice={expired ? "Your session ended. Please sign in again." : null} initialUser={as ?? null} />
           </div>
 
-          <div className="mt-6 border-t border-slate-100 pt-4 text-center text-[11px] text-slate-400">
-            Prototype demo on simulated meter telemetry. Data sources explicitly verified.
-          </div>
+          <p className="mt-6 border-t border-[var(--border-subtle)] pt-4 text-center text-[11px] text-[var(--text-faint)]">
+            Demo environment · all meter readings are simulated · data sources explicitly verified
+          </p>
         </section>
       </div>
     </main>

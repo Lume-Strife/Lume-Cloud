@@ -23,17 +23,17 @@ export function DetectionRunButton() {
       <button
         type="submit"
         disabled={pending}
-        className={`relative flex items-center gap-2 rounded-xl border px-4 py-2.5 text-xs font-semibold transition-all shadow-xs ${
+        className={`relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
           pending
-            ? "cursor-wait border-slate-800 bg-[#090D16] text-slate-400 opacity-90"
-            : "border-slate-700 bg-[#0E1524] text-slate-200 hover:border-emerald-500/60 hover:text-white active:scale-[0.98]"
+            ? "cursor-wait border-2 border-slate-300 bg-amber-100 text-amber-900 shadow-[2px_2px_0px_rgba(26,30,41,0.06)]"
+            : "border-2 border-slate-900 bg-amber-400 text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)] hover:bg-amber-300 active:scale-[0.98]"
         }`}
         title="Run the theft and anomaly detection engine over the current period"
       >
         {pending ? (
           <>
             <svg
-              className="h-4 w-4 animate-spin text-emerald-400"
+              className="h-4 w-4 animate-spin text-amber-900"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -50,7 +50,7 @@ export function DetectionRunButton() {
           </>
         ) : (
           <>
-            <svg className="h-4 w-4 text-emerald-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <svg className="h-4 w-4 text-slate-950" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path
                 fillRule="evenodd"
                 d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
@@ -62,7 +62,7 @@ export function DetectionRunButton() {
         )}
       </button>
       {pending && (
-        <span className="text-[11px] text-slate-400">
+        <span className="text-[11px] text-[var(--text-muted)] font-medium">
           Evaluating consumption baselines, tamper logs &amp; energy imbalances across all meters
         </span>
       )}

@@ -82,15 +82,13 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-[#131C2E] border border-slate-700 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
-                Revenue Protection &amp; Operations
-              </span>
-              <span className="text-xs text-slate-500">Field Dispatch &amp; Telemetry</span>
+              <span className="section-pill">Revenue Protection &amp; Operations</span>
+              <span className="text-xs text-[var(--text-muted)]">Field Dispatch &amp; Telemetry</span>
             </div>
-            <h1 id="feeders-heading" className="mt-2 text-3xl font-bold tracking-tight text-white">
+            <h1 id="feeders-heading" className="mt-2 text-3xl font-bold tracking-tight text-[var(--text-primary)]">
               Feeders &amp; Energy Accounting
             </h1>
-            <p className="mt-1.5 text-sm text-slate-400">
+            <p className="mt-1.5 text-sm text-[var(--text-muted)]">
               {periodLabel(period.start, period.end)} · Energy balance comparing bulk feeder input against aggregated metered consumption.
             </p>
           </div>
@@ -100,8 +98,8 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         </div>
 
         {params.detected && (
-          <div role="status" className="mt-4 flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-xs text-emerald-400 font-medium">
-            <svg className="h-4 w-4 shrink-0 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <div role="status" className="mt-4 flex items-center gap-2.5 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-3.5 text-xs text-emerald-800 font-medium">
+            <svg className="h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
             <span>Theft &amp; anomaly detection engine scan finished. Any new leads have been added to the queue below.</span>
@@ -110,28 +108,28 @@ export default async function OperationsPage({ searchParams }: PageProps) {
 
         {/* Operational KPI Cards */}
         <div className="mt-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-          <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Tracked Feeders</span>
-            <p className="figure mt-2 text-2xl font-bold text-white">{feeders.length}</p>
-            <span className="mt-0.5 block text-[11px] text-slate-500">{includeUntracked ? "Including NERC register" : "Live telemetry"}</span>
+          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-white p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)] transition hover:shadow-[4px_4px_0px_rgba(26,30,41,0.12)]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Tracked Feeders</span>
+            <p className="figure mt-2 text-2xl font-bold text-[var(--text-primary)]">{feeders.length}</p>
+            <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">{includeUntracked ? "Including NERC register" : "Live telemetry"}</span>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-400">Unmetered Losses</span>
-            <p className="figure mt-2 text-2xl font-bold text-rose-500">{kwh(unaccounted)}</p>
-            <span className="mt-0.5 block text-[11px] text-rose-400/70">Beyond tech loss threshold</span>
+          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-rose-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)] transition hover:shadow-[4px_4px_0px_rgba(26,30,41,0.12)]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-700">Unmetered Losses</span>
+            <p className="figure mt-2 text-2xl font-bold text-rose-700">{kwh(unaccounted)}</p>
+            <span className="mt-0.5 block text-[11px] text-rose-600">Beyond tech loss threshold</span>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-400">Open Leads</span>
-            <p className="figure mt-2 text-2xl font-bold text-amber-500">{openCasesCount}</p>
-            <span className="mt-0.5 block text-[11px] text-amber-400/70">Awaiting field inspection</span>
+          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-amber-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)] transition hover:shadow-[4px_4px_0px_rgba(26,30,41,0.12)]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-700">Open Leads</span>
+            <p className="figure mt-2 text-2xl font-bold text-amber-700">{openCasesCount}</p>
+            <span className="mt-0.5 block text-[11px] text-amber-600">Awaiting field inspection</span>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-[#0E1524] p-4 shadow-sm transition hover:border-slate-700">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-400">Investigations</span>
-            <p className="figure mt-2 text-2xl font-bold text-sky-500">{investigatingCount}</p>
-            <span className="mt-0.5 block text-[11px] text-sky-400/70">Technicians dispatched</span>
+          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-sky-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)] transition hover:shadow-[4px_4px_0px_rgba(26,30,41,0.12)]">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-700">Investigations</span>
+            <p className="figure mt-2 text-2xl font-bold text-sky-700">{investigatingCount}</p>
+            <span className="mt-0.5 block text-[11px] text-sky-600">Technicians dispatched</span>
           </div>
         </div>
 
@@ -139,20 +137,19 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
           <Link
             href={untrackedToggleHref()}
-            className="text-xs font-semibold text-slate-300 hover:text-white underline underline-offset-4 transition"
+            className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-4 transition"
           >
             {includeUntracked
               ? "← Hide untracked official register feeders"
               : "→ Include untracked NERC register (+21 Kwara Feeders)"}
           </Link>
-          <span className="text-xs text-slate-500">Readings simulated for NESI Innovation Challenge</span>
         </div>
 
         {/* Feeders Table: High-Contrast Deliberate Lighter Data Panel */}
-        <div className="mt-3 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-md">
+        <div className="mt-3 overflow-x-auto rounded-2xl border-2 border-[var(--border-strong)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
           <table className="w-full min-w-[760px] text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+              <tr className="border-b-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                 <th className="px-5 py-3.5">Feeder &amp; Telemetry</th>
                 <th className="px-5 py-3.5">Supply vs Promise</th>
                 <th className="px-5 py-3.5">Band Status</th>
@@ -160,9 +157,9 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                 <th className="px-5 py-3.5 text-right">Unaccounted Energy</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[var(--border-subtle)]">
               {feeders.map((f) => (
-                <tr key={f.feeder_id} className="hover:bg-slate-50/70 transition-colors">
+                <tr key={f.feeder_id} className="hover:bg-[var(--bg-subtle)] transition-colors">
                   <td className="px-5 py-3.5">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
@@ -220,17 +217,17 @@ export default async function OperationsPage({ searchParams }: PageProps) {
       <section aria-labelledby="cases-heading" id="cases">
         <div className="flex flex-wrap items-baseline justify-between gap-4">
           <div>
-            <h2 id="cases-heading" className="text-2xl font-bold tracking-tight text-white">
+            <h2 id="cases-heading" className="text-2xl font-black tracking-tight text-[var(--text-primary)]">
               Theft &amp; Tamper Leads Queue
             </h2>
-            <p className="mt-1 max-w-[70ch] text-sm text-slate-400">
+            <p className="mt-1 max-w-[70ch] text-sm text-[var(--text-secondary)]">
               Leads aggregated by meter or feeder and ranked by algorithmic confidence. A case is a lead for physical on-site inspection, not proof. Record findings before deciding.
             </p>
           </div>
           {feeder && (
             <Link
               href={`/operations?status=${filter}#cases`}
-              className="rounded-lg border border-slate-700 bg-[#0E1524] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-slate-500 hover:text-white transition"
+              className="rounded-xl border-2 border-[var(--border-default)] bg-white px-3.5 py-1.5 text-xs font-bold text-[var(--text-secondary)] shadow-[2px_2px_0px_rgba(26,30,41,0.06)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] transition"
             >
               Filtered by feeder <strong>{feeder}</strong> · Show all
             </Link>
@@ -238,7 +235,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         </div>
 
         {/* Case Filter Tabs with Counts */}
-        <nav aria-label="Filter cases" className="mt-5 flex flex-wrap items-center gap-2 border-b border-[#1E293B] pb-3">
+        <nav aria-label="Filter cases" className="mt-5 flex flex-wrap items-center gap-2 border-b-2 border-[var(--border-default)] pb-3">
           {FILTERS.map((s) => {
             const count = countForFilter(s);
             const isCurrent = filter === s;
@@ -247,16 +244,16 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                 key={s}
                 href={href(s)}
                 aria-current={isCurrent ? "page" : undefined}
-                className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition ${
+                className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
                   isCurrent
-                    ? "bg-[#162032] text-emerald-400 border border-emerald-500/40 shadow-xs"
-                    : "border border-slate-800 bg-[#0E1524] text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                    ? "border-2 border-slate-900 bg-amber-400 text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
+                    : "border-2 border-[var(--border-default)] bg-white text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
                 }`}
               >
                 <span>{s === "all" ? "All Cases" : FLAG_STATUS_LABEL[s]}</span>
                 <span
-                  className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                    isCurrent ? "bg-emerald-500/20 text-emerald-300" : "bg-slate-800 text-slate-400"
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
+                    isCurrent ? "bg-slate-900 text-amber-300" : "bg-slate-100 text-slate-700"
                   }`}
                 >
                   {count}
@@ -268,17 +265,17 @@ export default async function OperationsPage({ searchParams }: PageProps) {
 
         {/* Cases List */}
         {cases.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-slate-800 bg-[#0E1524]/60 p-12 text-center text-slate-400">
-            <svg className="mx-auto h-8 w-8 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+          <div className="mt-6 rounded-2xl border-2 border-dashed border-[var(--border-default)] bg-[var(--bg-subtle)] p-12 text-center text-[var(--text-secondary)]">
+            <svg className="mx-auto h-8 w-8 text-[var(--text-muted)]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="mt-3 font-semibold text-white text-sm">No {filter === "all" ? "" : FLAG_STATUS_LABEL[filter].toLowerCase()} cases found</p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-3 font-bold text-[var(--text-primary)] text-sm">No {filter === "all" ? "" : FLAG_STATUS_LABEL[filter].toLowerCase()} cases found</p>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
               {feeder ? `No cases match feeder ${feeder}. Try clearing the feeder filter.` : "Scan for leads to analyze current readings."}
             </p>
           </div>
         ) : (
-          <ul className="mt-5 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white shadow-md">
+          <ul className="mt-5 divide-y divide-slate-100 rounded-2xl border-2 border-[var(--border-default)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.06)]">
             {cases.map((c) => (
               <li key={`${c.subject_type}:${c.subject_id}`}>
                 <Link
