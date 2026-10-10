@@ -14,7 +14,7 @@ export function NavLinks({ links }: { links: { href: string; label: string }[] }
             key={l.href}
             href={l.href}
             aria-current={current ? "page" : undefined}
-            className={`rounded-lg px-3 py-1.5 text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex min-h-10 flex-1 items-center justify-center rounded-lg px-3 text-sm font-semibold transition-all md:min-h-0 md:flex-none md:py-1.5 ${
               current
                 ? "bg-amber-100 text-amber-800 border border-amber-300"
                 : "text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)] border border-transparent"

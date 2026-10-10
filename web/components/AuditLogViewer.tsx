@@ -69,7 +69,7 @@ export function AuditLogViewer({ entries }: { entries: AuditEntry[] }) {
               key={cat.id}
               type="button"
               onClick={() => setActiveCategory(cat.id)}
-              className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
+              className={`min-h-10 rounded-xl px-3.5 py-1.5 text-xs font-bold transition md:min-h-0 ${
                 activeCategory === cat.id
                   ? "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
                   : "border-2 border-[var(--border-default)] bg-white text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
@@ -87,13 +87,34 @@ export function AuditLogViewer({ entries }: { entries: AuditEntry[] }) {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search"
             aria-label="Search the audit log"
-            className="w-full rounded-xl border-2 border-[var(--border-default)] bg-white px-3.5 py-2 text-xs font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-amber-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
+            className="w-full rounded-xl border-2 border-[var(--border-default)] bg-white px-3.5 py-2.5 text-sm md:py-2 md:text-xs font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-amber-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
           />
         </div>
       </div>
 
-      {/* Table: Deliberate Lighter Panel for Scan Readability */}
-      <div className="overflow-x-auto rounded-2xl border-2 border-[var(--border-default)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.06)]">
+      {/* Phones: one entry per row, stacked. */}
+      <ul className="divide-y divide-[var(--border-subtle)] rounded-2xl border-2 border-[var(--border-default)] bg-white md:hidden">
+        {filtered.length === 0 ? (
+          <li className="p-6 text-center text-sm text-[var(--text-muted)]">Nothing matches that filter.</li>
+        ) : (
+          filtered.map((e) => (
+            <li key={e.seq} className="p-4 text-sm">
+              <div className="flex items-center justify-between gap-3 text-xs text-[var(--text-muted)]">
+                <span>{when(e.at)}</span>
+                <span className="font-mono">#{e.seq}</span>
+              </div>
+              <p className="mt-1.5 flex flex-wrap items-center gap-2">
+                <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-subtle)] px-2 py-0.5 text-xs font-bold">{e.actor}</span>
+                <span className="font-semibold">{ACTION_LABEL[e.action] ?? e.action}</span>
+              </p>
+              {detail(e) && <p className="mt-1 text-[var(--text-secondary)]">{detail(e)}</p>}
+            </li>
+          ))
+        )}
+      </ul>
+
+      {/* Wider screens: the table. */}
+      <div className="hidden overflow-x-auto md:block rounded-2xl border-2 border-[var(--border-default)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.06)]">
         <table className="w-full min-w-[700px] text-left text-xs">
           <thead>
             <tr className="border-b-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-xs font-medium text-[var(--text-secondary)]">

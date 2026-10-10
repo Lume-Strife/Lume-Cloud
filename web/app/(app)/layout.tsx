@@ -52,33 +52,26 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
     <div className="flex min-h-screen flex-col bg-[var(--bg-canvas)] text-[var(--text-primary)]">
       {/* ── App Navigation Shell ─────────────────────────────────── */}
       <header className="sticky top-0 z-40 border-b-2 border-[var(--border-default)] bg-[var(--bg-canvas)]/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 md:px-8">
-          {/* Left: Brand + Navigation */}
-          <div className="flex items-center gap-6">
-            <Link href={HOME[user.role]} aria-label="Lume home">
-              <LumeLogo size="md" />
-            </Link>
+        {/* Phones: logo and actions on one row, page tabs full width below. Wider: one row. */}
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2.5 md:flex-nowrap md:px-8 md:py-3">
+          <Link href={HOME[user.role]} aria-label="Lume home" className="order-1 py-1.5">
+            <LumeLogo size="md" />
+          </Link>
 
+          <div className="order-3 w-full md:order-2 md:w-auto">
             <NavLinks links={NAV[user.role]} />
           </div>
 
-          {/* Right: Role badge + user + sign out */}
-          <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold tracking-tight ${badge.badgeClass}`}
-              >
-                {badge.label}
-              </span>
-              <span className="font-medium text-[var(--text-muted)] hidden sm:inline">
-                {user.display_name}
-              </span>
-            </div>
+          <div className="order-2 ml-auto flex items-center gap-2.5 text-xs md:order-3">
+            <span className={`hidden rounded-full px-2.5 py-0.5 text-[11px] font-bold tracking-tight sm:inline ${badge.badgeClass}`}>
+              {badge.label}
+            </span>
+            <span className="hidden font-medium text-[var(--text-muted)] lg:inline">{user.display_name}</span>
             <ThemeToggle />
             <form action={signOut}>
               <button
                 type="submit"
-                className="rounded-lg border-2 border-[var(--border-default)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--text-secondary)] transition hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] active:scale-[0.98]"
+                className="h-10 rounded-lg border-2 border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-xs font-semibold text-[var(--text-secondary)] transition hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] active:scale-[0.98] md:h-9"
               >
                 Sign out
               </button>

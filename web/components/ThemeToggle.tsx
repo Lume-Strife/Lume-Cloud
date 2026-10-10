@@ -33,7 +33,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={lit ? "Switch to dark mode" : "Switch to light mode"}
       title={lit ? "Lights off" : "Lights on"}
-      className={`theme-bulb ${lit ? "is-lit" : ""} flex h-9 w-9 items-center justify-center rounded-lg border-2 border-[var(--border-default)] bg-[var(--bg-surface)] transition hover:border-[var(--border-strong)]`}
+      className={`theme-bulb ${lit ? "is-lit" : ""} flex h-10 w-10 items-center justify-center md:h-9 md:w-9 rounded-lg border-2 border-[var(--border-default)] bg-[var(--bg-surface)] transition hover:border-[var(--border-strong)]`}
     >
       <svg viewBox="0 1 100 125" width="21" height="26" fill="none" aria-hidden>
         <BulbShape id="toggle-bulb" glow={false} small />

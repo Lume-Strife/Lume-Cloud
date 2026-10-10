@@ -50,7 +50,7 @@ export default async function CustomerPage() {
       </div>
 
       {/* Hero Section: Supply Delivered vs Band Commitment */}
-      <section aria-labelledby="supply-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-8 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
+      <section aria-labelledby="supply-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-4 sm:p-8 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 id="supply-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
@@ -66,34 +66,44 @@ export default async function CustomerPage() {
         </div>
 
         {/* Big Numbers & Compliance Progress */}
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
-            <span className="text-xs font-medium text-[var(--text-muted)]">Average per day</span>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="figure text-5xl font-bold text-[var(--text-primary)]">{supply.average_hours.toFixed(1)}</span>
-              <span className="text-sm font-semibold text-[var(--text-muted)]">hours / day</span>
+        {/* Three across even on phones: short labels and smaller figures below sm. */}
+        <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-4">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-3 sm:p-5">
+            <span className="text-[11px] font-medium text-[var(--text-muted)] sm:text-xs">
+              <span className="sm:hidden">Average</span>
+              <span className="hidden sm:inline">Average per day</span>
+            </span>
+            <div className="mt-1.5 flex flex-col sm:mt-2 sm:flex-row sm:items-baseline sm:gap-2">
+              <span className="figure text-3xl font-bold text-[var(--text-primary)] sm:text-5xl">{supply.average_hours.toFixed(1)}</span>
+              <span className="text-xs font-semibold text-[var(--text-muted)] sm:text-sm">hours / day</span>
             </div>
-            <span className="mt-1 block text-[11px] text-[var(--text-muted)]">From 15-minute voltage readings</span>
+            <span className="mt-1 hidden text-[11px] text-[var(--text-muted)] sm:block">From 15-minute voltage readings</span>
           </div>
 
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
-            <span className="text-xs font-medium text-[var(--text-muted)]">Band {supply.band} promise</span>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="figure text-5xl font-bold text-[var(--text-muted)]">{supply.committed_hours}</span>
-              <span className="text-sm font-semibold text-[var(--text-muted)]">hours / day</span>
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-3 sm:p-5">
+            <span className="text-[11px] font-medium text-[var(--text-muted)] sm:text-xs">
+              <span className="sm:hidden">Promised</span>
+              <span className="hidden sm:inline">Band {supply.band} promise</span>
+            </span>
+            <div className="mt-1.5 flex flex-col sm:mt-2 sm:flex-row sm:items-baseline sm:gap-2">
+              <span className="figure text-3xl font-bold text-[var(--text-muted)] sm:text-5xl">{supply.committed_hours}</span>
+              <span className="text-xs font-semibold text-[var(--text-muted)] sm:text-sm">hours / day</span>
             </div>
-            <span className="mt-1 block text-[11px] text-[var(--text-muted)]">Set by your tariff band</span>
+            <span className="mt-1 hidden text-[11px] text-[var(--text-muted)] sm:block">Set by your tariff band</span>
           </div>
 
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
-            <span className="text-xs font-medium text-[var(--text-muted)]">Hours delivered vs promised</span>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className={`figure text-5xl font-bold ${fulfillmentRate >= 100 ? "text-emerald-700" : fulfillmentRate >= 75 ? "text-amber-700" : "text-rose-700"}`}>
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-3 sm:p-5">
+            <span className="text-[11px] font-medium text-[var(--text-muted)] sm:text-xs">
+              <span className="sm:hidden">Of promise</span>
+              <span className="hidden sm:inline">Hours delivered vs promised</span>
+            </span>
+            <div className="mt-1.5 sm:mt-2">
+              <span className={`figure text-3xl font-bold sm:text-5xl ${fulfillmentRate >= 100 ? "text-emerald-700" : fulfillmentRate >= 75 ? "text-amber-700" : "text-rose-700"}`}>
                 {fulfillmentRate}%
               </span>
             </div>
             <span className="mt-1 block text-[11px] text-[var(--text-muted)]">
-              {supply.days_met} of {supply.days_met + supply.days_failed} days fully kept
+              {supply.days_met} of {supply.days_met + supply.days_failed} days kept
             </span>
           </div>
         </div>
@@ -151,7 +161,7 @@ export default async function CustomerPage() {
       {/* Bill & Recommendations Grid */}
       <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
         {/* Bill Breakdown */}
-        <section aria-labelledby="bill-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
+        <section aria-labelledby="bill-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-4 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
           <div className="flex items-baseline justify-between border-b border-[var(--border-subtle)] pb-3">
             <h2 id="bill-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
               Your bill
@@ -163,7 +173,7 @@ export default async function CustomerPage() {
             <thead>
               <tr className="border-b border-[var(--border-subtle)] text-xs font-medium text-[var(--text-muted)]">
                 <th className="py-2.5 pr-3">Item</th>
-                <th className="py-2.5 pr-3 text-right">Energy</th>
+                <th className="hidden py-2.5 pr-3 text-right sm:table-cell">Energy</th>
                 <th className="hidden py-2.5 pr-3 text-right sm:table-cell">Rate</th>
                 <th className="py-2.5 text-right">Amount</th>
               </tr>
@@ -173,6 +183,10 @@ export default async function CustomerPage() {
                 <tr key={l.description} className="align-top">
                   <td className="py-3 pr-3">
                     <span className="font-semibold text-[var(--text-primary)]">{l.estimated ? "Estimated energy" : "Metered energy"}</span>
+                    {/* Phones have no Energy column, so the amount of energy sits under the name. */}
+                    <span className="block font-medium text-[var(--text-secondary)] sm:hidden">
+                      {kwh(l.kwh)} at {money(l.rate)}/kWh
+                    </span>
                     {l.estimated ? (
                       <span className="block text-[11px] text-[var(--text-muted)] mt-0.5">
                         For times your meter was offline but the feeder had power.
@@ -183,21 +197,21 @@ export default async function CustomerPage() {
                       </span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap py-3 pr-3 text-right font-medium text-[var(--text-primary)]">{kwh(l.kwh)}</td>
+                  <td className="hidden whitespace-nowrap py-3 pr-3 text-right font-medium text-[var(--text-primary)] sm:table-cell">{kwh(l.kwh)}</td>
                   <td className="hidden whitespace-nowrap py-3 pr-3 text-right text-[var(--text-muted)] sm:table-cell">{money(l.rate)}/kWh</td>
                   <td className="whitespace-nowrap py-3 text-right font-bold text-[var(--text-primary)]">{money(l.amount)}</td>
                 </tr>
               ))}
               <tr>
-                <td className="py-3 pr-3 text-[var(--text-secondary)]" colSpan={2}>VAT (7.5%)</td>
-                <td className="hidden sm:table-cell" />
+                <td className="py-3 pr-3 text-[var(--text-secondary)]">VAT (7.5%)</td>
+                <td className="hidden sm:table-cell" colSpan={2} />
                 <td className="whitespace-nowrap py-3 text-right font-medium text-[var(--text-secondary)]">{money(bill.vat)}</td>
               </tr>
             </tbody>
             <tfoot>
               <tr className="border-t-2 border-[var(--border-strong)]">
-                <td className="pt-3.5 text-base font-bold text-[var(--text-primary)]" colSpan={2}>Total</td>
-                <td className="hidden sm:table-cell" />
+                <td className="pt-3.5 text-base font-bold text-[var(--text-primary)]">Total</td>
+                <td className="hidden sm:table-cell" colSpan={2} />
                 <td className="figure whitespace-nowrap pt-3.5 text-right text-2xl font-bold text-[var(--text-primary)]">{money(bill.total)}</td>
               </tr>
             </tfoot>
@@ -217,7 +231,7 @@ export default async function CustomerPage() {
         </section>
 
         {/* What You May Be Owed: Downgrade Credit & Compensation */}
-        <section aria-labelledby="owed-heading" className="self-start rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
+        <section aria-labelledby="owed-heading" className="self-start rounded-2xl border-2 border-[var(--border-strong)] bg-white p-4 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
           <div className="border-b border-[var(--border-subtle)] pb-3">
             <h2 id="owed-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
               What you may be owed
@@ -266,7 +280,7 @@ export default async function CustomerPage() {
       </div>
 
       {/* Customer Daily Consumption Profile */}
-      <section aria-labelledby="usage-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
+      <section aria-labelledby="usage-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-4 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
         <div className="flex flex-wrap items-baseline justify-between gap-4">
           <div>
             <h2 id="usage-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">

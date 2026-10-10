@@ -138,7 +138,7 @@ export default function LandingPage() {
       </nav>
 
       <main>
-        <section className="mx-auto grid max-w-5xl items-center gap-14 px-4 py-20 md:px-8 md:py-28 lg:grid-cols-[1.2fr_1fr]">
+        <section className="mx-auto grid max-w-5xl items-center gap-4 px-4 pt-6 pb-16 md:px-8 md:py-28 lg:grid-cols-[1.2fr_1fr] lg:gap-14">
           <div>
             <h1 className="font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl">
               Did your feeder deliver the{" "}
@@ -161,13 +161,16 @@ export default function LandingPage() {
               </Link>
               <a
                 href="#how-it-works"
-                className="text-sm font-semibold text-[var(--text-secondary)] underline-offset-4 hover:text-[var(--text-primary)] hover:underline"
+                className="py-3 text-sm font-semibold text-[var(--text-secondary)] underline-offset-4 hover:text-[var(--text-primary)] hover:underline"
               >
                 How it works
               </a>
             </div>
           </div>
-          <BulbBuddy />
+          {/* Phones: the bulb greets you first, smaller. */}
+          <div className="order-first mx-auto w-40 sm:w-48 lg:order-none lg:w-full">
+            <BulbBuddy />
+          </div>
         </section>
 
         <section id="who" className="border-t border-[var(--border-subtle)]">

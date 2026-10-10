@@ -137,7 +137,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
           <Link
             href={untrackedToggleHref()}
-            className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-4 transition"
+            className="inline-block py-2.5 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-4 transition"
           >
             {includeUntracked
               ? "Hide feeders with no telemetry"
@@ -145,8 +145,55 @@ export default async function OperationsPage({ searchParams }: PageProps) {
           </Link>
         </div>
 
-        {/* Feeders Table: High-Contrast Deliberate Lighter Data Panel */}
-        <div className="mt-3 overflow-x-auto rounded-2xl border-2 border-[var(--border-strong)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
+        {/* Phones: one card per feeder. */}
+        <ul className="mt-3 flex flex-col gap-3 md:hidden">
+          {feeders.map((f) => (
+            <li key={f.feeder_id} className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-base font-bold">{f.feeder_id}</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    Band {f.band} · {f.meters} meters
+                    {f.official && ` · ${f.official.disco}`}
+                  </p>
+                </div>
+                <FeederStatusMark status={f.status} />
+              </div>
+              <div className="mt-2">
+                <TelemetrySourceBadge source={f.feeder_telemetry_source} />
+              </div>
+              <dl className="mt-3 grid grid-cols-3 gap-2 border-t border-[var(--border-subtle)] pt-3 text-xs">
+                <div>
+                  <dt className="text-[var(--text-muted)]">Supply</dt>
+                  <dd className="mt-0.5 font-semibold">
+                    {f.status === "no_data" ? "No telemetry" : `${hours(f.average_hours)} of ${f.committed_hours}h`}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--text-muted)]">Unmetered</dt>
+                  <dd className={`mt-0.5 font-semibold ${f.unaccounted_kwh > 0 ? "text-rose-700" : ""}`}>
+                    {f.unaccounted_kwh > 0 ? kwh(f.unaccounted_kwh) : "None"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[var(--text-muted)]">Open leads</dt>
+                  <dd className="mt-0.5 font-semibold">{f.open_cases}</dd>
+                </div>
+              </dl>
+              {f.open_cases > 0 && (
+                <Link
+                  href={`/operations?status=open&feeder=${f.feeder_id}#cases`}
+                  className="mt-3 flex min-h-11 items-center justify-center rounded-lg border-2 border-[var(--border-default)] text-sm font-semibold text-amber-800 hover:border-[var(--border-strong)]"
+                >
+                  See {f.open_cases} open {f.open_cases === 1 ? "lead" : "leads"} →
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        {/* Wider screens: the full table. */}
+        <div className="mt-3 hidden overflow-x-auto md:block rounded-2xl border-2 border-[var(--border-strong)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
           <table className="w-full min-w-[760px] text-left text-xs">
             <thead>
               <tr className="border-b-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-xs font-medium text-[var(--text-muted)]">
@@ -244,7 +291,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                 key={s}
                 href={href(s)}
                 aria-current={isCurrent ? "page" : undefined}
-                className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
+                className={`flex min-h-10 items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition md:min-h-0 ${
                   isCurrent
                     ? "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
                     : "border-2 border-[var(--border-default)] bg-white text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"

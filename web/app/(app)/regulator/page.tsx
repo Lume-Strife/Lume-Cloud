@@ -127,7 +127,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
           <span className="text-xs font-bold text-[var(--text-primary)]">Show:</span>
           <Link
             href="/regulator"
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
+            className={`inline-flex min-h-10 items-center rounded-xl px-3.5 py-1.5 text-xs font-bold transition md:min-h-0 ${
               !includeUntracked
                 ? "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
                 : "border-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
@@ -137,7 +137,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
           </Link>
           <Link
             href="/regulator?include_untracked=true"
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
+            className={`inline-flex min-h-10 items-center rounded-xl px-3.5 py-1.5 text-xs font-bold transition md:min-h-0 ${
               includeUntracked
                 ? "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
                 : "border-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"

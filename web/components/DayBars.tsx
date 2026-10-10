@@ -111,7 +111,7 @@ export function DayBars({ days, max, unit, kind, reference, marker, height = 200
       )}
       <figcaption className={compact ? "sr-only" : "mt-3"}>
         <details className="text-xs text-[var(--text-secondary)]">
-          <summary className="cursor-pointer select-none font-medium hover:text-[var(--text-primary)]">Show tabular breakdown</summary>
+          <summary className="cursor-pointer select-none py-3 font-medium md:py-1 hover:text-[var(--text-primary)]">Show tabular breakdown</summary>
           <table className="mt-2 w-full max-w-md text-left text-xs">
             <caption className="sr-only">{caption}</caption>
             <thead>

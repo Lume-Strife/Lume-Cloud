@@ -74,7 +74,7 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
   return (
     <div className="flex flex-col gap-10">
       <div>
-        <Link href="/operations#cases" className="text-xs font-bold text-[var(--text-secondary)] hover:text-amber-700 transition">
+        <Link href="/operations#cases" className="inline-block py-3 text-xs font-bold text-[var(--text-secondary)] hover:text-amber-700 transition">
           ← All leads
         </Link>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-[var(--text-primary)]">{caseTitle(c)}</h1>
