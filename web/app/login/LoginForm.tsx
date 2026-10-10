@@ -7,15 +7,15 @@ const DEMO_ACCOUNTS = [
   {
     role: "Customer (Band A)",
     user: "customer",
-    desc: "Meter M0001 · Unilorin Feeder",
+    desc: "Household on a Band A feeder",
     tag: "Band A",
     tagColor: "bg-emerald-100 text-emerald-800 border-emerald-300",
   },
   {
-    role: "Customer (Band E)",
+    role: "Customer (Low band)",
     user: "customer2",
-    desc: "Meter M0081 · Lowest Band",
-    tag: "Band E",
+    desc: "Household on the lowest-band feeder",
+    tag: "Low band",
     tagColor: "bg-rose-100 text-rose-800 border-rose-300",
   },
   {

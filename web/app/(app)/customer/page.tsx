@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 function supplyExplanation(s: CustomerSummary["supply"]) {
   if (s.status === "downgrade")
-    return `Your feeder missed its Band ${s.band} commitment 7 consecutive days. Under the statutory NERC 7-Day Rule, your feeder is due to be downgraded to its delivered supply band, and you are eligible for a tariff refund/credit.`;
+    return `Your feeder missed its Band ${s.band} commitment 7 consecutive days. Under the NERC 7-Day Rule, your feeder should be downgraded to the band it actually delivers, and you may be owed a credit.`;
   if (s.status === "at_risk")
     return `Your feeder delivered an average of ${s.average_hours.toFixed(1)}h/day, falling short of the ${s.committed_hours} hours promised by Band ${s.band} on ${s.days_failed} days.`;
   return `Your feeder kept its Band ${s.band} commitment, averaging ${s.average_hours.toFixed(1)} hours of supply per day.`;
@@ -87,9 +87,9 @@ export default async function CustomerPage() {
           </div>
 
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Commitment Fulfillment</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Hours Delivered vs Promised</span>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className={`figure text-5xl font-bold ${fulfillmentRate >= 100 ? "text-emerald-600" : fulfillmentRate >= 75 ? "text-amber-600" : "text-rose-600"}`}>
+              <span className={`figure text-5xl font-bold ${fulfillmentRate >= 100 ? "text-emerald-700" : fulfillmentRate >= 75 ? "text-amber-700" : "text-rose-700"}`}>
                 {fulfillmentRate}%
               </span>
             </div>
@@ -123,7 +123,7 @@ export default async function CustomerPage() {
         </div>
 
         {/* Daily Supply Hours Chart */}
-        <div className="mt-7 border-t border-slate-100 pt-5">
+        <div className="mt-7 border-t border-[var(--border-subtle)] pt-5">
           <div className="mb-3.5 flex flex-wrap items-center justify-between gap-4">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Daily Feeder Supply Hours Profile</h3>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--text-muted)]">
@@ -165,82 +165,82 @@ export default async function CustomerPage() {
 
           <table className="mt-3.5 w-full text-left">
             <thead>
-              <tr className="border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              <tr className="border-b border-[var(--border-subtle)] text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                 <th className="py-2.5 pr-3">Billing Component</th>
                 <th className="py-2.5 pr-3 text-right">Energy</th>
                 <th className="hidden py-2.5 pr-3 text-right sm:table-cell">Rate</th>
                 <th className="py-2.5 text-right">Amount</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
+            <tbody className="divide-y divide-[var(--border-subtle)] text-xs">
               {bill.lines.map((l) => (
                 <tr key={l.description} className="align-top">
                   <td className="py-3 pr-3">
-                    <span className="font-semibold text-slate-900">{l.estimated ? "Estimated Supply-Backed Energy" : "Metered Active Energy"}</span>
+                    <span className="font-semibold text-[var(--text-primary)]">{l.estimated ? "Estimated Supply-Backed Energy" : "Metered Active Energy"}</span>
                     {l.estimated ? (
-                      <span className="block text-[11px] text-slate-500 mt-0.5">
+                      <span className="block text-[11px] text-[var(--text-muted)] mt-0.5">
                         Applied only when feeder telemetry proved voltage was live during meter offline interval.
                       </span>
                     ) : (
-                      <span className="block text-[11px] text-slate-500 mt-0.5">
+                      <span className="block text-[11px] text-[var(--text-muted)] mt-0.5">
                         Direct reading recorded by physical meter.
                       </span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap py-3 pr-3 text-right font-medium text-slate-900">{kwh(l.kwh)}</td>
-                  <td className="hidden whitespace-nowrap py-3 pr-3 text-right text-slate-500 sm:table-cell">{money(l.rate)}/kWh</td>
-                  <td className="whitespace-nowrap py-3 text-right font-bold text-slate-900">{money(l.amount)}</td>
+                  <td className="whitespace-nowrap py-3 pr-3 text-right font-medium text-[var(--text-primary)]">{kwh(l.kwh)}</td>
+                  <td className="hidden whitespace-nowrap py-3 pr-3 text-right text-[var(--text-muted)] sm:table-cell">{money(l.rate)}/kWh</td>
+                  <td className="whitespace-nowrap py-3 text-right font-bold text-[var(--text-primary)]">{money(l.amount)}</td>
                 </tr>
               ))}
               <tr>
-                <td className="py-3 pr-3 text-slate-600" colSpan={2}>Value Added Tax (VAT 7.5%)</td>
+                <td className="py-3 pr-3 text-[var(--text-secondary)]" colSpan={2}>Value Added Tax (VAT 7.5%)</td>
                 <td className="hidden sm:table-cell" />
-                <td className="whitespace-nowrap py-3 text-right font-medium text-slate-700">{money(bill.vat)}</td>
+                <td className="whitespace-nowrap py-3 text-right font-medium text-[var(--text-secondary)]">{money(bill.vat)}</td>
               </tr>
             </tbody>
             <tfoot>
-              <tr className="border-t-2 border-slate-900">
-                <td className="pt-3.5 text-base font-bold text-slate-900" colSpan={2}>Total Payable</td>
+              <tr className="border-t-2 border-[var(--border-strong)]">
+                <td className="pt-3.5 text-base font-bold text-[var(--text-primary)]" colSpan={2}>Total Payable</td>
                 <td className="hidden sm:table-cell" />
-                <td className="figure whitespace-nowrap pt-3.5 text-right text-2xl font-bold text-slate-900">{money(bill.total)}</td>
+                <td className="figure whitespace-nowrap pt-3.5 text-right text-2xl font-bold text-[var(--text-primary)]">{money(bill.total)}</td>
               </tr>
             </tfoot>
           </table>
 
           {/* Supply-Backed Estimation Transparency */}
-          <div className="mt-5 rounded-xl bg-slate-50/70 p-3.5 text-xs text-slate-600 border border-slate-100">
-            <p className="font-semibold text-slate-800">Proof-of-Supply Billing Guarantee:</p>
+          <div className="mt-5 rounded-xl bg-[var(--bg-subtle)] p-3.5 text-xs text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+            <p className="font-semibold text-[var(--text-primary)]">Proof-of-Supply Billing Guarantee:</p>
             <p className="mt-0.5 text-[11px] leading-relaxed">
               Of {plural(q.expected_slots, "expected telemetry interval", "expected telemetry intervals")}, {q.metered_slots.toLocaleString()} arrived from your meter.
               {q.estimated_slots > 0 &&
-                ` Exactly ${q.estimated_slots} missing intervals were estimated because feeder logs proved power was present.`}
+                ` ${plural(q.estimated_slots, "missing interval was", "missing intervals were")} estimated because feeder logs proved power was present.`}
               {q.unbilled_unknown_slots > 0 &&
-                ` Importantly, ${q.unbilled_unknown_slots} intervals were waived (0 NGN charged) because supply could not be verified by feeder data.`}
+                ` ${plural(q.unbilled_unknown_slots, "interval was", "intervals were")} not billed because supply could not be verified by feeder data.`}
             </p>
           </div>
         </section>
 
         {/* What You May Be Owed: Downgrade Credit & Compensation */}
         <section aria-labelledby="owed-heading" className="self-start rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
-          <div className="border-b border-slate-100 pb-3">
-            <h2 id="owed-heading" className="text-xl font-bold tracking-tight text-slate-900">
+          <div className="border-b border-[var(--border-subtle)] pb-3">
+            <h2 id="owed-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
               Regulatory Entitlements
             </h2>
-            <p className="mt-0.5 text-xs text-slate-400">NERC 7-Day Rule and Compensation Framework</p>
+            <p className="mt-0.5 text-xs text-[var(--text-muted)]">NERC 7-Day Rule and Compensation Framework</p>
           </div>
 
           {credit ? (
             <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/80 p-4">
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Recommended Downgrade Refund</span>
-              <p className="figure mt-1.5 text-3xl font-bold text-emerald-600 sm:text-4xl">{money(credit.amount!)}</p>
+              <p className="figure mt-1.5 text-3xl font-bold text-emerald-700 sm:text-4xl">{money(credit.amount!)}</p>
               <p className="mt-2 text-xs leading-relaxed text-emerald-900">
                 Calculated tariff differential credit. Because your feeder breached its Band {supply.band} commitment for 7 consecutive days, consumption following the breach must be rebilled at the lower band tariff.
               </p>
             </div>
           ) : (
-            <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50/70 p-4 text-xs text-slate-600">
-              <p className="font-semibold text-slate-800">No Downgrade Penalty Triggered</p>
-              <p className="mt-0.5 text-slate-400">
+            <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-4 text-xs text-[var(--text-secondary)]">
+              <p className="font-semibold text-[var(--text-primary)]">No Downgrade Penalty Triggered</p>
+              <p className="mt-0.5 text-[var(--text-muted)]">
                 Your feeder has not incurred 7 consecutive days below commitment during this cycle.
               </p>
             </div>
@@ -249,13 +249,13 @@ export default async function CustomerPage() {
           {others.length > 0 && (
             <div className="mt-3.5 flex flex-col gap-2.5">
               {others.map((r) => (
-                <div key={r.type} className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 text-xs text-slate-600">
-                  <p className="font-semibold text-slate-800">
+                <div key={r.type} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-3.5 text-xs text-[var(--text-secondary)]">
+                  <p className="font-semibold text-[var(--text-primary)]">
                     {r.type === "compensation_review" ? "NERC Compensation Review" : r.type}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-slate-500">
+                  <p className="mt-0.5 text-[11px] text-[var(--text-muted)]">
                     {r.type === "compensation_review"
-                      ? "Because monthly average hours fell below Band standard, you qualify for DisCo customer service credits under NERC framework guidelines."
+                      ? "Your feeder's average supply fell below its band commitment, so you may be due compensation under NERC's compensation framework."
                       : r.description}
                   </p>
                 </div>
@@ -263,7 +263,7 @@ export default async function CustomerPage() {
             </div>
           )}
 
-          <p className="mt-5 text-[11px] leading-relaxed text-slate-400">
+          <p className="mt-5 text-[11px] leading-relaxed text-[var(--text-muted)]">
             All credit amounts represent algorithmic recommendations derived from verified telemetry and require formal review before automatic ledger crediting.
           </p>
         </section>
@@ -273,14 +273,14 @@ export default async function CustomerPage() {
       <section aria-labelledby="usage-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
         <div className="flex flex-wrap items-baseline justify-between gap-4">
           <div>
-            <h2 id="usage-heading" className="text-xl font-bold tracking-tight text-slate-900">
+            <h2 id="usage-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
               Daily Consumption Pattern
             </h2>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="mt-0.5 text-xs text-[var(--text-muted)]">
               Cross-reference your energy usage (kWh) against feeder availability to detect unexpected surges or metering anomalies.
             </p>
           </div>
-          <span className="text-xs font-semibold text-slate-600">Total Energy: {kwh(daily.reduce((sum, d) => sum + d.kwh, 0))}</span>
+          <span className="text-xs font-semibold text-[var(--text-secondary)]">Total Energy: {kwh(daily.reduce((sum, d) => sum + d.kwh, 0))}</span>
         </div>
 
         <div className="mt-5">

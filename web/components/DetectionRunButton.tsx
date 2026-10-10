@@ -25,8 +25,8 @@ export function DetectionRunButton() {
         disabled={pending}
         className={`relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
           pending
-            ? "cursor-wait border-2 border-slate-300 bg-amber-100 text-amber-900 shadow-[2px_2px_0px_rgba(26,30,41,0.06)]"
-            : "border-2 border-slate-900 bg-amber-400 text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)] hover:bg-amber-300 active:scale-[0.98]"
+            ? "cursor-wait border-2 border-[var(--border-default)] bg-amber-100 text-amber-900 shadow-[2px_2px_0px_rgba(26,30,41,0.06)]"
+            : "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)] hover:bg-amber-300 active:scale-[0.98]"
         }`}
         title="Run the theft and anomaly detection engine over the current period"
       >
@@ -50,7 +50,7 @@ export function DetectionRunButton() {
           </>
         ) : (
           <>
-            <svg className="h-4 w-4 text-slate-950" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <svg className="h-4 w-4 text-[var(--text-primary)]" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path
                 fillRule="evenodd"
                 d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"

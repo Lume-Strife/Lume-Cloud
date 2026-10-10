@@ -37,7 +37,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
               Smart electricity
               <br />
               <span className="relative inline-block isolate mt-1">
-                <span className="relative z-10 text-amber-600">accountability.</span>
+                <span className="relative z-10 text-amber-700">accountability.</span>
                 <span
                   className="absolute inset-0 -bottom-0.5 rounded bg-amber-200 -z-10 rotate-[-1.5deg]"
                   aria-hidden

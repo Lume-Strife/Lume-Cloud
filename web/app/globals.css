@@ -15,8 +15,8 @@
   /* ── Typography ────────────────────────────────────────────── */
   --text-primary:        #1A1E29;   /* near-black charcoal */
   --text-secondary:      #3D4456;   /* medium charcoal */
-  --text-muted:          #7B8299;   /* muted slate */
-  --text-faint:          #A9B0C3;   /* ghost text */
+  --text-muted:          #5C6378;   /* muted slate — 5.6:1 on canvas */
+  --text-faint:          #6B7286;   /* fine print — 4.5:1 on canvas */
 
   /* ── Borders ────────────────────────────────────────────────── */
   --border-subtle:       #EAE6DF;   /* very light warm */
@@ -175,7 +175,9 @@ body {
   box-shadow: var(--shadow-card);
   transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
-.card-comic:hover {
+/* Only cards that are links or buttons lift on hover; static cards stay still. */
+a.card-comic:hover,
+button.card-comic:hover {
   box-shadow: var(--shadow-card-hover);
 }
 

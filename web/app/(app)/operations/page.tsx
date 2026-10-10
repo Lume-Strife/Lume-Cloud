@@ -99,7 +99,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
 
         {params.detected && (
           <div role="status" className="mt-4 flex items-center gap-2.5 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-3.5 text-xs text-emerald-800 font-medium">
-            <svg className="h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 shrink-0 text-emerald-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
             <span>Theft &amp; anomaly detection engine scan finished. Any new leads have been added to the queue below.</span>
@@ -108,28 +108,28 @@ export default async function OperationsPage({ searchParams }: PageProps) {
 
         {/* Operational KPI Cards */}
         <div className="mt-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-white p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)] transition hover:shadow-[4px_4px_0px_rgba(26,30,41,0.12)]">
+          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-white p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)]">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Tracked Feeders</span>
             <p className="figure mt-2 text-2xl font-bold text-[var(--text-primary)]">{feeders.length}</p>
             <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">{includeUntracked ? "Including NERC register" : "Live telemetry"}</span>
           </div>
 
-          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-rose-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)] transition hover:shadow-[4px_4px_0px_rgba(26,30,41,0.12)]">
+          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-rose-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)]">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-700">Unmetered Losses</span>
             <p className="figure mt-2 text-2xl font-bold text-rose-700">{kwh(unaccounted)}</p>
-            <span className="mt-0.5 block text-[11px] text-rose-600">Beyond tech loss threshold</span>
+            <span className="mt-0.5 block text-[11px] text-rose-700">Beyond tech loss threshold</span>
           </div>
 
-          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-amber-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)] transition hover:shadow-[4px_4px_0px_rgba(26,30,41,0.12)]">
+          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-amber-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)]">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-700">Open Leads</span>
             <p className="figure mt-2 text-2xl font-bold text-amber-700">{openCasesCount}</p>
-            <span className="mt-0.5 block text-[11px] text-amber-600">Awaiting field inspection</span>
+            <span className="mt-0.5 block text-[11px] text-amber-700">Awaiting field inspection</span>
           </div>
 
-          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-sky-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)] transition hover:shadow-[4px_4px_0px_rgba(26,30,41,0.12)]">
+          <div className="rounded-xl border-2 border-[var(--border-strong)] bg-sky-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)]">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-700">Investigations</span>
             <p className="figure mt-2 text-2xl font-bold text-sky-700">{investigatingCount}</p>
-            <span className="mt-0.5 block text-[11px] text-sky-600">Technicians dispatched</span>
+            <span className="mt-0.5 block text-[11px] text-sky-700">Technicians dispatched</span>
           </div>
         </div>
 
@@ -141,7 +141,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
           >
             {includeUntracked
               ? "← Hide untracked official register feeders"
-              : "→ Include untracked NERC register (+21 Kwara Feeders)"}
+              : "→ Include untracked NERC register feeders"}
           </Link>
         </div>
 
@@ -163,10 +163,10 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                   <td className="px-5 py-3.5">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slate-900">{f.feeder_id}</span>
+                        <span className="font-bold text-sm text-[var(--text-primary)]">{f.feeder_id}</span>
                         <TelemetrySourceBadge source={f.feeder_telemetry_source} />
                       </div>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[11px] text-[var(--text-muted)]">
                         Band {f.band} · {f.meters} connected meters
                         {f.official && ` · ${f.official.disco} (${f.official.state})`}
                       </span>
@@ -174,12 +174,12 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                   </td>
                   <td className="px-5 py-3.5">
                     {f.status === "no_data" ? (
-                      <span className="text-slate-400">No telemetry data</span>
+                      <span className="text-[var(--text-muted)]">No telemetry data</span>
                     ) : (
                       <>
-                        <span className="font-semibold text-slate-900">{hours(f.average_hours)}</span>
-                        <span className="text-slate-500"> of {f.committed_hours}h/day commitment</span>
-                        <span className="block text-[11px] text-slate-400">{f.days_met} of {f.days_met + f.days_failed} days achieved</span>
+                        <span className="font-semibold text-[var(--text-primary)]">{hours(f.average_hours)}</span>
+                        <span className="text-[var(--text-muted)]"> of {f.committed_hours}h/day commitment</span>
+                        <span className="block text-[11px] text-[var(--text-muted)]">{f.days_met} of {f.days_met + f.days_failed} days achieved</span>
                       </>
                     )}
                   </td>
@@ -196,14 +196,14 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                         <span aria-hidden>→</span>
                       </Link>
                     ) : (
-                      <span className="text-slate-400">0</span>
+                      <span className="text-[var(--text-muted)]">0</span>
                     )}
                   </td>
                   <td className="px-5 py-3.5 text-right font-medium">
                     {f.unaccounted_kwh > 0 ? (
-                      <span className="font-bold text-rose-600">{kwh(f.unaccounted_kwh)}</span>
+                      <span className="font-bold text-rose-700">{kwh(f.unaccounted_kwh)}</span>
                     ) : (
-                      <span className="text-slate-400">None detected</span>
+                      <span className="text-[var(--text-muted)]">None detected</span>
                     )}
                   </td>
                 </tr>
@@ -246,14 +246,14 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                 aria-current={isCurrent ? "page" : undefined}
                 className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
                   isCurrent
-                    ? "border-2 border-slate-900 bg-amber-400 text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
+                    ? "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
                     : "border-2 border-[var(--border-default)] bg-white text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
                 }`}
               >
                 <span>{s === "all" ? "All Cases" : FLAG_STATUS_LABEL[s]}</span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
-                    isCurrent ? "bg-slate-900 text-amber-300" : "bg-slate-100 text-slate-700"
+                    isCurrent ? "bg-[var(--text-primary)] text-amber-300" : "bg-[var(--bg-subtle)] text-[var(--text-secondary)]"
                   }`}
                 >
                   {count}
@@ -275,33 +275,33 @@ export default async function OperationsPage({ searchParams }: PageProps) {
             </p>
           </div>
         ) : (
-          <ul className="mt-5 divide-y divide-slate-100 rounded-2xl border-2 border-[var(--border-default)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.06)]">
+          <ul className="mt-5 divide-y divide-[var(--border-subtle)] rounded-2xl border-2 border-[var(--border-default)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.06)]">
             {cases.map((c) => (
               <li key={`${c.subject_type}:${c.subject_id}`}>
                 <Link
                   href={caseHref(c)}
-                  className="group grid gap-x-6 gap-y-3 px-5 py-4.5 transition-colors hover:bg-slate-50/70 md:grid-cols-[160px_1fr_auto] md:items-start"
+                  className="group grid gap-x-6 gap-y-3 px-5 py-4.5 transition-colors hover:bg-[var(--bg-subtle)] md:grid-cols-[160px_1fr_auto] md:items-start"
                 >
                   <div className="flex flex-col gap-1.5">
                     <ConfidenceMeter value={c.confidence} />
-                    <span className="text-xs text-slate-500">
+                    <span className="text-xs text-[var(--text-muted)]">
                       {plural(c.flags.length, "anomaly signal", "anomaly signals")}
                     </span>
-                    <span className="text-[11px] text-slate-500">
-                      Feeder: <strong className="font-semibold text-slate-700">{c.feeder_id}</strong>
+                    <span className="text-[11px] text-[var(--text-muted)]">
+                      Feeder: <strong className="font-semibold text-[var(--text-secondary)]">{c.feeder_id}</strong>
                     </span>
                   </div>
 
                   <div>
-                    <p className="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    <p className="text-sm font-bold text-[var(--text-primary)] group-hover:text-emerald-700 transition-colors">
                       {caseTitle(c)}
                     </p>
-                    <ul className="mt-2 flex flex-col gap-1 text-xs text-slate-600">
+                    <ul className="mt-2 flex flex-col gap-1 text-xs text-[var(--text-secondary)]">
                       {c.flags.map((f) => (
                         <li key={f.flag_id} className="flex items-start gap-2">
                           <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
                           <span>
-                            <strong className="font-semibold text-slate-900">{RULE_LABEL[f.rule]}:</strong> {f.reason}
+                            <strong className="font-semibold text-[var(--text-primary)]">{RULE_LABEL[f.rule]}:</strong> {f.reason}
                           </span>
                         </li>
                       ))}
@@ -310,7 +310,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
 
                   <div className="flex md:flex-col items-center md:items-end justify-between gap-2">
                     <FlagStatusMark status={c.status} />
-                    <span className="text-xs text-slate-400 group-hover:text-slate-900 font-medium">Review case →</span>
+                    <span className="text-xs text-[var(--text-muted)] group-hover:text-[var(--text-primary)] font-medium">Review case →</span>
                   </div>
                 </Link>
               </li>

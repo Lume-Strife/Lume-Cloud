@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 // ── Feature Pill ─────────────────────────────────────────────────
 function Pill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 py-1 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
+    <span className="inline-flex self-start items-center gap-1.5 rounded-full border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 py-1 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">
       {children}
     </span>
   );
@@ -28,7 +28,7 @@ function Pill({ children }: { children: React.ReactNode }) {
 // ── Hero Illustration: Grid + Meter ──────────────────────────────
 function HeroIllustration() {
   return (
-    <div className="relative w-full max-w-md mx-auto select-none" aria-hidden>
+    <div className="relative w-full max-w-md mx-auto mt-8 select-none" aria-hidden>
       {/* outer card */}
       <div className="rounded-2xl border-2 border-[var(--border-strong)] bg-white shadow-[8px_8px_0px_0px_rgba(26,30,41,0.12)] p-6 flex flex-col gap-5">
         {/* Header row */}
@@ -46,13 +46,13 @@ function HeroIllustration() {
         <div className="flex gap-4">
           <div className="flex-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-4">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Delivered Today</p>
-            <p className="mt-1 figure text-4xl font-bold text-[var(--text-primary)]">18.4<span className="text-base font-semibold text-[var(--text-muted)] ml-1">h</span></p>
-            <p className="mt-1 text-[10px] text-[var(--text-muted)]">Guarantee: 16 h</p>
+            <p className="mt-1 figure text-4xl font-bold text-[var(--text-primary)]">20.6<span className="text-base font-semibold text-[var(--text-muted)] ml-1">h</span></p>
+            <p className="mt-1 text-[10px] text-[var(--text-muted)]">Band A promise: 20 h</p>
           </div>
           <div className="flex-1 rounded-xl border border-[var(--border-subtle)] bg-[var(--amber-50)] p-4">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-700">Bill Estimate</p>
             <p className="mt-1 figure text-4xl font-bold text-amber-700">₦4,280</p>
-            <p className="mt-1 text-[10px] text-amber-600">Monthly projection</p>
+            <p className="mt-1 text-[10px] text-amber-700">Monthly projection</p>
           </div>
         </div>
 
@@ -60,13 +60,13 @@ function HeroIllustration() {
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2">Last 7 days</p>
           <div className="flex items-end gap-1.5 h-10">
-            {[14, 18.4, 16.2, 12, 17, 18, 18.4].map((h, i) => (
+            {[21, 20.4, 18.2, 21.5, 22, 19.1, 20.6].map((h, i) => (
               <div
                 key={i}
                 className="flex-1 rounded-sm"
                 style={{
-                  height: `${Math.round((h / 20) * 100)}%`,
-                  background: h >= 16 ? "#10B981" : h >= 10 ? "#F59E0B" : "#EF4444",
+                  height: `${Math.round((h / 24) * 100)}%`,
+                  background: h >= 20 ? "#10B981" : "#F59E0B",
                   border: "1.5px solid rgba(26,30,41,0.15)",
                 }}
               />
@@ -83,7 +83,7 @@ function HeroIllustration() {
       <p className="mt-3 text-center text-[11px] text-[var(--text-muted)]">Illustration · sample data</p>
 
       {/* Floating badge */}
-      <div className="absolute -top-3 -right-3 rounded-xl border-2 border-[var(--border-strong)] bg-amber-400 px-3 py-1.5 shadow-[3px_3px_0px_rgba(26,30,41,0.2)]">
+      <div className="absolute -top-9 right-4 rotate-2 rounded-xl border-2 border-[var(--border-strong)] bg-amber-400 px-3 py-1.5 shadow-[3px_3px_0px_rgba(26,30,41,0.2)]">
         <p className="text-[11px] font-black text-amber-900">⚡ Tamper alert</p>
         <p className="text-[9px] text-amber-800">Meter M0081 · open</p>
       </div>
@@ -143,7 +143,7 @@ function RoleCard({ emoji, role, description, user }: { emoji: string; role: str
         <p className="font-bold text-[var(--text-primary)] group-hover:text-amber-700 transition-colors">{role}</p>
         <p className="mt-1 text-xs text-[var(--text-muted)] leading-relaxed">{description}</p>
       </div>
-      <span className="mt-auto text-xs font-semibold text-amber-600 group-hover:text-amber-700">Sign in as this persona →</span>
+      <span className="mt-auto text-xs font-semibold text-amber-700 group-hover:text-amber-700">Sign in as this persona →</span>
     </Link>
   );
 }
@@ -188,7 +188,7 @@ export default function LandingPage() {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]" style={{ fontFamily: "var(--font-display)" }}>
               Power your world.{" "}
               <span className="relative inline-block isolate">
-                <span className="relative z-10 text-amber-600">Know your energy.</span>
+                <span className="relative z-10 text-amber-700">Know your energy.</span>
                 <span
                   className="absolute inset-0 -bottom-1 rounded bg-amber-200 -z-10 rotate-[-1deg]"
                   aria-hidden
@@ -350,13 +350,13 @@ export default function LandingPage() {
             <RoleCard
               emoji="🏠"
               role="Customer (Band A)"
-              description="Meter M0001 on Unilorin Feeder. View your supply hours, bill, and downgrade eligibility."
+              description="A household on a Band A feeder. View supply hours, the itemised bill, and any downgrade credit."
               user="customer"
             />
             <RoleCard
               emoji="📉"
-              role="Customer (Band E)"
-              description="Meter M0081 on the lowest supply band. See how under-delivery triggers credit recommendations."
+              role="Customer (Low band)"
+              description="A household on the lowest-band feeder in the demo. Compare a different supply promise and bill."
               user="customer2"
             />
             <RoleCard

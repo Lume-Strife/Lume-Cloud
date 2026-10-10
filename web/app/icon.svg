@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" aria-label="Lume">
+  <!-- Bulb glass body -->
+  <path d="M20 4C14.477 4 10 8.477 10 14c0 3.63 1.874 6.817 4.708 8.68V26a1 1 0 001 1h8.584a1 1 0 001-1v-3.32C28.126 20.817 30 17.63 30 14c0-5.523-4.477-10-10-10z" fill="#FDE68A" stroke="#1A1E29" stroke-width="1.75" stroke-linejoin="round"/>
+  <!-- Filament glow -->
+  <path d="M17 18.5l1.5-3 1.5 2 1.5-3 1.5 3" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Base segments -->
+  <rect x="14.5" y="27" width="11" height="2.5" rx="0.5" fill="#D1FAE5" stroke="#1A1E29" stroke-width="1.5"/>
+  <rect x="15.5" y="30" width="9" height="2.5" rx="0.5" fill="#D1FAE5" stroke="#1A1E29" stroke-width="1.5"/>
+  <!-- Base tip -->
+  <rect x="17" y="32.5" width="6" height="2" rx="1" fill="#A7F3D0" stroke="#1A1E29" stroke-width="1.25"/>
+  <!-- Shine highlight -->
+  <path d="M15 12c0-2.21 1.79-4 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+</svg>

@@ -6,27 +6,27 @@ type Tone = "good" | "warn" | "bad" | "neutral";
 const BADGE_STYLES: Record<Tone, { bg: string; text: string; border: string; dot: string }> = {
   good: {
     bg: "bg-emerald-500/10",
-    text: "text-emerald-700 dark:text-emerald-300",
+    text: "text-emerald-700",
     border: "border-emerald-500/20",
     dot: "bg-emerald-500",
   },
   warn: {
     bg: "bg-amber-500/10",
-    text: "text-amber-700 dark:text-amber-300",
+    text: "text-amber-700",
     border: "border-amber-500/20",
     dot: "bg-amber-500",
   },
   bad: {
     bg: "bg-rose-500/10",
-    text: "text-rose-700 dark:text-rose-300",
+    text: "text-rose-700",
     border: "border-rose-500/20",
     dot: "bg-rose-500",
   },
   neutral: {
-    bg: "bg-slate-500/10",
-    text: "text-slate-600 dark:text-slate-400",
-    border: "border-slate-500/20",
-    dot: "bg-slate-400",
+    bg: "bg-[var(--bg-subtle)]",
+    text: "text-[var(--text-secondary)]",
+    border: "border-[var(--border-default)]",
+    dot: "bg-[var(--status-nodata)]",
   },
 };
 

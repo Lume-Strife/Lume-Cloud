@@ -71,7 +71,7 @@ export function AuditLogViewer({ entries }: { entries: AuditEntry[] }) {
               onClick={() => setActiveCategory(cat.id)}
               className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
                 activeCategory === cat.id
-                  ? "border-2 border-slate-900 bg-amber-400 text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
+                  ? "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
                   : "border-2 border-[var(--border-default)] bg-white text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
               }`}
             >
@@ -103,7 +103,7 @@ export function AuditLogViewer({ entries }: { entries: AuditEntry[] }) {
               <th className="px-4 py-3.5">Audit Details</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-[var(--border-subtle)]">
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-[var(--text-muted)]">
@@ -113,17 +113,17 @@ export function AuditLogViewer({ entries }: { entries: AuditEntry[] }) {
             ) : (
               filtered.map((e) => (
                 <tr key={e.seq} className="hover:bg-amber-50/40 transition-colors align-top">
-                  <td className="px-4 py-3.5 font-mono font-medium text-slate-400">#{e.seq}</td>
-                  <td className="whitespace-nowrap px-4 py-3.5 text-slate-600">{when(e.at)}</td>
+                  <td className="px-4 py-3.5 font-mono font-medium text-[var(--text-muted)]">#{e.seq}</td>
+                  <td className="whitespace-nowrap px-4 py-3.5 text-[var(--text-secondary)]">{when(e.at)}</td>
                   <td className="px-4 py-3.5">
-                    <span className="inline-block rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 font-bold text-slate-800">
+                    <span className="inline-block rounded-md border border-[var(--border-subtle)] bg-[var(--bg-subtle)] px-2 py-0.5 font-bold text-[var(--text-primary)]">
                       {e.actor}
                     </span>
                   </td>
-                  <td className="px-4 py-3.5 font-bold text-slate-900">
+                  <td className="px-4 py-3.5 font-bold text-[var(--text-primary)]">
                     {ACTION_LABEL[e.action] ?? e.action}
                   </td>
-                  <td className="px-4 py-3.5 text-slate-700 leading-relaxed">{detail(e)}</td>
+                  <td className="px-4 py-3.5 text-[var(--text-secondary)] leading-relaxed">{detail(e)}</td>
                 </tr>
               ))
             )}

@@ -30,6 +30,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
   const downgrades = feeders.filter((f) => f.downgrade_date).length;
   const explanations = feeders.reduce((sum, f) => sum + f.explanation_dates.length, 0);
   const compensations = feeders.filter((f) => f.compensation_flag).length;
+  const untracked = feeders.filter((f) => f.status === "no_data" && f.official).length;
 
   const exportUrl = `/regulator/export${includeUntracked ? "?include_untracked=true" : ""}`;
 
@@ -42,7 +43,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
             <span className="section-pill">
               NERC Service Accountability
             </span>
-            <span className="text-xs text-[var(--text-muted)] font-medium">Order NERC/2024/032</span>
+            <span className="text-xs text-[var(--text-muted)] font-medium">Band A–E · 7-Day Rule</span>
           </div>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-[var(--text-primary)]">
             Feeder Compliance: {periodLabel(period.start, period.end)}
@@ -67,10 +68,10 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
 
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
-        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+        <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
             <span className="text-[11px] font-bold uppercase tracking-wider">Feeders</span>
-            <span className="h-2 w-2 rounded-full bg-slate-400" />
+            <span className="h-2 w-2 rounded-full bg-[var(--status-nodata)]" />
           </div>
           <p className="figure mt-2.5 text-2xl font-black text-[var(--text-primary)]">{feeders.length}</p>
           <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">
@@ -78,48 +79,48 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
           </span>
         </div>
 
-        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+        <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Meeting Band</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Meeting Band</span>
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-emerald-600">{compliant}</p>
+          <p className="figure mt-2.5 text-2xl font-black text-emerald-700">{compliant}</p>
           <span className="mt-0.5 block text-[11px] text-emerald-700 font-medium">Kept commitments</span>
         </div>
 
-        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+        <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-600">Falling Short</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">Falling Short</span>
             <span className="h-2 w-2 rounded-full bg-amber-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-amber-600">{breached}</p>
+          <p className="figure mt-2.5 text-2xl font-black text-amber-700">{breached}</p>
           <span className="mt-0.5 block text-[11px] text-amber-700 font-medium">At risk of breach</span>
         </div>
 
-        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+        <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-600">7-Day Downgrades</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700">7-Day Downgrades</span>
             <span className="h-2 w-2 rounded-full bg-rose-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-rose-600">{downgrades}</p>
+          <p className="figure mt-2.5 text-2xl font-black text-rose-700">{downgrades}</p>
           <span className="mt-0.5 block text-[11px] text-rose-700 font-medium">Mandated tariff drops</span>
         </div>
 
-        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+        <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Explanations</span>
-            <span className="h-2 w-2 rounded-full bg-slate-400" />
+            <span className="h-2 w-2 rounded-full bg-[var(--status-nodata)]" />
           </div>
           <p className="figure mt-2.5 text-2xl font-black text-[var(--text-primary)]">{explanations}</p>
           <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">≥2 consecutive failures</span>
         </div>
 
-        <div className="card-comic p-4 transition-all hover:-translate-y-0.5">
+        <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-sky-600">Compensation</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">Compensation</span>
             <span className="h-2 w-2 rounded-full bg-sky-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-sky-600">{compensations}</p>
+          <p className="figure mt-2.5 text-2xl font-black text-sky-700">{compensations}</p>
           <span className="mt-0.5 block text-[11px] text-sky-700 font-medium">Eligible for credits</span>
         </div>
       </div>
@@ -132,7 +133,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
             href="/regulator"
             className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
               !includeUntracked
-                ? "border-2 border-slate-900 bg-amber-400 text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
+                ? "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
                 : "border-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
             }`}
           >
@@ -142,17 +143,17 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
             href="/regulator?include_untracked=true"
             className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
               includeUntracked
-                ? "border-2 border-slate-900 bg-amber-400 text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
+                ? "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)]"
                 : "border-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
             }`}
           >
-            Include Untracked NERC Register (+21 Kwara Feeders)
+            Include Untracked NERC Register
           </Link>
         </div>
 
         <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] font-medium">
           <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
-          <span>Simulated demo data is explicitly labeled per audit standards</span>
+          <span>Every feeder shows where its data comes from</span>
         </div>
       </div>
 
@@ -160,7 +161,14 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
         <div className="rounded-2xl border-2 border-sky-300 bg-sky-50 p-4 text-xs text-sky-950 shadow-[3px_3px_0px_rgba(14,165,233,0.1)]">
           <p className="font-bold text-sm text-sky-900">Official NERC Feeder Register Included</p>
           <p className="mt-1 max-w-[80ch] leading-relaxed text-sky-950/90">
-            Displaying 21 official Kwara State / Challenge Business Unit feeders transcribed from NERC’s published September 2026 energy cap bulletin (including UNILORIN 33KV Band A). Because DisCos have not yet deployed public telemetry loggers to these lines, their status is recorded as <strong>Untracked / No data</strong>. Under regulatory rules, untracked status is never judged as compliant or breached.
+            {untracked > 0 ? (
+              <>
+                Showing {untracked} official register {untracked === 1 ? "feeder" : "feeders"} with no telemetry connected.
+                Their status is recorded as <strong>Untracked / No data</strong>, and untracked feeders are never judged as compliant or breached.
+              </>
+            ) : (
+              "No official register feeders are loaded in this environment, so this view matches live telemetry."
+            )}
           </p>
         </div>
       )}
@@ -171,13 +179,13 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
           const hasReadings = f.days && f.days.length > 0;
 
           return (
-            <li key={f.feeder_id} className="rounded-2xl border-2 border-[var(--border-default)] bg-white p-5 sm:p-6 shadow-[3px_3px_0px_rgba(26,30,41,0.06)] transition-all hover:border-[var(--border-strong)] hover:shadow-[4px_4px_0px_rgba(26,30,41,0.1)]">
-              <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-slate-100 pb-3.5">
+            <li key={f.feeder_id} className="rounded-2xl border-2 border-[var(--border-default)] bg-white p-5 sm:p-6 shadow-[3px_3px_0px_rgba(26,30,41,0.06)]">
+              <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-[var(--border-subtle)] pb-3.5">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                  <h2 className="text-lg font-bold tracking-tight text-[var(--text-primary)]">
                     {f.feeder_id}
                   </h2>
-                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                  <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-subtle)] px-2 py-0.5 text-xs font-semibold text-[var(--text-secondary)]">
                     Band {f.band} ({f.committed_hours}h/day)
                   </span>
                   <TelemetrySourceBadge source={f.feeder_telemetry_source} />
@@ -206,9 +214,9 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
                       compact
                       caption={`Daily hours of supply on feeder ${f.feeder_id}`}
                     />
-                    <div className="mt-2.5 flex justify-between text-xs text-slate-400" aria-hidden>
+                    <div className="mt-2.5 flex justify-between text-xs text-[var(--text-muted)]" aria-hidden>
                       <span>{shortDate(f.days[0].date)}</span>
-                      <span className="font-medium text-slate-600">
+                      <span className="font-medium text-[var(--text-secondary)]">
                         {f.days_met} of {f.days_met + f.days_failed} days achieved
                       </span>
                       <span>{shortDate(f.days[f.days.length - 1].date)}</span>
@@ -216,17 +224,17 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
                   </div>
 
                   <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-xs sm:text-sm">
-                    <dt className="whitespace-nowrap text-slate-500">Average delivered</dt>
-                    <dd className="text-right font-semibold text-slate-900">{hours(f.average_hours)} a day</dd>
+                    <dt className="whitespace-nowrap text-[var(--text-muted)]">Average delivered</dt>
+                    <dd className="text-right font-semibold text-[var(--text-primary)]">{hours(f.average_hours)} a day</dd>
 
-                    <dt className="whitespace-nowrap text-slate-500">Days promise kept</dt>
-                    <dd className="text-right font-medium text-slate-900">
+                    <dt className="whitespace-nowrap text-[var(--text-muted)]">Days promise kept</dt>
+                    <dd className="text-right font-medium text-[var(--text-primary)]">
                       {f.days_met} of {f.days_met + f.days_failed}
                       {f.days_insufficient_data > 0 && ` (${f.days_insufficient_data} no data)`}
                     </dd>
 
-                    <dt className="whitespace-nowrap text-slate-500">Explanations owed</dt>
-                    <dd className="text-right font-medium text-slate-900" title={f.explanation_dates.map(shortDate).join(", ")}>
+                    <dt className="whitespace-nowrap text-[var(--text-muted)]">Explanations owed</dt>
+                    <dd className="text-right font-medium text-[var(--text-primary)]" title={f.explanation_dates.map(shortDate).join(", ")}>
                       {f.explanation_dates.length > 0 ? (
                         <span className="text-amber-700 font-bold">{f.explanation_dates.length} incidents</span>
                       ) : (
@@ -234,10 +242,10 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
                       )}
                     </dd>
 
-                    <dt className="whitespace-nowrap text-slate-500">7-Day Rule</dt>
-                    <dd className="text-right font-medium text-slate-900">
+                    <dt className="whitespace-nowrap text-[var(--text-muted)]">7-Day Rule</dt>
+                    <dd className="text-right font-medium text-[var(--text-primary)]">
                       {f.downgrade_date ? (
-                        <span className="text-rose-600 font-bold">
+                        <span className="text-rose-700 font-bold">
                           Downgrade to Band {f.recommended_band ?? "below E"} ({shortDate(f.downgrade_date)})
                         </span>
                       ) : (
@@ -245,8 +253,8 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
                       )}
                     </dd>
 
-                    <dt className="whitespace-nowrap text-slate-500">Compensation status</dt>
-                    <dd className="text-right font-medium text-slate-900">
+                    <dt className="whitespace-nowrap text-[var(--text-muted)]">Compensation status</dt>
+                    <dd className="text-right font-medium text-[var(--text-primary)]">
                       {f.compensation_flag ? (
                         <span className="text-emerald-700 font-semibold">Customers eligible</span>
                       ) : (
@@ -256,9 +264,9 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
                   </dl>
                 </div>
               ) : (
-                <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center text-sm text-slate-600">
-                  <p className="font-semibold text-slate-900">No telemetry recordings for this period</p>
-                  <p className="mt-1 text-xs text-slate-400 max-w-lg mx-auto">
+                <div className="mt-4 rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-6 text-center text-sm text-[var(--text-secondary)]">
+                  <p className="font-semibold text-[var(--text-primary)]">No telemetry recordings for this period</p>
+                  <p className="mt-1 text-xs text-[var(--text-muted)] max-w-lg mx-auto">
                     This is an official NERC register entry without connected digital telemetry. Readings are unmeasured and thus excluded from 7-Day Rule breach calculations.
                   </p>
                 </div>
@@ -269,10 +277,10 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
       </ul>
 
       {/* Regulatory footnotes */}
-      <div className="rounded-2xl border-2 border-[var(--border-default)] bg-amber-50/60 p-5 text-xs text-slate-700 shadow-[2px_2px_0px_rgba(26,30,41,0.04)]">
-        <p className="font-bold text-amber-950">NERC Methodology &amp; Regulatory Principles:</p>
+      <div className="rounded-2xl border-2 border-[var(--border-default)] bg-amber-50/60 p-5 text-xs text-[var(--text-secondary)] shadow-[2px_2px_0px_rgba(26,30,41,0.04)]">
+        <p className="font-bold text-amber-950">How Lume measures supply</p>
         <p className="mt-1 leading-relaxed">
-          Delivered supply hours are derived from continuous 15-minute feeder busbar voltage measurements maintained above 180V. Under NERC Service Accountability orders, days exhibiting under 90% telemetry coverage are categorized as insufficient data and break consecutive failure sequences rather than triggering automatic penalties. Official NERC energy caps are published billing limits, not delivered energy or telemetry.
+          A 15-minute interval counts as supplied when feeder voltage is above 180V. Days with under 90% telemetry coverage are reported as insufficient data: they are not judged, and they break any run of failed days instead of extending it. These thresholds are Lume settings checked against published NERC rules. Official NERC energy caps are published billing limits, not delivered energy or telemetry.
         </p>
       </div>
     </div>

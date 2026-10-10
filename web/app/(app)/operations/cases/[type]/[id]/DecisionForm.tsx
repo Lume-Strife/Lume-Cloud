@@ -49,7 +49,7 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
             key={o.value}
             className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 p-3.5 transition-all ${
               selectedStatus === o.value
-                ? "border-slate-900 bg-amber-50/70 shadow-[2px_2px_0px_rgba(26,30,41,0.1)] ring-1 ring-slate-900"
+                ? "border-[var(--border-strong)] bg-amber-50/70 shadow-[2px_2px_0px_rgba(26,30,41,0.1)] ring-1 ring-[var(--border-strong)]"
                 : "border-[var(--border-default)] bg-white hover:border-[var(--border-strong)]"
             }`}
           >
@@ -63,27 +63,29 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
               className={`mt-1 h-4 w-4 ${o.color}`}
             />
             <span className="flex-1">
-              <span className="block font-bold text-xs text-slate-900">{o.label}</span>
-              <span className="block text-[11px] text-slate-500 mt-0.5">{o.hint}</span>
+              <span className="block font-bold text-xs text-[var(--text-primary)]">{o.label}</span>
+              <span className="block text-[11px] text-[var(--text-muted)] mt-0.5">{o.hint}</span>
             </span>
           </label>
         ))}
       </fieldset>
 
-      <label className="flex flex-col gap-1.5 text-xs font-semibold text-slate-700">
+      <label className="flex flex-col gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
         <div className="flex justify-between items-baseline">
           <span>
             Field Findings &amp; Decision Notes{" "}
-            {noteRequired && <span className="text-rose-600 text-xs font-bold">(Required, ≥ 3 characters)</span>}
+            {noteRequired && <span className="text-rose-700 text-xs font-bold">(Required, ≥ 3 characters)</span>}
           </span>
-          <span className="text-[11px] text-slate-400 font-medium">{noteLength}/1000</span>
+          <span className="text-[11px] text-[var(--text-muted)] font-medium">{noteLength}/1000</span>
         </div>
         <textarea
           name="note"
           rows={4}
           maxLength={1000}
+          required={noteRequired}
+          minLength={noteRequired ? 3 : undefined}
           onChange={(e) => setNoteLength(e.target.value.length)}
-          className="rounded-xl border-2 border-[var(--border-default)] bg-white px-3.5 py-2.5 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
+          className="rounded-xl border-2 border-[var(--border-default)] bg-white px-3.5 py-2.5 text-xs font-medium text-[var(--text-primary)] placeholder:text-[var(--text-faint)] focus:border-amber-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
           placeholder={
             noteRequired
               ? "Describe evidence inspected on site, technician name, and seal status..."
@@ -102,13 +104,13 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl border-2 border-slate-900 bg-amber-400 px-4 py-2.5 font-bold text-xs text-slate-950 shadow-[2px_2px_0px_rgba(26,30,41,0.12)] transition hover:bg-amber-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+        className="rounded-xl border-2 border-[var(--border-strong)] bg-amber-400 px-4 py-2.5 font-bold text-xs text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)] transition hover:bg-amber-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
       >
         {pending ? "Writing to audit log…" : "Record Final Decision"}
       </button>
 
       <p className="text-[11px] text-[var(--text-muted)] text-center font-medium">
-        This decision permanently seals across all signals in this case and appends a SHA-256 hash to the tamper-evident audit trail.
+        This decision applies to every signal in this case and is written to the tamper-evident audit trail.
       </p>
     </form>
   );
