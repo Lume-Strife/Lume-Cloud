@@ -14,7 +14,7 @@ export function LumeLogo({ size = "md", markOnly = false }: { size?: keyof typeo
   return (
     <span className="inline-flex items-center gap-1.5">
       {!markOnly && (
-        <span className={`font-black tracking-tight text-[var(--text-primary)] ${WORD_SIZE[size]}`}>Lume</span>
+        <span className={`font-display font-extrabold tracking-tight text-[var(--text-primary)] ${WORD_SIZE[size]}`}>Lume</span>
       )}
       <Image src="/lume-mark.svg" alt="" width={MARK_SIZE[size]} height={MARK_SIZE[size]} priority />
     </span>

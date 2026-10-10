@@ -82,14 +82,12 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="section-pill">Revenue Protection &amp; Operations</span>
-              <span className="text-xs text-[var(--text-muted)]">Field Dispatch &amp; Telemetry</span>
             </div>
             <h1 id="feeders-heading" className="mt-2 text-3xl font-bold tracking-tight text-[var(--text-primary)]">
-              Feeders &amp; Energy Accounting
+              Feeders
             </h1>
             <p className="mt-1.5 text-sm text-[var(--text-muted)]">
-              {periodLabel(period.start, period.end)} · Energy balance comparing bulk feeder input against aggregated metered consumption.
+              {periodLabel(period.start, period.end)} · Energy sent into each feeder compared with what its meters recorded.
             </p>
           </div>
           <form action={runDetection}>
@@ -102,34 +100,34 @@ export default async function OperationsPage({ searchParams }: PageProps) {
             <svg className="h-4 w-4 shrink-0 text-emerald-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
-            <span>Theft &amp; anomaly detection engine scan finished. Any new leads have been added to the queue below.</span>
+            <span>Scan finished. Any new leads are in the list below.</span>
           </div>
         )}
 
         {/* Operational KPI Cards */}
         <div className="mt-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
           <div className="rounded-xl border-2 border-[var(--border-strong)] bg-white p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Tracked Feeders</span>
+            <span className="text-xs font-medium text-[var(--text-muted)]">Feeders</span>
             <p className="figure mt-2 text-2xl font-bold text-[var(--text-primary)]">{feeders.length}</p>
-            <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">{includeUntracked ? "Including NERC register" : "Live telemetry"}</span>
+            <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">{includeUntracked ? "Including NERC register" : "With telemetry"}</span>
           </div>
 
           <div className="rounded-xl border-2 border-[var(--border-strong)] bg-rose-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-700">Unmetered Losses</span>
+            <span className="text-xs font-medium text-rose-700">Unmetered energy</span>
             <p className="figure mt-2 text-2xl font-bold text-rose-700">{kwh(unaccounted)}</p>
-            <span className="mt-0.5 block text-[11px] text-rose-700">Beyond tech loss threshold</span>
+            <span className="mt-0.5 block text-[11px] text-rose-700">Above expected technical loss</span>
           </div>
 
           <div className="rounded-xl border-2 border-[var(--border-strong)] bg-amber-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-700">Open Leads</span>
+            <span className="text-xs font-medium text-amber-700">Open leads</span>
             <p className="figure mt-2 text-2xl font-bold text-amber-700">{openCasesCount}</p>
-            <span className="mt-0.5 block text-[11px] text-amber-700">Awaiting field inspection</span>
+            <span className="mt-0.5 block text-[11px] text-amber-700">Waiting for a site visit</span>
           </div>
 
           <div className="rounded-xl border-2 border-[var(--border-strong)] bg-sky-50 p-4 shadow-[3px_3px_0px_rgba(26,30,41,0.08)]">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-700">Investigations</span>
+            <span className="text-xs font-medium text-sky-700">Being investigated</span>
             <p className="figure mt-2 text-2xl font-bold text-sky-700">{investigatingCount}</p>
-            <span className="mt-0.5 block text-[11px] text-sky-700">Technicians dispatched</span>
+            <span className="mt-0.5 block text-[11px] text-sky-700">Site visit planned</span>
           </div>
         </div>
 
@@ -140,8 +138,8 @@ export default async function OperationsPage({ searchParams }: PageProps) {
             className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline underline-offset-4 transition"
           >
             {includeUntracked
-              ? "← Hide untracked official register feeders"
-              : "→ Include untracked NERC register feeders"}
+              ? "Hide feeders with no telemetry"
+              : "Show NERC register feeders with no telemetry"}
           </Link>
         </div>
 
@@ -149,12 +147,12 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         <div className="mt-3 overflow-x-auto rounded-2xl border-2 border-[var(--border-strong)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
           <table className="w-full min-w-[760px] text-left text-xs">
             <thead>
-              <tr className="border-b-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                <th className="px-5 py-3.5">Feeder &amp; Telemetry</th>
-                <th className="px-5 py-3.5">Supply vs Promise</th>
-                <th className="px-5 py-3.5">Band Status</th>
-                <th className="px-5 py-3.5 text-right">Field Leads</th>
-                <th className="px-5 py-3.5 text-right">Unaccounted Energy</th>
+              <tr className="border-b-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-xs font-medium text-[var(--text-muted)]">
+                <th className="px-5 py-3.5">Feeder</th>
+                <th className="px-5 py-3.5">Supply vs promise</th>
+                <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5 text-right">Open leads</th>
+                <th className="px-5 py-3.5 text-right">Unmetered energy</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border-subtle)]">
@@ -167,19 +165,19 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                         <TelemetrySourceBadge source={f.feeder_telemetry_source} />
                       </div>
                       <span className="text-[11px] text-[var(--text-muted)]">
-                        Band {f.band} · {f.meters} connected meters
+                        Band {f.band} · {f.meters} meters
                         {f.official && ` · ${f.official.disco} (${f.official.state})`}
                       </span>
                     </div>
                   </td>
                   <td className="px-5 py-3.5">
                     {f.status === "no_data" ? (
-                      <span className="text-[var(--text-muted)]">No telemetry data</span>
+                      <span className="text-[var(--text-muted)]">No telemetry</span>
                     ) : (
                       <>
                         <span className="font-semibold text-[var(--text-primary)]">{hours(f.average_hours)}</span>
-                        <span className="text-[var(--text-muted)]"> of {f.committed_hours}h/day commitment</span>
-                        <span className="block text-[11px] text-[var(--text-muted)]">{f.days_met} of {f.days_met + f.days_failed} days achieved</span>
+                        <span className="text-[var(--text-muted)]"> of {f.committed_hours}h promised</span>
+                        <span className="block text-[11px] text-[var(--text-muted)]">{f.days_met} of {f.days_met + f.days_failed} days kept</span>
                       </>
                     )}
                   </td>
@@ -203,7 +201,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                     {f.unaccounted_kwh > 0 ? (
                       <span className="font-bold text-rose-700">{kwh(f.unaccounted_kwh)}</span>
                     ) : (
-                      <span className="text-[var(--text-muted)]">None detected</span>
+                      <span className="text-[var(--text-muted)]">None</span>
                     )}
                   </td>
                 </tr>
@@ -217,11 +215,11 @@ export default async function OperationsPage({ searchParams }: PageProps) {
       <section aria-labelledby="cases-heading" id="cases">
         <div className="flex flex-wrap items-baseline justify-between gap-4">
           <div>
-            <h2 id="cases-heading" className="text-2xl font-black tracking-tight text-[var(--text-primary)]">
-              Theft &amp; Tamper Leads Queue
+            <h2 id="cases-heading" className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+              Leads to check
             </h2>
             <p className="mt-1 max-w-[70ch] text-sm text-[var(--text-secondary)]">
-              Leads aggregated by meter or feeder and ranked by algorithmic confidence. A case is a lead for physical on-site inspection, not proof. Record findings before deciding.
+              Grouped by meter or feeder and sorted by confidence. A lead is a reason to visit the site, not proof of theft.
             </p>
           </div>
           {feeder && (
@@ -229,7 +227,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
               href={`/operations?status=${filter}#cases`}
               className="rounded-xl border-2 border-[var(--border-default)] bg-white px-3.5 py-1.5 text-xs font-bold text-[var(--text-secondary)] shadow-[2px_2px_0px_rgba(26,30,41,0.06)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] transition"
             >
-              Filtered by feeder <strong>{feeder}</strong> · Show all
+              Feeder <strong>{feeder}</strong> only · Show all
             </Link>
           )}
         </div>
@@ -250,9 +248,9 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                     : "border-2 border-[var(--border-default)] bg-white text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
                 }`}
               >
-                <span>{s === "all" ? "All Cases" : FLAG_STATUS_LABEL[s]}</span>
+                <span>{s === "all" ? "All" : FLAG_STATUS_LABEL[s]}</span>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                     isCurrent ? "bg-[var(--text-primary)] text-amber-300" : "bg-[var(--bg-subtle)] text-[var(--text-secondary)]"
                   }`}
                 >
@@ -269,9 +267,9 @@ export default async function OperationsPage({ searchParams }: PageProps) {
             <svg className="mx-auto h-8 w-8 text-[var(--text-muted)]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="mt-3 font-bold text-[var(--text-primary)] text-sm">No {filter === "all" ? "" : FLAG_STATUS_LABEL[filter].toLowerCase()} cases found</p>
+            <p className="mt-3 font-bold text-[var(--text-primary)] text-sm">No {filter === "all" ? "" : FLAG_STATUS_LABEL[filter].toLowerCase()} leads</p>
             <p className="mt-1 text-xs text-[var(--text-muted)]">
-              {feeder ? `No cases match feeder ${feeder}. Try clearing the feeder filter.` : "Scan for leads to analyze current readings."}
+              {feeder ? `Nothing on feeder ${feeder}. Try showing all feeders.` : "Run a scan to check the latest readings."}
             </p>
           </div>
         ) : (
@@ -310,7 +308,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
 
                   <div className="flex md:flex-col items-center md:items-end justify-between gap-2">
                     <FlagStatusMark status={c.status} />
-                    <span className="text-xs text-[var(--text-muted)] group-hover:text-[var(--text-primary)] font-medium">Review case →</span>
+                    <span className="text-xs text-[var(--text-muted)] group-hover:text-[var(--text-primary)] font-medium">Open →</span>
                   </div>
                 </Link>
               </li>

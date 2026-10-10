@@ -4,34 +4,10 @@ import { useActionState, useState } from "react";
 import { signIn, type LoginState } from "../actions";
 
 const DEMO_ACCOUNTS = [
-  {
-    role: "Customer (Band A)",
-    user: "customer",
-    desc: "Household on a Band A feeder",
-    tag: "Band A",
-    tagColor: "bg-emerald-100 text-emerald-800 border-emerald-300",
-  },
-  {
-    role: "Customer (Low band)",
-    user: "customer2",
-    desc: "Household on the lowest-band feeder",
-    tag: "Low band",
-    tagColor: "bg-rose-100 text-rose-800 border-rose-300",
-  },
-  {
-    role: "DisCo Operations",
-    user: "ops",
-    desc: "Theft leads & feeder balance",
-    tag: "Ops",
-    tagColor: "bg-sky-100 text-sky-800 border-sky-300",
-  },
-  {
-    role: "NERC Regulator",
-    user: "regulator",
-    desc: "7-Day Rule compliance",
-    tag: "Regulator",
-    tagColor: "bg-amber-100 text-amber-800 border-amber-300",
-  },
+  { user: "customer", name: "Customer", desc: "Band A feeder" },
+  { user: "customer2", name: "Customer", desc: "Lowest-band feeder" },
+  { user: "ops", name: "DisCo operations", desc: "Theft leads and feeders" },
+  { user: "regulator", name: "Regulator", desc: "Band and 7-Day Rule checks" },
 ];
 
 export function LoginForm({ notice, initialUser }: { notice: string | null; initialUser: string | null }) {
@@ -53,35 +29,26 @@ export function LoginForm({ notice, initialUser }: { notice: string | null; init
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Quick Demo Switcher */}
-      <div className="rounded-xl border-2 border-[var(--border-default)] bg-[var(--bg-subtle)] p-4">
-        <span className="block text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-          ⚡ Instant demo personas
-        </span>
-        <div className="mt-3 grid grid-cols-2 gap-2">
+      <fieldset>
+        <legend className="text-sm font-medium text-[var(--text-secondary)]">Demo accounts</legend>
+        <div className="mt-2 grid grid-cols-2 gap-2">
           {DEMO_ACCOUNTS.map((a) => (
             <button
               key={a.user}
               type="button"
               onClick={() => fillAccount(a.user)}
               aria-pressed={username === a.user}
-              className="flex flex-col items-start rounded-lg border-2 border-[var(--border-default)] bg-white aria-pressed:border-amber-500 aria-pressed:bg-amber-50 p-2.5 text-left transition hover:border-[var(--border-strong)] hover:shadow-[2px_2px_0px_rgba(26,30,41,0.10)] active:scale-[0.98]"
+              className="flex flex-col items-start rounded-lg border-2 border-[var(--border-default)] bg-white p-3 text-left transition hover:border-[var(--border-strong)] aria-pressed:border-amber-500 aria-pressed:bg-amber-50"
             >
-              <div className="flex w-full items-center justify-between gap-1">
-                <span className="font-bold text-xs text-[var(--text-primary)] leading-snug">{a.role}</span>
-                <span className={`rounded-full border px-1.5 py-0.5 text-[9px] font-black leading-none ${a.tagColor}`}>
-                  {a.tag}
-                </span>
-              </div>
-              <span className="mt-0.5 text-[10px] text-[var(--text-muted)]">{a.desc}</span>
+              <span className="text-sm font-semibold">{a.name}</span>
+              <span className="mt-0.5 text-xs text-[var(--text-muted)]">{a.desc}</span>
             </button>
           ))}
         </div>
-      </div>
+      </fieldset>
 
-      {/* Credential Form */}
       <form action={action} className="flex flex-col gap-4" noValidate>
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-[var(--text-secondary)]">
           Username
           <input
             name="username"
@@ -89,12 +56,11 @@ export function LoginForm({ notice, initialUser }: { notice: string | null; init
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
             required
-            placeholder="customer, ops, regulator…"
             className="rounded-lg border-2 border-[var(--border-default)] bg-white px-3.5 py-2.5 text-sm font-normal text-[var(--text-primary)] placeholder:text-[var(--text-faint)] focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition"
           />
         </label>
 
-        <label className="flex flex-col gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-[var(--text-secondary)]">
           Password
           <input
             name="password"
@@ -103,7 +69,6 @@ export function LoginForm({ notice, initialUser }: { notice: string | null; init
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
             required
-            placeholder="Enter password"
             className="rounded-lg border-2 border-[var(--border-default)] bg-white px-3.5 py-2.5 text-sm font-normal text-[var(--text-primary)] placeholder:text-[var(--text-faint)] focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition"
           />
         </label>
@@ -120,9 +85,9 @@ export function LoginForm({ notice, initialUser }: { notice: string | null; init
         <button
           type="submit"
           disabled={pending}
-          className="mt-1 rounded-lg border-2 border-[var(--border-strong)] bg-[var(--text-primary)] px-4 py-2.5 text-sm font-bold text-white shadow-[3px_3px_0px_rgba(26,30,41,0.20)] transition hover:shadow-[4px_4px_0px_rgba(26,30,41,0.26)] hover:-translate-y-px active:translate-y-px active:shadow-none disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+          className="btn-primary mt-1 justify-center py-3"
         >
-          {pending ? "Signing in…" : "Sign in to Lume"}
+          {pending ? "Signing in…" : "Sign in"}
         </button>
       </form>
     </div>

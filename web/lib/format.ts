@@ -37,10 +37,10 @@ export const FLAG_STATUS_LABEL: Record<FlagStatus, string> = {
 };
 
 export const FEEDER_STATUS_LABEL: Record<FeederStatus, string> = {
-  compliant: "Meeting its Band",
+  compliant: "Meeting its band",
   at_risk: "Falling short",
   downgrade: "Downgrade due",
-  no_data: "Untracked / No data",
+  no_data: "No telemetry",
 };
 
 export const TELEMETRY_SOURCE_LABEL: Record<TelemetrySource, string> = {

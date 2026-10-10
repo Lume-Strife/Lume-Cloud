@@ -28,7 +28,7 @@ export function DetectionRunButton() {
             ? "cursor-wait border-2 border-[var(--border-default)] bg-amber-100 text-amber-900 shadow-[2px_2px_0px_rgba(26,30,41,0.06)]"
             : "border-2 border-[var(--border-strong)] bg-amber-400 text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)] hover:bg-amber-300 active:scale-[0.98]"
         }`}
-        title="Run the theft and anomaly detection engine over the current period"
+        title="Check every meter's readings for this period"
       >
         {pending ? (
           <>
@@ -46,7 +46,7 @@ export function DetectionRunButton() {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            <span>Analyzing telemetry ({displayElapsed}s, ~12s total)…</span>
+            <span>Scanning… {displayElapsed}s</span>
           </>
         ) : (
           <>
@@ -57,13 +57,13 @@ export function DetectionRunButton() {
                 clipRule="evenodd"
               />
             </svg>
-            <span>Scan for new theft leads</span>
+            <span>Scan for new leads</span>
           </>
         )}
       </button>
       {pending && (
         <span className="text-[11px] text-[var(--text-muted)] font-medium">
-          Evaluating consumption baselines, tamper logs &amp; energy imbalances across all meters
+          This takes about 15 seconds.
         </span>
       )}
     </div>

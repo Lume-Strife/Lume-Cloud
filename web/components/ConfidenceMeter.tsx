@@ -1,6 +1,6 @@
 /** Confidence as an elegant colored bar with percentage indicator. */
 export function ConfidenceMeter({ value }: { value: number }) {
-  const label = value >= 0.75 ? "High Confidence" : value >= 0.5 ? "Moderate Signal" : "Weak Signal";
+  const label = value >= 0.75 ? "high" : value >= 0.5 ? "moderate" : "low";
   const barColor =
     value >= 0.75
       ? "bg-rose-500"
@@ -9,7 +9,7 @@ export function ConfidenceMeter({ value }: { value: number }) {
       : "bg-[var(--status-nodata)]";
 
   return (
-    <div className="flex items-center gap-2.5 text-xs" title={`Confidence: ${Math.round(value * 100)}% (${label})`}>
+    <div className="flex items-center gap-2.5 text-xs" title={`Confidence: ${Math.round(value * 100)}% (${label} confidence)`}>
       <div className="h-2 w-14 overflow-hidden rounded-full border border-[var(--border-default)] bg-[var(--bg-subtle)]" aria-hidden>
         <div
           className={`h-full rounded-full transition-all duration-300 ${barColor}`}

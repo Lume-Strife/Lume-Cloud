@@ -9,14 +9,14 @@ import type { Role } from "@/lib/types";
 import { signOut } from "../actions";
 
 const NAV: Record<Role, { href: string; label: string }[]> = {
-  customer: [{ href: "/customer", label: "Supply & Bill" }],
+  customer: [{ href: "/customer", label: "Supply and bill" }],
   operations: [
-    { href: "/operations", label: "Feeders & Leads" },
-    { href: "/audit", label: "Audit Trail" },
+    { href: "/operations", label: "Feeders and leads" },
+    { href: "/audit", label: "Audit log" },
   ],
   regulator: [
     { href: "/regulator", label: "Compliance" },
-    { href: "/audit", label: "Audit Trail" },
+    { href: "/audit", label: "Audit log" },
   ],
 };
 
@@ -27,7 +27,7 @@ const ROLE_BADGE: Record<Role, { label: string; badgeClass: string }> = {
       "bg-emerald-100 text-emerald-800 border border-emerald-300",
   },
   operations: {
-    label: "DisCo Operations",
+    label: "DisCo operations",
     badgeClass:
       "bg-sky-100 text-sky-800 border border-sky-300",
   },
@@ -98,7 +98,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
               className="inline-block h-2 w-2 rounded-full bg-emerald-500"
               aria-hidden
             />
-            <span className="font-medium">Lume · Grid Intelligence Platform</span>
+            <span className="font-medium">Lume</span>
           </div>
           <p className="max-w-[50ch] text-[var(--text-faint)]">
             Meter readings are simulated. Official NERC feeder register entries transcribed from the September 2026 IBEDC publication.

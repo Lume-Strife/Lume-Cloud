@@ -40,16 +40,12 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="section-pill">
-              NERC Service Accountability
-            </span>
-            <span className="text-xs text-[var(--text-muted)] font-medium">Band A–E · 7-Day Rule</span>
           </div>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-[var(--text-primary)]">
-            Feeder Compliance: {periodLabel(period.start, period.end)}
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--text-primary)]">
+            Feeder compliance, {periodLabel(period.start, period.end)}
           </h1>
           <p className="mt-1.5 max-w-[72ch] text-sm text-[var(--text-secondary)] leading-relaxed">
-            Independent verification of DisCo feeder supply hours against committed Band A–E standards and the statutory NERC 7-Day Rule.
+            Hours of supply on each feeder, checked against its band and the 7-Day Rule.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -61,7 +57,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
             <svg className="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
             </svg>
-            <span>Download Evidence (CSV)</span>
+            <span>Download CSV</span>
           </a>
         </div>
       </div>
@@ -70,65 +66,65 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
       <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
         <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Feeders</span>
+            <span className="text-xs font-medium">Feeders</span>
             <span className="h-2 w-2 rounded-full bg-[var(--status-nodata)]" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-[var(--text-primary)]">{feeders.length}</p>
+          <p className="figure mt-2.5 text-2xl font-bold text-[var(--text-primary)]">{feeders.length}</p>
           <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">
-            {includeUntracked ? "Live & registered" : "Live telemetry"}
+            {includeUntracked ? "Including register" : "With telemetry"}
           </span>
         </div>
 
         <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Meeting Band</span>
+            <span className="text-xs font-medium text-emerald-700">Meeting band</span>
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-emerald-700">{compliant}</p>
-          <span className="mt-0.5 block text-[11px] text-emerald-700 font-medium">Kept commitments</span>
+          <p className="figure mt-2.5 text-2xl font-bold text-emerald-700">{compliant}</p>
+          <span className="mt-0.5 block text-[11px] text-emerald-700 font-medium">Kept their promise</span>
         </div>
 
         <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">Falling Short</span>
+            <span className="text-xs font-medium text-amber-700">Falling short</span>
             <span className="h-2 w-2 rounded-full bg-amber-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-amber-700">{breached}</p>
-          <span className="mt-0.5 block text-[11px] text-amber-700 font-medium">At risk of breach</span>
+          <p className="figure mt-2.5 text-2xl font-bold text-amber-700">{breached}</p>
+          <span className="mt-0.5 block text-[11px] text-amber-700 font-medium">Missed some days</span>
         </div>
 
         <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-rose-700">7-Day Downgrades</span>
+            <span className="text-xs font-medium text-rose-700">Downgrade due</span>
             <span className="h-2 w-2 rounded-full bg-rose-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-rose-700">{downgrades}</p>
-          <span className="mt-0.5 block text-[11px] text-rose-700 font-medium">Mandated tariff drops</span>
+          <p className="figure mt-2.5 text-2xl font-bold text-rose-700">{downgrades}</p>
+          <span className="mt-0.5 block text-[11px] text-rose-700 font-medium">Missed 7 days in a row</span>
         </div>
 
         <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Explanations</span>
+            <span className="text-xs font-medium text-[var(--text-secondary)]">Explanations</span>
             <span className="h-2 w-2 rounded-full bg-[var(--status-nodata)]" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-[var(--text-primary)]">{explanations}</p>
-          <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">≥2 consecutive failures</span>
+          <p className="figure mt-2.5 text-2xl font-bold text-[var(--text-primary)]">{explanations}</p>
+          <span className="mt-0.5 block text-[11px] text-[var(--text-muted)]">2 or more missed days in a row</span>
         </div>
 
         <div className="card-comic p-4">
           <div className="flex items-center justify-between text-[var(--text-secondary)]">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-sky-700">Compensation</span>
+            <span className="text-xs font-medium text-sky-700">Compensation</span>
             <span className="h-2 w-2 rounded-full bg-sky-500" />
           </div>
-          <p className="figure mt-2.5 text-2xl font-black text-sky-700">{compensations}</p>
-          <span className="mt-0.5 block text-[11px] text-sky-700 font-medium">Eligible for credits</span>
+          <p className="figure mt-2.5 text-2xl font-bold text-sky-700">{compensations}</p>
+          <span className="mt-0.5 block text-[11px] text-sky-700 font-medium">Customers may be owed</span>
         </div>
       </div>
 
       {/* Filter and Register Controls */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border-2 border-[var(--border-default)] bg-white px-4 py-3 shadow-[3px_3px_0px_rgba(26,30,41,0.06)]">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold text-[var(--text-primary)]">Filter View:</span>
+          <span className="text-xs font-bold text-[var(--text-primary)]">Show:</span>
           <Link
             href="/regulator"
             className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
@@ -137,7 +133,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
                 : "border-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
             }`}
           >
-            Live Telemetry Only
+            Feeders with telemetry
           </Link>
           <Link
             href="/regulator?include_untracked=true"
@@ -147,7 +143,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
                 : "border-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)]"
             }`}
           >
-            Include Untracked NERC Register
+            Add NERC register feeders
           </Link>
         </div>
 
@@ -159,12 +155,12 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
 
       {includeUntracked && (
         <div className="rounded-2xl border-2 border-sky-300 bg-sky-50 p-4 text-xs text-sky-950 shadow-[3px_3px_0px_rgba(14,165,233,0.1)]">
-          <p className="font-bold text-sm text-sky-900">Official NERC Feeder Register Included</p>
+          <p className="font-bold text-sm text-sky-900">NERC register feeders included</p>
           <p className="mt-1 max-w-[80ch] leading-relaxed text-sky-950/90">
             {untracked > 0 ? (
               <>
                 Showing {untracked} official register {untracked === 1 ? "feeder" : "feeders"} with no telemetry connected.
-                Their status is recorded as <strong>Untracked / No data</strong>, and untracked feeders are never judged as compliant or breached.
+                They show as <strong>No telemetry</strong> and are never judged as meeting or missing their band.
               </>
             ) : (
               "No official register feeders are loaded in this environment, so this view matches live telemetry."
@@ -176,7 +172,7 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
       {/* Feeder List */}
       <ul className="flex flex-col gap-4">
         {feeders.map((f) => {
-          const hasReadings = f.days && f.days.length > 0;
+          const hasReadings = f.status !== "no_data" && f.days?.length > 0;
 
           return (
             <li key={f.feeder_id} className="rounded-2xl border-2 border-[var(--border-default)] bg-white p-5 sm:p-6 shadow-[3px_3px_0px_rgba(26,30,41,0.06)]">
@@ -249,25 +245,25 @@ export default async function RegulatorPage({ searchParams }: PageProps) {
                           Downgrade to Band {f.recommended_band ?? "below E"} ({shortDate(f.downgrade_date)})
                         </span>
                       ) : (
-                        "Compliant / Not triggered"
+                        "Not triggered"
                       )}
                     </dd>
 
                     <dt className="whitespace-nowrap text-[var(--text-muted)]">Compensation status</dt>
                     <dd className="text-right font-medium text-[var(--text-primary)]">
                       {f.compensation_flag ? (
-                        <span className="text-emerald-700 font-semibold">Customers eligible</span>
+                        <span className="text-emerald-700 font-semibold">Customers may be owed</span>
                       ) : (
-                        "Standard tariff applies"
+                        "Not due"
                       )}
                     </dd>
                   </dl>
                 </div>
               ) : (
                 <div className="mt-4 rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-6 text-center text-sm text-[var(--text-secondary)]">
-                  <p className="font-semibold text-[var(--text-primary)]">No telemetry recordings for this period</p>
+                  <p className="font-semibold text-[var(--text-primary)]">No readings this period</p>
                   <p className="mt-1 text-xs text-[var(--text-muted)] max-w-lg mx-auto">
-                    This is an official NERC register entry without connected digital telemetry. Readings are unmeasured and thus excluded from 7-Day Rule breach calculations.
+                    This feeder is on the NERC register but has no telemetry, so it isn&apos;t judged against the 7-Day Rule.
                   </p>
                 </div>
               )}

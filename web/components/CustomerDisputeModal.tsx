@@ -25,7 +25,7 @@ export function CustomerDisputeModal({ data, periodText }: Props) {
         <svg className="h-4 w-4 text-amber-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
         </svg>
-        <span>Dispute &amp; Tariff Rights</span>
+        <span>Dispute a bill</span>
       </button>
 
       <dialog
@@ -38,9 +38,8 @@ export function CustomerDisputeModal({ data, periodText }: Props) {
         <div className="p-6">
           <div className="flex items-start justify-between gap-4 border-b-2 border-[var(--border-default)] pb-3.5">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-700">Consumer Protection</span>
-              <h2 id="dispute-title" className="text-lg font-black text-[var(--text-primary)]">
-                Dispute Rights &amp; Guidance
+              <h2 id="dispute-title" className="text-lg font-bold text-[var(--text-primary)]">
+                Your rights and how to dispute
               </h2>
             </div>
             <button
@@ -49,7 +48,9 @@ export function CustomerDisputeModal({ data, periodText }: Props) {
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-bold text-[var(--text-muted)] transition hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
               aria-label="Close dialog"
             >
-              ✕
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
             </button>
           </div>
 

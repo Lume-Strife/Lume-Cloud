@@ -75,9 +75,9 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
     <div className="flex flex-col gap-10">
       <div>
         <Link href="/operations#cases" className="text-xs font-bold text-[var(--text-secondary)] hover:text-amber-700 transition">
-          ← Back to all cases
+          ← All leads
         </Link>
-        <h1 className="mt-3 text-3xl font-black tracking-tight text-[var(--text-primary)]">{caseTitle(c)}</h1>
+        <h1 className="mt-3 text-3xl font-bold tracking-tight text-[var(--text-primary)]">{caseTitle(c)}</h1>
         <p className="mt-1 text-sm text-[var(--text-secondary)]">
           {plural(c.flags.length, "anomaly signal", "anomaly signals")} · {periodLabel(c.period_start, c.period_end)}
         </p>
@@ -93,7 +93,7 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
       <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
         <div className="flex flex-col gap-8">
           <section aria-labelledby="why-heading">
-            <h2 id="why-heading" className="text-lg font-black text-[var(--text-primary)]">Why This Lead Was Flagged</h2>
+            <h2 id="why-heading" className="text-lg font-bold text-[var(--text-primary)]">Why this was flagged</h2>
             <div className="mt-4 flex flex-col gap-4">
               {c.flags.map((f) => (
                 <article key={f.flag_id} aria-labelledby={`flag-${f.flag_id}`} className="rounded-2xl border-2 border-[var(--border-default)] bg-white p-6 shadow-[3px_3px_0px_rgba(26,30,41,0.06)] text-[var(--text-primary)]">
@@ -117,7 +117,7 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
 
           {c.meter && (
             <section aria-labelledby="usage-heading">
-              <h2 id="usage-heading" className="text-lg font-black text-[var(--text-primary)]">Energy Recorded Each Day</h2>
+              <h2 id="usage-heading" className="text-lg font-bold text-[var(--text-primary)]">Energy recorded each day</h2>
               <div className="mt-4 rounded-2xl border-2 border-[var(--border-default)] bg-white p-6 shadow-[3px_3px_0px_rgba(26,30,41,0.06)] text-[var(--text-primary)]">
                 <DayBars
                   days={c.meter.daily.map((d) => ({ date: d.date, value: d.kwh }))}
@@ -129,7 +129,7 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
                   caption={`Energy recorded each day by meter ${c.subject_id}`}
                 />
               </div>
-              <h3 className="mt-6 text-sm font-bold text-[var(--text-primary)]">Hours Feeder Had Power Each Day</h3>
+              <h3 className="mt-6 text-sm font-bold text-[var(--text-primary)]">Hours the feeder had power each day</h3>
               <p className="text-xs text-[var(--text-secondary)]">If these stay steady while recorded energy falls, the drop is not explained by grid outages.</p>
               <div className="mt-3 rounded-2xl border-2 border-[var(--border-default)] bg-white p-6 shadow-[3px_3px_0px_rgba(26,30,41,0.06)] text-[var(--text-primary)]">
                 <DayBars
@@ -146,7 +146,7 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
 
           {imbalance && (
             <section aria-labelledby="loss-heading">
-              <h2 id="loss-heading" className="text-lg font-black text-[var(--text-primary)]">Share of Feeder Energy Never Metered</h2>
+              <h2 id="loss-heading" className="text-lg font-bold text-[var(--text-primary)]">Share of feeder energy no meter recorded</h2>
               <div className="mt-4 rounded-2xl border-2 border-[var(--border-default)] bg-white p-6 shadow-[3px_3px_0px_rgba(26,30,41,0.06)] text-[var(--text-primary)]">
                 <DayBars
                   days={dailyLoss.map(([date, v]) => ({ date, value: Math.max(0, v) }))}
@@ -163,7 +163,7 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
 
           {c.suspect_cases && (
             <section aria-labelledby="suspects-heading">
-              <h2 id="suspects-heading" className="text-lg font-black text-[var(--text-primary)]">Meters on This Feeder with Their Own Cases</h2>
+              <h2 id="suspects-heading" className="text-lg font-bold text-[var(--text-primary)]">Meters on this feeder with their own leads</h2>
               {c.suspect_cases.length === 0 ? (
                 <p className="mt-2 text-xs text-[var(--text-secondary)]">No individual meter explains the loss yet. Inspect physical bypasses upstream of the meters.</p>
               ) : (
@@ -188,11 +188,11 @@ export default async function CasePage({ params, searchParams }: PageProps<"/ope
         </div>
 
         <aside aria-labelledby="decision-heading" className="self-start rounded-2xl border-2 border-[var(--border-default)] bg-white p-6 shadow-[4px_4px_0px_rgba(26,30,41,0.08)] text-[var(--text-primary)]">
-          <h2 id="decision-heading" className="text-lg font-bold text-[var(--text-primary)]">Record Field Findings</h2>
-          <p className="mt-1 text-xs text-[var(--text-muted)]">One decision covers every anomaly signal in this case.</p>
+          <h2 id="decision-heading" className="text-lg font-bold text-[var(--text-primary)]">Record what you found</h2>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">One decision covers every signal on this lead.</p>
           {saved && (
             <div role="status" className="mt-3 rounded-lg border-2 border-emerald-300 bg-emerald-50 p-2.5 text-xs text-emerald-800 font-medium">
-              Decision permanently recorded in the cryptographic audit trail.
+              Saved. The decision is in the audit log.
             </div>
           )}
           {decided && (

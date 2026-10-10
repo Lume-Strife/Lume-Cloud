@@ -30,34 +30,33 @@ export function OfficialFeederMetadataCard({ metadata, compact = false }: Props)
     <div className="rounded-2xl border-2 border-[var(--border-default)] bg-white p-5 text-[var(--text-primary)] shadow-[3px_3px_0px_rgba(26,30,41,0.06)]">
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-[var(--border-subtle)] pb-3">
         <h4 className="text-sm font-bold text-[var(--text-primary)]">
-          Official NERC Feeder Register Information
+          NERC feeder register
         </h4>
-        <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-subtle)] px-2 py-0.5 text-xs font-bold text-[var(--text-secondary)]">NERC Transcribed Record</span>
       </div>
       <dl className="mt-3.5 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-4">
         <div>
-          <dt className="text-[var(--text-muted)]">Registered Name</dt>
-          <dd className="font-semibold text-[var(--text-primary)]">{metadata.source_feeder_name || "—"}</dd>
+          <dt className="text-[var(--text-muted)]">Registered name</dt>
+          <dd className="font-semibold text-[var(--text-primary)]">{metadata.source_feeder_name || "Not listed"}</dd>
         </div>
         <div>
-          <dt className="text-[var(--text-muted)]">Distribution Co.</dt>
-          <dd className="font-semibold text-[var(--text-primary)]">{metadata.disco || "—"}</dd>
+          <dt className="text-[var(--text-muted)]">DisCo</dt>
+          <dd className="font-semibold text-[var(--text-primary)]">{metadata.disco || "Not listed"}</dd>
         </div>
         <div>
-          <dt className="text-[var(--text-muted)]">State / Unit</dt>
+          <dt className="text-[var(--text-muted)]">State and unit</dt>
           <dd className="font-semibold text-[var(--text-primary)]">
-            {[metadata.state, metadata.business_unit].filter(Boolean).join(" / ") || "—"}
+            {[metadata.state, metadata.business_unit].filter(Boolean).join(" / ") || "Not listed"}
           </dd>
         </div>
         <div>
-          <dt className="text-[var(--text-muted)]">Monthly Energy Cap</dt>
+          <dt className="text-[var(--text-muted)]">Monthly energy cap</dt>
           <dd className="font-semibold text-[var(--text-primary)]">
-            {metadata.monthly_energy_cap_kwh !== null ? kwh(metadata.monthly_energy_cap_kwh) : "—"}
+            {metadata.monthly_energy_cap_kwh !== null ? kwh(metadata.monthly_energy_cap_kwh) : "Not listed"}
           </dd>
         </div>
       </dl>
       <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2.5 text-[11px] text-[var(--text-muted)]">
-        <span>Regulatory information published by NERC. This cap is a regulatory billing limit, not telemetry or delivered energy.</span>
+        <span>Published by NERC. The cap is a billing limit, not energy delivered.</span>
         {metadata.source_url && (
           <a
             href={metadata.source_url}
@@ -65,7 +64,7 @@ export function OfficialFeederMetadataCard({ metadata, compact = false }: Props)
             rel="noopener noreferrer"
             className="text-amber-800 font-bold underline underline-offset-2 hover:text-amber-900"
           >
-            Source document ↗
+            Source ↗
           </a>
         )}
       </div>

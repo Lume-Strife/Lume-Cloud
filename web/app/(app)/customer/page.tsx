@@ -11,10 +11,10 @@ export const dynamic = "force-dynamic";
 
 function supplyExplanation(s: CustomerSummary["supply"]) {
   if (s.status === "downgrade")
-    return `Your feeder missed its Band ${s.band} commitment 7 consecutive days. Under the NERC 7-Day Rule, your feeder should be downgraded to the band it actually delivers, and you may be owed a credit.`;
+    return `Your feeder missed its Band ${s.band} promise 7 days in a row. Under the NERC 7-Day Rule, your feeder should be downgraded to the band it actually delivers, and you may be owed a credit.`;
   if (s.status === "at_risk")
-    return `Your feeder delivered an average of ${s.average_hours.toFixed(1)}h/day, falling short of the ${s.committed_hours} hours promised by Band ${s.band} on ${s.days_failed} days.`;
-  return `Your feeder kept its Band ${s.band} commitment, averaging ${s.average_hours.toFixed(1)} hours of supply per day.`;
+    return `Your feeder delivered an average of ${s.average_hours.toFixed(1)}h/day, short of the ${s.committed_hours} hours promised by Band ${s.band} on ${s.days_failed} days.`;
+  return `Your feeder kept its Band ${s.band} promise, averaging ${s.average_hours.toFixed(1)} hours of supply per day.`;
 }
 
 export default async function CustomerPage() {
@@ -34,14 +34,13 @@ export default async function CustomerPage() {
       <div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-[var(--border-default)] pb-5">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="section-pill">Customer Portal</span>
-            <TelemetrySourceBadge source="simulated" labelPrefix="Demo" />
+            <TelemetrySourceBadge source="simulated" />
           </div>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--text-primary)]">
             Meter {data.meter_id}
           </h1>
           <p className="mt-1 text-xs text-[var(--text-muted)]">
-            Assigned to Feeder <strong className="font-semibold text-[var(--text-secondary)]">{bill.feeder_id}</strong> (Band {supply.band} · {supply.committed_hours}h/day commitment) · Billing Cycle: {period}
+            Feeder <strong className="font-semibold text-[var(--text-secondary)]">{bill.feeder_id}</strong> · Band {supply.band}, {supply.committed_hours}h a day promised · {period}
           </p>
         </div>
 
@@ -55,10 +54,10 @@ export default async function CustomerPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 id="supply-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
-              Supply Received vs Band {supply.band} Guarantee
+              Supply vs your Band {supply.band} promise
             </h2>
             <p className="mt-1 text-xs text-[var(--text-muted)] max-w-[65ch]">
-              Continuous voltage telemetry audited to confirm whether your DisCo delivered the daily power hours your tariff pays for.
+              Hours of power your feeder delivered each day, measured from its voltage.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -69,32 +68,32 @@ export default async function CustomerPage() {
         {/* Big Numbers & Compliance Progress */}
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Delivered Daily Average</span>
+            <span className="text-xs font-medium text-[var(--text-muted)]">Average per day</span>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="figure text-5xl font-bold text-[var(--text-primary)]">{supply.average_hours.toFixed(1)}</span>
               <span className="text-sm font-semibold text-[var(--text-muted)]">hours / day</span>
             </div>
-            <span className="mt-1 block text-[11px] text-[var(--text-muted)]">Audited from 15-min voltage readings (&gt;180V)</span>
+            <span className="mt-1 block text-[11px] text-[var(--text-muted)]">From 15-minute voltage readings</span>
           </div>
 
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Band {supply.band} Guaranteed Minimum</span>
+            <span className="text-xs font-medium text-[var(--text-muted)]">Band {supply.band} promise</span>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="figure text-5xl font-bold text-[var(--text-muted)]">{supply.committed_hours}</span>
               <span className="text-sm font-semibold text-[var(--text-muted)]">hours / day</span>
             </div>
-            <span className="mt-1 block text-[11px] text-[var(--text-muted)]">Statutory minimum per NERC tariff band</span>
+            <span className="mt-1 block text-[11px] text-[var(--text-muted)]">Set by your tariff band</span>
           </div>
 
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Hours Delivered vs Promised</span>
+            <span className="text-xs font-medium text-[var(--text-muted)]">Hours delivered vs promised</span>
             <div className="mt-2 flex items-baseline gap-2">
               <span className={`figure text-5xl font-bold ${fulfillmentRate >= 100 ? "text-emerald-700" : fulfillmentRate >= 75 ? "text-amber-700" : "text-rose-700"}`}>
                 {fulfillmentRate}%
               </span>
             </div>
             <span className="mt-1 block text-[11px] text-[var(--text-muted)]">
-              {supply.days_met} of {supply.days_met + supply.days_failed} days achieved commitment
+              {supply.days_met} of {supply.days_met + supply.days_failed} days fully kept
             </span>
           </div>
         </div>
@@ -108,14 +107,11 @@ export default async function CustomerPage() {
             : "border-emerald-200 bg-emerald-50 text-emerald-800"
         }`}>
           <div className="flex items-start gap-2.5">
-            <span className="font-bold text-sm">
-              {supply.status === "downgrade" ? "⚠️" : supply.status === "at_risk" ? "ℹ️" : "✓"}
-            </span>
             <div>
               <p className="font-semibold text-sm">{supplyExplanation(supply)}</p>
               {supply.status === "downgrade" && (
                 <p className="mt-0.5 text-xs opacity-90">
-                  See the credit recommendation in the billing section below for your refund calculation.
+                  The recommended credit is shown next to your bill.
                 </p>
               )}
             </div>
@@ -125,7 +121,7 @@ export default async function CustomerPage() {
         {/* Daily Supply Hours Chart */}
         <div className="mt-7 border-t border-[var(--border-subtle)] pt-5">
           <div className="mb-3.5 flex flex-wrap items-center justify-between gap-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Daily Feeder Supply Hours Profile</h3>
+            <h3 className="text-sm font-semibold text-[var(--text-secondary)]">Hours of power each day</h3>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--text-muted)]">
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-xs bg-emerald-500" /> Kept ({plural(supply.days_met, "day", "days")})
@@ -158,15 +154,15 @@ export default async function CustomerPage() {
         <section aria-labelledby="bill-heading" className="rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
           <div className="flex items-baseline justify-between border-b border-[var(--border-subtle)] pb-3">
             <h2 id="bill-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
-              Itemized Electricity Bill
+              Your bill
             </h2>
-            <span className="text-xs text-[var(--text-muted)]">Tariff Ref: {bill.tariff_version}</span>
+            <span className="text-xs text-[var(--text-muted)]">Tariff {bill.tariff_version}</span>
           </div>
 
           <table className="mt-3.5 w-full text-left">
             <thead>
-              <tr className="border-b border-[var(--border-subtle)] text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                <th className="py-2.5 pr-3">Billing Component</th>
+              <tr className="border-b border-[var(--border-subtle)] text-xs font-medium text-[var(--text-muted)]">
+                <th className="py-2.5 pr-3">Item</th>
                 <th className="py-2.5 pr-3 text-right">Energy</th>
                 <th className="hidden py-2.5 pr-3 text-right sm:table-cell">Rate</th>
                 <th className="py-2.5 text-right">Amount</th>
@@ -176,14 +172,14 @@ export default async function CustomerPage() {
               {bill.lines.map((l) => (
                 <tr key={l.description} className="align-top">
                   <td className="py-3 pr-3">
-                    <span className="font-semibold text-[var(--text-primary)]">{l.estimated ? "Estimated Supply-Backed Energy" : "Metered Active Energy"}</span>
+                    <span className="font-semibold text-[var(--text-primary)]">{l.estimated ? "Estimated energy" : "Metered energy"}</span>
                     {l.estimated ? (
                       <span className="block text-[11px] text-[var(--text-muted)] mt-0.5">
-                        Applied only when feeder telemetry proved voltage was live during meter offline interval.
+                        For times your meter was offline but the feeder had power.
                       </span>
                     ) : (
                       <span className="block text-[11px] text-[var(--text-muted)] mt-0.5">
-                        Direct reading recorded by physical meter.
+                        Read by your meter.
                       </span>
                     )}
                   </td>
@@ -193,14 +189,14 @@ export default async function CustomerPage() {
                 </tr>
               ))}
               <tr>
-                <td className="py-3 pr-3 text-[var(--text-secondary)]" colSpan={2}>Value Added Tax (VAT 7.5%)</td>
+                <td className="py-3 pr-3 text-[var(--text-secondary)]" colSpan={2}>VAT (7.5%)</td>
                 <td className="hidden sm:table-cell" />
                 <td className="whitespace-nowrap py-3 text-right font-medium text-[var(--text-secondary)]">{money(bill.vat)}</td>
               </tr>
             </tbody>
             <tfoot>
               <tr className="border-t-2 border-[var(--border-strong)]">
-                <td className="pt-3.5 text-base font-bold text-[var(--text-primary)]" colSpan={2}>Total Payable</td>
+                <td className="pt-3.5 text-base font-bold text-[var(--text-primary)]" colSpan={2}>Total</td>
                 <td className="hidden sm:table-cell" />
                 <td className="figure whitespace-nowrap pt-3.5 text-right text-2xl font-bold text-[var(--text-primary)]">{money(bill.total)}</td>
               </tr>
@@ -209,7 +205,7 @@ export default async function CustomerPage() {
 
           {/* Supply-Backed Estimation Transparency */}
           <div className="mt-5 rounded-xl bg-[var(--bg-subtle)] p-3.5 text-xs text-[var(--text-secondary)] border border-[var(--border-subtle)]">
-            <p className="font-semibold text-[var(--text-primary)]">Proof-of-Supply Billing Guarantee:</p>
+            <p className="font-semibold text-[var(--text-primary)]">How this bill was worked out</p>
             <p className="mt-0.5 text-[11px] leading-relaxed">
               Of {plural(q.expected_slots, "expected telemetry interval", "expected telemetry intervals")}, {q.metered_slots.toLocaleString()} arrived from your meter.
               {q.estimated_slots > 0 &&
@@ -224,24 +220,24 @@ export default async function CustomerPage() {
         <section aria-labelledby="owed-heading" className="self-start rounded-2xl border-2 border-[var(--border-strong)] bg-white p-6 sm:p-7 shadow-[4px_4px_0px_rgba(26,30,41,0.08)]">
           <div className="border-b border-[var(--border-subtle)] pb-3">
             <h2 id="owed-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
-              Regulatory Entitlements
+              What you may be owed
             </h2>
-            <p className="mt-0.5 text-xs text-[var(--text-muted)]">NERC 7-Day Rule and Compensation Framework</p>
+            <p className="mt-0.5 text-xs text-[var(--text-muted)]">Under the 7-Day Rule and NERC compensation rules</p>
           </div>
 
           {credit ? (
             <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/80 p-4">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Recommended Downgrade Refund</span>
+              <span className="text-xs font-medium text-emerald-700">Recommended credit</span>
               <p className="figure mt-1.5 text-3xl font-bold text-emerald-700 sm:text-4xl">{money(credit.amount!)}</p>
               <p className="mt-2 text-xs leading-relaxed text-emerald-900">
-                Calculated tariff differential credit. Because your feeder breached its Band {supply.band} commitment for 7 consecutive days, consumption following the breach must be rebilled at the lower band tariff.
+                Your feeder missed its Band {supply.band} promise 7 days in a row, so energy used after that should be billed at the lower band&apos;s tariff. This is the difference.
               </p>
             </div>
           ) : (
             <div className="mt-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-4 text-xs text-[var(--text-secondary)]">
-              <p className="font-semibold text-[var(--text-primary)]">No Downgrade Penalty Triggered</p>
+              <p className="font-semibold text-[var(--text-primary)]">No credit due</p>
               <p className="mt-0.5 text-[var(--text-muted)]">
-                Your feeder has not incurred 7 consecutive days below commitment during this cycle.
+                Your feeder didn&apos;t miss its promise 7 days in a row this month.
               </p>
             </div>
           )}
@@ -251,11 +247,11 @@ export default async function CustomerPage() {
               {others.map((r) => (
                 <div key={r.type} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-3.5 text-xs text-[var(--text-secondary)]">
                   <p className="font-semibold text-[var(--text-primary)]">
-                    {r.type === "compensation_review" ? "NERC Compensation Review" : r.type}
+                    {r.type === "compensation_review" ? "Compensation review" : r.type}
                   </p>
                   <p className="mt-0.5 text-[11px] text-[var(--text-muted)]">
                     {r.type === "compensation_review"
-                      ? "Your feeder's average supply fell below its band commitment, so you may be due compensation under NERC's compensation framework."
+                      ? "Your feeder's average supply fell below its band promise, so you may be due compensation under NERC's compensation framework."
                       : r.description}
                   </p>
                 </div>
@@ -264,7 +260,7 @@ export default async function CustomerPage() {
           )}
 
           <p className="mt-5 text-[11px] leading-relaxed text-[var(--text-muted)]">
-            All credit amounts represent algorithmic recommendations derived from verified telemetry and require formal review before automatic ledger crediting.
+            These amounts are worked out from the readings. Your DisCo still has to review and apply them.
           </p>
         </section>
       </div>
@@ -274,13 +270,13 @@ export default async function CustomerPage() {
         <div className="flex flex-wrap items-baseline justify-between gap-4">
           <div>
             <h2 id="usage-heading" className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
-              Daily Consumption Pattern
+              Energy you used each day
             </h2>
             <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-              Cross-reference your energy usage (kWh) against feeder availability to detect unexpected surges or metering anomalies.
+              Compare this with the hours of power above. A sudden change can point to a meter problem.
             </p>
           </div>
-          <span className="text-xs font-semibold text-[var(--text-secondary)]">Total Energy: {kwh(daily.reduce((sum, d) => sum + d.kwh, 0))}</span>
+          <span className="text-xs font-semibold text-[var(--text-secondary)]">Total: {kwh(daily.reduce((sum, d) => sum + d.kwh, 0))}</span>
         </div>
 
         <div className="mt-5">

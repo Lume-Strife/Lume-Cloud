@@ -12,16 +12,16 @@ const ACTION_LABEL: Record<string, string> = {
   "case.decide": "Decided a case",
   "meter.view": "Viewed meter data",
   "report.export": "Exported compliance report",
-  "detection.run": "Ran theft detection",
+  "detection.run": "Ran a scan",
   "demo.seed": "Created demo data",
 };
 
 const CATEGORIES = [
-  { id: "all", label: "All Events" },
+  { id: "all", label: "All" },
   { id: "decisions", label: "Decisions", filter: (a: string) => a.includes("decide") },
-  { id: "detection", label: "Detection Runs", filter: (a: string) => a.includes("detection") },
-  { id: "views", label: "Data Views & Exports", filter: (a: string) => a.includes("view") || a.includes("export") },
-  { id: "auth", label: "Authentication", filter: (a: string) => a.startsWith("auth") },
+  { id: "detection", label: "Scans", filter: (a: string) => a.includes("detection") },
+  { id: "views", label: "Views and exports", filter: (a: string) => a.includes("view") || a.includes("export") },
+  { id: "auth", label: "Sign-ins", filter: (a: string) => a.startsWith("auth") },
 ];
 
 function detail(e: AuditEntry) {
@@ -85,7 +85,8 @@ export function AuditLogViewer({ entries }: { entries: AuditEntry[] }) {
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search actor, target, note..."
+            placeholder="Search"
+            aria-label="Search the audit log"
             className="w-full rounded-xl border-2 border-[var(--border-default)] bg-white px-3.5 py-2 text-xs font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-amber-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
           />
         </div>
@@ -95,19 +96,19 @@ export function AuditLogViewer({ entries }: { entries: AuditEntry[] }) {
       <div className="overflow-x-auto rounded-2xl border-2 border-[var(--border-default)] bg-white shadow-[4px_4px_0px_rgba(26,30,41,0.06)]">
         <table className="w-full min-w-[700px] text-left text-xs">
           <thead>
-            <tr className="border-b-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-[11px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-              <th className="px-4 py-3.5">Seq #</th>
-              <th className="px-4 py-3.5">Timestamp (WAT)</th>
+            <tr className="border-b-2 border-[var(--border-default)] bg-[var(--bg-subtle)] text-xs font-medium text-[var(--text-secondary)]">
+              <th className="px-4 py-3.5">#</th>
+              <th className="px-4 py-3.5">Time (WAT)</th>
               <th className="px-4 py-3.5">Actor</th>
               <th className="px-4 py-3.5">Action</th>
-              <th className="px-4 py-3.5">Audit Details</th>
+              <th className="px-4 py-3.5">Details</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--border-subtle)]">
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-[var(--text-muted)]">
-                  No audit entries found matching the filter criteria.
+                  Nothing matches that filter.
                 </td>
               </tr>
             ) : (
@@ -131,8 +132,7 @@ export function AuditLogViewer({ entries }: { entries: AuditEntry[] }) {
         </table>
       </div>
       <div className="flex justify-between items-center text-xs text-[var(--text-secondary)] px-1 font-medium">
-        <span>Showing {filtered.length} of {entries.length} audited records</span>
-        <span className="font-mono text-[11px] text-[var(--text-muted)]">SHA-256 Linked Sequence</span>
+        <span>Showing {filtered.length} of {entries.length} entries</span>
       </div>
     </div>
   );

@@ -13,14 +13,14 @@ const OPTIONS: { value: Exclude<FlagStatus, "open">; label: string; hint: string
   },
   {
     value: "confirmed",
-    label: "Confirmed Anomaly / Theft",
+    label: "Confirmed",
     hint: "Theft, bypass, or meter tampering verified on site",
     color: "accent-orange-600",
   },
   {
     value: "dismissed",
-    label: "Dismissed (Legitimate)",
-    hint: "Explained by legitimate conditions (e.g., unoccupied premise)",
+    label: "Dismissed",
+    hint: "There is an innocent explanation, such as an empty house",
     color: "accent-emerald-600",
   },
 ];
@@ -43,7 +43,7 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
   return (
     <form action={action} className="flex flex-col gap-5">
       <fieldset className="flex flex-col gap-2.5">
-        <legend className="mb-2 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Actionable Outcome</legend>
+        <legend className="mb-2 text-sm font-semibold text-[var(--text-secondary)]">Outcome</legend>
         {OPTIONS.map((o) => (
           <label
             key={o.value}
@@ -73,8 +73,8 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
       <label className="flex flex-col gap-1.5 text-xs font-semibold text-[var(--text-secondary)]">
         <div className="flex justify-between items-baseline">
           <span>
-            Field Findings &amp; Decision Notes{" "}
-            {noteRequired && <span className="text-rose-700 text-xs font-bold">(Required, ≥ 3 characters)</span>}
+            Notes{" "}
+            {noteRequired && <span className="text-rose-700 text-xs font-bold">(required)</span>}
           </span>
           <span className="text-[11px] text-[var(--text-muted)] font-medium">{noteLength}/1000</span>
         </div>
@@ -88,15 +88,15 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
           className="rounded-xl border-2 border-[var(--border-default)] bg-white px-3.5 py-2.5 text-xs font-medium text-[var(--text-primary)] placeholder:text-[var(--text-faint)] focus:border-amber-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500/20 transition shadow-[2px_2px_0px_rgba(26,30,41,0.04)]"
           placeholder={
             noteRequired
-              ? "Describe evidence inspected on site, technician name, and seal status..."
-              : "Optional notes regarding dispatch schedule..."
+              ? "What did you find on site? Who visited, and was the seal intact?"
+              : "Optional, e.g. when the visit is booked"
           }
         />
       </label>
 
       {state.error && (
         <div role="alert" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-xs text-rose-800">
-          <p className="font-bold">Unable to save decision</p>
+          <p className="font-bold">Couldn&apos;t save the decision</p>
           <p className="mt-0.5 font-medium">{state.error}</p>
         </div>
       )}
@@ -106,7 +106,7 @@ export function DecisionForm({ subjectType, subjectId, current }: Props) {
         disabled={pending}
         className="rounded-xl border-2 border-[var(--border-strong)] bg-amber-400 px-4 py-2.5 font-bold text-xs text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)] transition hover:bg-amber-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
       >
-        {pending ? "Writing to audit log…" : "Record Final Decision"}
+        {pending ? "Saving…" : "Save decision"}
       </button>
 
       <p className="text-[11px] text-[var(--text-muted)] text-center font-medium">

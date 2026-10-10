@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo, Inter } from "next/font/google";
+import { SPLASH_GUARD } from "@/lib/splash";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -17,10 +18,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: {
     template: "%s | Lume",
-    default: "Lume — Smart Electricity Monitoring",
+    default: "Lume: electricity supply you can check",
   },
   description:
-    "Lume verifies electricity supply hours against NERC tariff band guarantees, detects meter anomalies, and gives every stakeholder transparent, auditable energy data.",
+    "Lume checks the hours of electricity each feeder delivers against its NERC band, bills from verified supply, and flags meters that look tampered with.",
   openGraph: {
     siteName: "Lume",
     type: "website",
@@ -29,7 +30,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${archivo.variable} ${inter.variable} h-full antialiased`}>
+    // The splash guard may set data-splash on <html> before React hydrates.
+    <html lang="en" className={`${archivo.variable} ${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SPLASH_GUARD }} />
+      </head>
       <body className="min-h-full bg-[var(--bg-canvas)] text-[var(--text-primary)]">
         {children}
       </body>

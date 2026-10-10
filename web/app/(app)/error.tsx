@@ -11,12 +11,12 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         </svg>
       </div>
 
-      <h1 className="mt-4 text-2xl font-black tracking-tight text-[var(--text-primary)]">Unable to Load Telemetry Data</h1>
+      <h1 className="mt-4 text-2xl font-bold tracking-tight text-[var(--text-primary)]">Couldn&apos;t load this page</h1>
 
       <p className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
         {process.env.NODE_ENV === "development"
           ? error.message
-          : "The platform API service could not be reached or timed out. Please check your network connection or verify that the API service is active."}
+          : "Lume couldn't reach its data service. Check your connection and try again."}
       </p>
 
       {error.digest && (
@@ -29,13 +29,13 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
           onClick={reset}
           className="rounded-xl border-2 border-[var(--border-strong)] bg-amber-400 px-4 py-2 text-xs font-bold text-[var(--text-primary)] shadow-[2px_2px_0px_rgba(26,30,41,0.12)] transition hover:bg-amber-300 active:scale-[0.98]"
         >
-          Retry Connection
+          Try again
         </button>
         <Link
           href="/"
           className="rounded-xl border-2 border-[var(--border-default)] bg-white px-4 py-2 text-xs font-bold text-[var(--text-secondary)] shadow-[2px_2px_0px_rgba(26,30,41,0.06)] hover:border-[var(--border-strong)] hover:text-[var(--text-primary)] transition"
         >
-          Back to Portal Home
+          Back to home
         </Link>
       </div>
     </div>
