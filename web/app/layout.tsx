@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, Inter } from "next/font/google";
 import { SPLASH_GUARD } from "@/lib/splash";
+import { THEME_GUARD } from "@/lib/theme";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -30,10 +31,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // The splash guard may set data-splash on <html> before React hydrates.
+    // The theme and splash guards set data-* on <html> before React hydrates.
     <html lang="en" className={`${archivo.variable} ${inter.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: SPLASH_GUARD }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_GUARD + SPLASH_GUARD }} />
       </head>
       <body className="min-h-full bg-[var(--bg-canvas)] text-[var(--text-primary)]">
         {children}

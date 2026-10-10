@@ -22,6 +22,8 @@ type PageProps = {
 };
 
 export const dynamic = "force-dynamic";
+// The detection scan (a server action on this page) takes about 15 seconds.
+export const maxDuration = 60;
 
 export default async function OperationsPage({ searchParams }: PageProps) {
   await requireRole("operations");
@@ -251,7 +253,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                 <span>{s === "all" ? "All" : FLAG_STATUS_LABEL[s]}</span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                    isCurrent ? "bg-[var(--text-primary)] text-amber-300" : "bg-[var(--bg-subtle)] text-[var(--text-secondary)]"
+                    isCurrent ? "bg-[var(--on-amber)] text-amber-300" : "bg-[var(--bg-subtle)] text-[var(--text-secondary)]"
                   }`}
                 >
                   {count}

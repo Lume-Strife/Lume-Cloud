@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { GridScene } from "@/components/GridScene";
 import { LumeLogo } from "@/components/LumeLogo";
 import { getUser, HOME } from "@/lib/session";
 import { LoginForm } from "./LoginForm";
@@ -21,12 +22,13 @@ export default async function LoginPage({ searchParams }: PageProps) {
   const { expired, as } = await searchParams;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[var(--bg-canvas)] px-4 py-12">
-      <Link href="/" aria-label="Lume home" className="mb-8">
+    <main className="relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[var(--bg-canvas)] px-4 py-12">
+      <GridScene />
+      <Link href="/" aria-label="Lume home" className="relative mb-8">
         <LumeLogo size="xl" />
       </Link>
 
-      <section className="card-comic w-full max-w-md p-7 sm:p-8">
+      <section className="card-comic relative w-full max-w-md p-7 sm:p-8">
         <h1 className="font-display text-2xl font-bold tracking-tight">Sign in</h1>
         <p className="mt-1 text-sm text-[var(--text-muted)]">Pick a demo account, or enter a username and password.</p>
 
@@ -35,7 +37,9 @@ export default async function LoginPage({ searchParams }: PageProps) {
         </div>
       </section>
 
-      <p className="mt-6 text-center text-xs text-[var(--text-muted)]">Readings in this demo are simulated.</p>
+      <p className="relative mt-6 rounded-full bg-[var(--bg-canvas)]/85 px-3 py-1 text-center text-xs text-[var(--text-muted)]">
+        Readings in this demo are simulated.
+      </p>
     </main>
   );
 }

@@ -17,7 +17,12 @@ export async function signIn(_prev: LoginState, form: FormData): Promise<LoginSt
   try {
     result = await apiFetch("/auth/login", { method: "POST", body: { username, password }, token: null });
   } catch (e) {
-    const message = e instanceof ApiError && e.status === 401 ? "That username and password don't match an account." : (e as Error).message;
+    const message =
+      e instanceof ApiError && e.status === 401
+        ? "That username and password don't match an account."
+        : e instanceof ApiError && e.status === 503
+          ? "Lume can't reach its data service right now. Please try again in a minute."
+          : (e as Error).message;
     return { error: message, username };
   }
   (await cookies()).set(SESSION_COOKIE, result.token, {

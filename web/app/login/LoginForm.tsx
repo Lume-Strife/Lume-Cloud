@@ -1,7 +1,12 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { signIn, type LoginState } from "../actions";
+
+// Local seeds use "demo-password". The AWS seed generates its own, so a deployment
+// sets NEXT_PUBLIC_DEMO_PASSWORD for one-click demo sign-in, or leaves it unset.
+const DEMO_PASSWORD =
+  process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? (process.env.NODE_ENV === "development" ? "demo-password" : "");
 
 const DEMO_ACCOUNTS = [
   { user: "customer", name: "Customer", desc: "Band A feeder" },
@@ -18,11 +23,14 @@ export function LoginForm({ notice, initialUser }: { notice: string | null; init
   // A persona picked on the landing page arrives as ?as=<user>; only known demo users are pre-filled.
   const preset = DEMO_ACCOUNTS.some((a) => a.user === initialUser) ? initialUser! : "";
   const [username, setUsername] = useState(state.username || preset);
-  const [password, setPassword] = useState(preset ? "demo-password" : "");
+  const [password, setPassword] = useState(preset ? DEMO_PASSWORD : "");
+
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   const fillAccount = (user: string) => {
     setUsername(user);
-    setPassword("demo-password");
+    setPassword(DEMO_PASSWORD);
+    if (!DEMO_PASSWORD) passwordRef.current?.focus();
   };
 
   const error = state.error ?? notice;
@@ -63,6 +71,7 @@ export function LoginForm({ notice, initialUser }: { notice: string | null; init
         <label className="flex flex-col gap-1.5 text-sm font-medium text-[var(--text-secondary)]">
           Password
           <input
+            ref={passwordRef}
             name="password"
             type="password"
             value={password}

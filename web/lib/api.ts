@@ -2,6 +2,9 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000";
+if (!process.env.API_URL && process.env.NODE_ENV === "production") {
+  console.error("API_URL is not set. Set it to the dashboard API's base URL (no trailing slash).");
+}
 export const SESSION_COOKIE = "session";
 
 export class ApiError extends Error {

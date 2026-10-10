@@ -1,8 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { BulbBuddy } from "@/components/BulbBuddy";
 import { LumeLogo } from "@/components/LumeLogo";
 import { MobileMenu } from "@/components/MobileMenu";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { Splash } from "@/components/Splash";
 
 export const metadata: Metadata = {
@@ -49,6 +51,10 @@ const STEPS = [
   },
 ];
 
+/** Staggers sibling reveals so a row of items arrives left to right. */
+const delay = (i: number) =>
+  ({ "--reveal-delay": `${i * 90}ms` }) as React.CSSProperties;
+
 const DEMO_ACCOUNTS = [
   { user: "customer", name: "Customer on a Band A feeder" },
   { user: "customer2", name: "Customer on the lowest-band feeder" },
@@ -64,13 +70,20 @@ function SampleCard() {
       <div className="card-comic p-6">
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold">Meter M0001</span>
-          <span className="text-xs font-medium text-emerald-700">Band A kept</span>
+          <span className="text-xs font-medium text-emerald-700">
+            Band A kept
+          </span>
         </div>
         <p className="mt-5 text-xs text-[var(--text-muted)]">Power today</p>
         <p className="figure mt-1 text-5xl">
-          20.6<span className="ml-1 text-lg font-semibold text-[var(--text-muted)]">hours</span>
+          20.6
+          <span className="ml-1 text-lg font-semibold text-[var(--text-muted)]">
+            hours
+          </span>
         </p>
-        <p className="mt-1 text-xs text-[var(--text-muted)]">Band A promises 20 hours a day</p>
+        <p className="mt-1 text-xs text-[var(--text-muted)]">
+          Band A promises 20 hours a day
+        </p>
         <div className="mt-6 flex h-14 items-end gap-1.5">
           {days.map((h, i) => (
             <div
@@ -82,15 +95,21 @@ function SampleCard() {
         </div>
         <p className="mt-2 text-xs text-[var(--text-muted)]">Last 7 days</p>
       </div>
-      <figcaption className="mt-3 text-center text-xs text-[var(--text-muted)]">Sample data</figcaption>
+      <figcaption className="mt-3 text-center text-xs text-[var(--text-muted)]">
+        Sample data
+      </figcaption>
     </figure>
   );
 }
 
 export default function LandingPage() {
   return (
-    <div id="top" className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)]">
+    <div
+      id="top"
+      className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)]"
+    >
       <Splash />
+      <ScrollReveal />
 
       <nav className="sticky top-0 z-50 border-b border-[var(--border-subtle)] bg-[var(--bg-canvas)]/95 backdrop-blur-sm">
         <div className="relative mx-auto flex max-w-5xl items-center justify-between px-4 py-3 md:px-8">
@@ -99,12 +118,19 @@ export default function LandingPage() {
           </a>
           <div className="hidden items-center gap-7 text-sm text-[var(--text-secondary)] md:flex">
             {SITE_LINKS.map((l) => (
-              <a key={l.href} href={l.href} className="transition-colors hover:text-[var(--text-primary)]">
+              <a
+                key={l.href}
+                href={l.href}
+                className="transition-colors hover:text-[var(--text-primary)]"
+              >
                 {l.label}
               </a>
             ))}
           </div>
-          <Link href="/login" className="btn-primary btn-amber hidden md:inline-flex">
+          <Link
+            href="/login"
+            className="btn-primary btn-amber hidden md:inline-flex"
+          >
             Sign in
           </Link>
           <MobileMenu links={SITE_LINKS} />
@@ -116,15 +142,21 @@ export default function LandingPage() {
           <div>
             <h1 className="font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl">
               Did your feeder deliver the{" "}
-              <span className="underline decoration-amber-400 decoration-[0.14em] underline-offset-[0.12em]">power</span> you
-              paid for?
+              <span className="underline decoration-amber-400 decoration-[0.14em] underline-offset-[0.12em]">
+                power
+              </span>{" "}
+              you paid for?
             </h1>
             <p className="mt-6 max-w-[46ch] text-lg leading-relaxed text-[var(--text-secondary)]">
-              Lume counts the hours of electricity each feeder delivers and checks them against its NERC band. Customers
-              see it next to their bill. DisCos and the regulator see it for every feeder.
+              Lume counts the hours of electricity each feeder delivers and
+              checks them against its NERC band. Customers see it next to their
+              bill. DisCos and the regulator see it for every feeder.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-5">
-              <Link href="/login" className="btn-primary btn-amber px-6 py-3 text-base">
+              <Link
+                href="/login"
+                className="btn-primary btn-amber px-6 py-3 text-base"
+              >
                 Try the demo
               </Link>
               <a
@@ -135,70 +167,94 @@ export default function LandingPage() {
               </a>
             </div>
           </div>
-          <SampleCard />
+          <BulbBuddy />
         </section>
 
         <section id="who" className="border-t border-[var(--border-subtle)]">
           <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
-            <h2 className="font-display text-3xl font-bold tracking-tight">Who it&apos;s for</h2>
+            <h2 className="reveal font-display text-3xl font-bold tracking-tight">
+              Who it&apos;s for
+            </h2>
             <div className="mt-10 grid gap-10 md:grid-cols-3">
-              {AUDIENCES.map((a) => (
-                <div key={a.name}>
-                  <h3 className="font-semibold">{a.name}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{a.body}</p>
+              {AUDIENCES.map((a, i) => (
+                <div key={a.name} className="reveal" style={delay(i)}>
+                  <div className="audience">
+                    <h3 className="font-semibold">{a.name}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
+                      {a.body}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="how-it-works" className="border-t border-[var(--border-subtle)]">
+        <section
+          id="how-it-works"
+          className="border-t border-[var(--border-subtle)]"
+        >
           <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
-            <h2 className="font-display text-3xl font-bold tracking-tight">How it works</h2>
+            <h2 className="reveal font-display text-3xl font-bold tracking-tight">
+              How it works
+            </h2>
             <ol className="mt-10 grid gap-x-12 gap-y-10 md:grid-cols-2">
               {STEPS.map((s, i) => (
-                <li key={s.title} className="flex gap-4">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-[var(--border-strong)] bg-amber-300 text-sm font-bold">
-                    {i + 1}
-                  </span>
-                  <div>
-                    <h3 className="font-semibold">{s.title}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">{s.body}</p>
+                <li key={s.title} className="reveal" style={delay(i)}>
+                  <div className="step flex gap-4">
+                    <span className="step-num flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-[var(--border-strong)] bg-amber-300 text-sm font-bold">
+                      {i + 1}
+                    </span>
+                    <div className="step-body">
+                      <h3 className="font-semibold">{s.title}</h3>
+                      <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">
+                        {s.body}
+                      </p>
+                    </div>
                   </div>
                 </li>
               ))}
             </ol>
-            <p className="mt-12 max-w-[60ch] text-sm leading-relaxed text-[var(--text-secondary)]">
-              Every sign-in, decision and export is written to an audit log. Each entry is chained to the one before it,
-              so an edit after the fact shows up.
+            <p className="reveal mt-12 max-w-[60ch] text-sm leading-relaxed text-[var(--text-secondary)]">
+              Every sign-in, decision and export is written to an audit log.
+              Each entry is chained to the one before it, so an edit after the
+              fact shows up.
             </p>
           </div>
         </section>
 
         <section id="demo" className="border-t border-[var(--border-subtle)]">
           <div className="mx-auto max-w-5xl px-4 py-20 md:px-8">
-            <h2 className="font-display text-3xl font-bold tracking-tight">Try it</h2>
-            <p className="mt-3 max-w-[52ch] text-[var(--text-secondary)]">
-              The demo runs on simulated readings. Pick an account to sign in as.
+            <h2 className="reveal font-display text-3xl font-bold tracking-tight">
+              Try it
+            </h2>
+            <p className="reveal mt-3 max-w-[52ch] text-[var(--text-secondary)]">
+              The demo runs on simulated readings. Pick an account to sign in
+              as.
             </p>
-            <ul className="mt-8 max-w-xl divide-y divide-[var(--border-subtle)] border-y border-[var(--border-subtle)]">
-              {DEMO_ACCOUNTS.map((a) => (
-                <li key={a.user}>
-                  <Link
-                    href={`/login?as=${a.user}`}
-                    className="group flex items-center justify-between py-4 font-medium transition-colors hover:text-amber-800"
-                  >
-                    {a.name}
-                    <span
-                      aria-hidden
-                      className="text-[var(--text-muted)] transition-transform group-hover:translate-x-1 group-hover:text-amber-800"
+            <div className="mt-8 grid items-start gap-12 lg:grid-cols-[1fr_auto]">
+              <ul className="reveal max-w-xl divide-y divide-[var(--border-subtle)] border-y border-[var(--border-subtle)]">
+                {DEMO_ACCOUNTS.map((a) => (
+                  <li key={a.user}>
+                    <Link
+                      href={`/login?as=${a.user}`}
+                      className="group flex items-center justify-between py-4 font-medium transition-colors hover:text-amber-800"
                     >
-                      →
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                      {a.name}
+                      <span
+                        aria-hidden
+                        className="text-[var(--text-muted)] transition-transform group-hover:translate-x-1 group-hover:text-amber-800"
+                      >
+                        →
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="reveal" style={delay(1)}>
+                <SampleCard />
+              </div>
+            </div>
           </div>
         </section>
       </main>

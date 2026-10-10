@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { LumeLogo } from "@/components/LumeLogo";
 import { NavLinks } from "@/components/NavLinks";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { getUser, HOME } from "@/lib/session";
 import type { Role } from "@/lib/types";
 
@@ -73,6 +74,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
                 {user.display_name}
               </span>
             </div>
+            <ThemeToggle />
             <form action={signOut}>
               <button
                 type="submit"

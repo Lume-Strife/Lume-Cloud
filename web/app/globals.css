@@ -31,6 +31,20 @@
   --amber-500:           #F59E0B;
   --amber-600:           #D97706;
   --amber-700:           #B45309;
+  --on-amber:            #1A1E29;
+
+  /* Sign-in scene (GridScene) */
+  --scene-sky-top:       #FAF8F5;
+  --scene-sky-bottom:    #FBE3B8;
+  --scene-far:           #EDE4D5;
+  --scene-near:          #E1D5C2;
+  --scene-pole:          #CDBFA9;
+  --scene-wire:          #C2B49D;
+  --scene-window:        #F5B83D;
+
+  /* Bulb buddy, switched off */
+  --buddy-off-glass:     #E4DED3;
+  --buddy-ink:           #1A1E29;   /* text on amber fills, both themes */
 
   /* ── Accent 2: Sky Blue ────────────────────────────────────── */
   --sky-100:             #E0F2FE;
@@ -85,6 +99,67 @@
   --panel-light-text-secondary: #334155;
   --panel-light-text-muted: #64748b;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   DARK THEME: "lights off". Set by the bulb toggle (data-theme on <html>).
+   Tokens flip, and the light tints of each Tailwind hue in use become dark
+   tints while the dark text shades become light, so pages need no dark: classes.
+   ═══════════════════════════════════════════════════════════════ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-canvas:           #121419;
+  --bg-surface:          #1A1D24;
+  --bg-surface-elevated: #20242C;
+  --bg-subtle:           #23272F;
+
+  --text-primary:        #ECE8E0;
+  --text-secondary:      #C4C8D1;
+  --text-muted:          #A0A6B3;
+  --text-faint:          #8E94A2;
+
+  --border-subtle:       #2B2F38;
+  --border-default:      #3A3F4A;
+  --border-strong:       #6A707D;
+
+  --shadow-card:         4px 4px 0px 0px rgba(0,0,0,0.45);
+  --shadow-card-hover:   5px 5px 0px 0px rgba(0,0,0,0.55);
+  --shadow-btn:          3px 3px 0px 0px rgba(0,0,0,0.5);
+  --shadow-btn-hover:    4px 4px 0px 0px rgba(0,0,0,0.6);
+  --status-nodata:       #6B7280;
+
+  --color-white:         var(--bg-surface);
+
+  --amber-50:  #2A2111;  --amber-100: #352914;  --amber-200: #4A3814;
+  --color-amber-700: #FCD34D;  --color-amber-800: #FDE68A;  --color-amber-900: #FEF3C7;  --color-amber-950: #FFFBEB;
+
+  --emerald-50: #10261E;  --emerald-100: #133024;
+  --color-emerald-50: #10261E;  --color-emerald-100: #133024;  --color-emerald-200: #1A4434;  --color-emerald-300: #23604A;
+  --color-emerald-700: #6EE7B7; --color-emerald-800: #A7F3D0;  --color-emerald-900: #D1FAE5;  --color-emerald-950: #ECFDF5;
+
+  --color-rose-50: #2A1418;  --color-rose-100: #35181E;  --color-rose-200: #4A1F28;  --color-rose-300: #6B2737;
+  --color-rose-700: #FDA4AF; --color-rose-800: #FECDD3;  --color-rose-900: #FFE4E6;  --color-rose-950: #FFF1F2;
+
+  --sky-100: #12293B;
+  --color-sky-50: #0F2130;  --color-sky-100: #12293B;  --color-sky-200: #173650;  --color-sky-300: #1E4E6E;
+  --color-sky-700: #7DD3FC; --color-sky-800: #BAE6FD;  --color-sky-900: #E0F2FE;  --color-sky-950: #F0F9FF;
+
+  --color-stone-600: #A8A29E;
+
+  --scene-sky-top:    #0D0F14;
+  --scene-sky-bottom: #241C12;
+  --scene-far:        #191C23;
+  --scene-near:       #20242C;
+  --scene-pole:       #2C3039;
+  --scene-wire:       #363B46;
+  --scene-window:     #FBBF24;
+
+  --buddy-off-glass:  #2A2D35;
+  --buddy-ink:        #A0A6B3;
+}
+
+/* Amber fills stay bright in the dark, so their text stays dark. Unlayered, so it beats utilities. */
+:root[data-theme="dark"] :is(.bg-amber-300, .bg-amber-400) { color: var(--on-amber); }
 
 /* ── Tailwind Theme Extensions ──────────────────────────────── */
 @theme inline {
@@ -163,128 +238,238 @@ body {
 /* Tabular figures only where numbers line up in columns; elsewhere they widen hyphens. */
 table { font-variant-numeric: tabular-nums; }
 
-/* ── Warm Canvas Grain ──────────────────────────────────────── */
-.grid-canvas {
-  background-image: radial-gradient(rgba(26,30,41,0.04) 1px, transparent 1px);
-  background-size: 24px 24px;
+/* Reusable component classes live in the components layer so Tailwind
+   utilities (hidden, md:inline-flex, p-*, …) can still override them. */
+@layer components {
+  /* ── Warm Canvas Grain ──────────────────────────────────────── */
+  .grid-canvas {
+    background-image: radial-gradient(rgba(26,30,41,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* ── Comic Offset Shadow Cards ──────────────────────────────── */
+  .card-comic {
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  /* Only cards that are links or buttons lift on hover; static cards stay still. */
+  a.card-comic:hover,
+  button.card-comic:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* ── Comic Stat Cards ───────────────────────────────────────── */
+  .stat-card {
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-default);
+    border-radius: 0.875rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* ── Display / Figure Numbers ───────────────────────────────── */
+  .figure {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 125;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  /* ── Diagonal hatch for missing/untracked data ──────────────── */
+  .hatch {
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(107, 114, 128, 0.3) 0 2px,
+      transparent 2px 7px
+    );
+  }
+
+  /* ── Primary Button ─────────────────────────────────────────── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--text-primary);
+    color: var(--bg-surface);
+    font-weight: 700;
+    font-size: 0.875rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.625rem;
+    border: 1.5px solid var(--border-strong);
+    box-shadow: var(--shadow-btn);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    cursor: pointer;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-btn-hover);
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: none;
+  }
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* ── Amber Brand Button ─────────────────────────────────────── */
+  .btn-amber {
+    background: var(--amber-500);
+    color: var(--on-amber);
+    border-color: var(--amber-700);
+  }
+  .btn-amber:hover:not(:disabled) {
+    background: var(--amber-600);
+  }
+
+  /* ── Ghost Button ───────────────────────────────────────────── */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1.5px solid var(--border-default);
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    cursor: pointer;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+    background: var(--bg-subtle);
+  }
+
+  /* ── Section Pill Badges ────────────────────────────────────── */
+  .section-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 1.5px solid var(--border-default);
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+  }
 }
 
-/* ── Comic Offset Shadow Cards ──────────────────────────────── */
-.card-comic {
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border-strong);
-  border-radius: 1rem;
-  box-shadow: var(--shadow-card);
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
-}
-/* Only cards that are links or buttons lift on hover; static cards stay still. */
-a.card-comic:hover,
-button.card-comic:hover {
-  box-shadow: var(--shadow-card-hover);
-}
-
-/* ── Comic Stat Cards ───────────────────────────────────────── */
-.stat-card {
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border-default);
-  border-radius: 0.875rem;
-  box-shadow: var(--shadow-card);
+/* ── Theme toggle bulb ──────────────────────────────────────────
+   Lit (light mode): amber glass and a soft glow. Unlit: dark glass. */
+.theme-bulb-glass    { fill: #2A2D35; stroke: var(--text-muted); transition: fill 0.2s ease; }
+.theme-bulb-filament { stroke: #4A4F5C; transition: stroke 0.2s ease; }
+.theme-bulb-base     { fill: transparent; stroke: var(--text-muted); }
+.theme-bulb-glow     { fill: #FDE68A; opacity: 0; transition: opacity 0.25s ease; }
+.theme-bulb.is-lit .theme-bulb-glass    { fill: #FDE68A; stroke: var(--border-strong); animation: bulb-on 0.35s linear; }
+.theme-bulb.is-lit .theme-bulb-filament { stroke: #F59E0B; }
+.theme-bulb.is-lit .theme-bulb-base     { stroke: var(--border-strong); }
+.theme-bulb.is-lit:hover .theme-bulb-glow { opacity: 0.35; }
+.theme-bulb:not(.is-lit):hover .theme-bulb-filament { stroke: #8A6A1E; }
+@keyframes bulb-on {
+  0%   { fill: #2A2D35; }
+  30%  { fill: #FDE68A; }
+  50%  { fill: #6B5F3A; }
+  70%, 100% { fill: #FDE68A; }
 }
 
-/* ── Display / Figure Numbers ───────────────────────────────── */
-.figure {
-  font-variant-numeric: tabular-nums;
-  font-family: var(--font-display);
-  font-variation-settings: "wdth" 125;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1;
+/* ── Landing: hover ─────────────────────────────────────────────
+   Audience columns: an amber rule draws across the top.
+   Steps: the number "switches on". */
+.audience {
+  position: relative;
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--border-subtle);
+  transition: transform 0.25s ease;
 }
-
-/* ── Diagonal hatch for missing/untracked data ──────────────── */
-.hatch {
-  background-image: repeating-linear-gradient(
-    135deg,
-    rgba(107, 114, 128, 0.3) 0 2px,
-    transparent 2px 7px
-  );
-}
-
-/* ── Primary Button ─────────────────────────────────────────── */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--text-primary);
-  color: #FFFFFF;
-  font-weight: 700;
-  font-size: 0.875rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.625rem;
-  border: 1.5px solid var(--border-strong);
-  box-shadow: var(--shadow-btn);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  cursor: pointer;
-}
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-btn-hover);
-}
-.btn-primary:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ── Amber Brand Button ─────────────────────────────────────── */
-.btn-amber {
+.audience::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -2px;
+  height: 2px;
+  width: 100%;
   background: var(--amber-500);
-  color: var(--text-primary);
-  border-color: var(--amber-700);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
 }
-.btn-amber:hover:not(:disabled) {
-  background: var(--amber-600);
+.audience:hover { transform: translateY(-3px); }
+.audience:hover::before { transform: scaleX(1); }
+
+.step-num {
+  transition: background-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.step:hover .step-num {
+  background: var(--amber-400);
+  box-shadow: 0 0 0 5px rgba(251, 191, 36, 0.25), 0 0 18px 2px rgba(251, 191, 36, 0.45);
+  transform: scale(1.08);
+}
+.step-body { transition: transform 0.25s ease; }
+.step:hover .step-body { transform: translateX(3px); }
+
+/* ── Landing: fade in on scroll ─────────────────────────────────
+   Content is visible by default; ScrollReveal only hides what is still
+   below the fold once JS is running, so nothing is lost without it. */
+.reveal {
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.reveal-pending {
+  opacity: 0;
+  transform: translateY(18px);
 }
 
-/* ── Ghost Button ───────────────────────────────────────────── */
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: transparent;
-  color: var(--text-secondary);
-  font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  border: 1.5px solid var(--border-default);
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
-  cursor: pointer;
-}
-.btn-ghost:hover:not(:disabled) {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-  background: var(--bg-subtle);
+/* Some windows in the sign-in scene switch off and on, slowly. */
+.scene-flicker { animation: scene-flicker 9s ease-in-out infinite; }
+@keyframes scene-flicker {
+  0%, 40%, 100% { opacity: 1; }
+  45%, 70%      { opacity: 0.15; }
 }
 
-/* ── Section Pill Badges ────────────────────────────────────── */
-.section-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  border-radius: 9999px;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  border: 1.5px solid var(--border-default);
-  background: var(--bg-subtle);
-  color: var(--text-secondary);
+/* ── Bulb buddy (homepage mascot) ───────────────────────────── */
+.bulb-body { animation: buddy-float 4.5s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
+.bulb-body.is-dizzy { animation: buddy-wobble 0.5s ease-in-out 3; }
+.bulb-bounce { animation: buddy-bounce 0.45s cubic-bezier(0.3, 1.6, 0.5, 1); transform-origin: 50% 90%; }
+
+.buddy-glass { fill: var(--buddy-off-glass); stroke: var(--border-strong); transition: fill 0.25s ease; }
+.bulb-body.is-lit .buddy-glass { fill: url(#buddy-glass-lit); animation: buddy-on 0.4s linear; }
+.buddy-base { fill: #C9CED6; stroke: var(--border-strong); }
+.buddy-glow { opacity: 0; transform-origin: 110px 92px; transition: opacity 0.35s ease; }
+.bulb-body.is-lit .buddy-glow { opacity: 1; animation: buddy-pulse 3.2s ease-in-out infinite; }
+
+.buddy-eye { transform-box: fill-box; transform-origin: center; transition: transform 0.12s ease; }
+.buddy-cheeks ellipse { fill: #F9A8B8; opacity: 0; transition: opacity 0.25s ease; }
+.buddy-cheeks.is-on ellipse { opacity: 0.75; }
+.buddy-swirl { animation: buddy-spin 0.8s linear infinite; }
+.buddy-zzz text { opacity: 0; animation: buddy-zzz 2.4s ease-in-out infinite; }
+.buddy-zzz text:nth-child(2) { animation-delay: 0.5s; }
+.buddy-zzz text:nth-child(3) { animation-delay: 1s; }
+.bulb-speech { animation: buddy-speech 0.25s cubic-bezier(0.3, 1.5, 0.5, 1); }
+
+@keyframes buddy-float  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes buddy-wobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-9deg); } 75% { transform: rotate(9deg); } }
+@keyframes buddy-bounce { 0% { transform: scale(1); } 35% { transform: scale(1.06, 0.92); } 70% { transform: scale(0.97, 1.04); } 100% { transform: scale(1); } }
+@keyframes buddy-on {
+  0%   { fill: var(--buddy-off-glass); }
+  30%  { fill: #FDE68A; }
+  50%  { fill: var(--buddy-off-glass); }
+  75%  { fill: #FDE68A; }
 }
+@keyframes buddy-pulse  { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes buddy-spin   { to { transform: rotate(360deg); } }
+@keyframes buddy-zzz    { 0% { opacity: 0; transform: translateY(6px); } 30%, 60% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+@keyframes buddy-speech { from { opacity: 0; transform: translateY(6px) scale(0.9); } to { opacity: 1; transform: none; } }
 
 /* ── Focus ──────────────────────────────────────────────────── */
 :focus-visible {
@@ -356,14 +541,14 @@ html[data-splash="seen"] .splash { display: none; }
 }
 @keyframes splash-scene {
   0%, 46% { background: #111318; opacity: 1; }
-  62%     { background: #FAF8F5; opacity: 1; }
-  84%     { background: #FAF8F5; opacity: 1; }
-  100%    { background: #FAF8F5; opacity: 0; visibility: hidden; }
+  62%     { background: var(--bg-canvas); opacity: 1; }
+  84%     { background: var(--bg-canvas); opacity: 1; }
+  100%    { background: var(--bg-canvas); opacity: 0; visibility: hidden; }
 }
 @keyframes splash-ink {
   0%, 46% { color: #ECE8E0; opacity: 1; }
-  62%, 76% { color: #1A1E29; opacity: 1; transform: none; }
-  90%, 100% { color: #1A1E29; opacity: 0; transform: scale(0.97); }
+  62%, 76% { color: var(--text-primary); opacity: 1; transform: none; }
+  90%, 100% { color: var(--text-primary); opacity: 0; transform: scale(0.97); }
 }
 /* The flicker: on at 36%, dips at 39%, steady from 42%. */
 @keyframes splash-glass {
@@ -371,7 +556,7 @@ html[data-splash="seen"] .splash { display: none; }
   36%       { fill: #FDE68A; stroke: #5A5F6B; }
   39%       { fill: #6B5F3A; stroke: #5A5F6B; }
   42%, 46%  { fill: #FDE68A; stroke: #5A5F6B; }
-  62%, 100% { fill: #FDE68A; stroke: #1A1E29; }
+  62%, 100% { fill: #FDE68A; stroke: var(--border-strong); }
 }
 @keyframes splash-filament {
   0%, 35%  { stroke: #3A3E48; }
@@ -381,7 +566,7 @@ html[data-splash="seen"] .splash { display: none; }
 }
 @keyframes splash-base {
   0%, 46%   { fill: #2A2D35; stroke: #5A5F6B; }
-  62%, 100% { fill: #D1FAE5; stroke: #1A1E29; }
+  62%, 100% { fill: #D1FAE5; stroke: var(--border-strong); }
 }
 @keyframes splash-glow {
   0%, 35% { opacity: 0; transform: scale(0.3); }
