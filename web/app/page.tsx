@@ -263,9 +263,25 @@ export default function LandingPage() {
       </main>
 
       <footer className="border-t border-[var(--border-subtle)]">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-[var(--text-muted)] md:px-8">
-          <LumeLogo size="sm" />
-          <p>Readings in this demo are simulated.</p>
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-6 px-4 py-8 text-sm text-[var(--text-muted)] md:px-8">
+          <div className="flex items-center gap-4">
+            <LumeLogo size="sm" />
+            <p>Readings in this demo are simulated.</p>
+          </div>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/privacy"
+              className="text-xs font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] hover:underline"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="text-xs font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] hover:underline"
+            >
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
